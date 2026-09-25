@@ -19,10 +19,6 @@ from .routers import pipeline, clients, analysis, auth, tasks, interview, person
 async def lifespan(app: FastAPI):
     # Startup: logging, db connections if needed
     logging.info("Starting up Aggregation Engine...")
-    print("--- LIFESPAN STARTUP ---")
-    for route in app.routes:
-        print(f"ROUTE: {route.path}")
-    print("------------------------")
     yield
     # Shutdown: Clean up resources
     print("--- LIFESPAN SHUTDOWN ---")
@@ -39,11 +35,6 @@ app = FastAPI(
 @app.on_event("startup")
 async def startup_event():
     """Validate configuration and log startup status."""
-    print("--- REGISTERED ROUTES ---")
-    for route in app.routes:
-        print(f"ROUTE: {route.path}")
-    print("-------------------------")
-    
     # Validate critical configuration
     print("\n--- CONFIGURATION CHECK ---")
     
@@ -135,14 +126,3 @@ async def health_check():
         }
     }
 
-@app.get("/debug-env", tags=["Health"])
-async def debug_env():
-    """Debug environment variables."""
-    key = settings.OPENAI_API_KEY
-    return {
-        "status": "debug",
-        "openai_key_present": bool(key),
-        "openai_key_prefix": key[:5] + "..." if key else "MISSING",
-        "gemini_key_present": bool(settings.GEMINI_API_KEY),
-        "gemini_key_prefix": settings.GEMINI_API_KEY[:5] + "..." if settings.GEMINI_API_KEY else "MISSING"
-    }
