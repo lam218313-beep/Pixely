@@ -1,12 +1,13 @@
 
 import logging
 import json
-from fastapi import APIRouter, HTTPException, BackgroundTasks
+from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks
 from pydantic import BaseModel
 from typing import Optional, List, Any
 
 from ..config import settings
 from ..services.database import db
+from ..services.auth_service import verify_client_access
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/brand", tags=["Brand Identity"])
@@ -41,7 +42,7 @@ class BrandIdentity(BaseModel):
 # --- Endpoints ---
 
 @router.get("/{client_id}")
-async def get_brand(client_id: str):
+async def get_brand(client_id: str, _user: dict = Depends(verify_client_access)):
     client = db.get_client(client_id)
     identity = db.get_brand_identity(client_id)
     
@@ -78,7 +79,7 @@ async def get_brand(client_id: str):
     return {"status": "success", "data": identity, "brand_name": brand_name}
 
 @router.put("/{client_id}")
-async def update_brand(client_id: str, identity: BrandIdentity):
+async def update_brand(client_id: str, identity: BrandIdentity, _user: dict = Depends(verify_client_access)):
     try:
         data = identity.model_dump()
         db.update_brand_identity(client_id, data)

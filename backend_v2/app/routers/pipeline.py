@@ -1,10 +1,11 @@
 
 import logging
 from typing import Optional
-from fastapi import APIRouter, BackgroundTasks, HTTPException
+from fastapi import APIRouter, Depends, BackgroundTasks, HTTPException
 from pydantic import BaseModel
 from ..services import apify_service, gemini_service, aggregator
 from ..services.database import db
+from ..services.auth_service import get_current_user
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/pipeline", tags=["Pipeline"])
@@ -28,7 +29,10 @@ class PipelineStatusResponse(BaseModel):
 
 # Endpoints
 @router.post("/start", response_model=PipelineStartResponse)
-async def start_pipeline(request: PipelineStartRequest, background_tasks: BackgroundTasks):
+async def start_pipeline(request: PipelineStartRequest, background_tasks: BackgroundTasks, user: dict = Depends(get_current_user)):
+    if user.get("role") != "admin" and user.get("client_id") != request.client_id:
+        raise HTTPException(status_code=403, detail="Not authorized for this client")
+
     import uuid
     report_id = str(uuid.uuid4())
     

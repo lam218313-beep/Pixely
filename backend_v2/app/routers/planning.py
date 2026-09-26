@@ -1,12 +1,13 @@
 
 import logging
 from typing import List, Dict, Any, Optional
-from fastapi import APIRouter, HTTPException, BackgroundTasks, Body
+from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks, Body
 from pydantic import BaseModel
 from datetime import datetime
 
 from ..services.database import db
 from ..services import content_generator
+from ..services.auth_service import get_current_user, verify_client_access
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/planning", tags=["Planning"])
@@ -30,11 +31,14 @@ class SaveMonthRequest(BaseModel):
 # --- Endpoints ---
 
 @router.post("/generate-month")
-async def generate_monthly_plan(request: GenerateMonthRequest):
+async def generate_monthly_plan(request: GenerateMonthRequest, user: dict = Depends(get_current_user)):
     """
     Generate a monthly content plan based on Strategy and Quotas.
     Returns the generated tasks for preview (does not save to DB immediately).
     """
+    if user.get("role") != "admin" and user.get("client_id") != request.client_id:
+        raise HTTPException(status_code=403, detail="Not authorized for this client")
+
     try:
         tasks = await content_generator.generate_monthly_plan(
             client_id=request.client_id,
@@ -49,10 +53,13 @@ async def generate_monthly_plan(request: GenerateMonthRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.post("/save-month")
-async def save_monthly_plan(request: SaveMonthRequest):
+async def save_monthly_plan(request: SaveMonthRequest, user: dict = Depends(get_current_user)):
     """
     Save the confirmed monthly plan (list of tasks) to the database.
     """
+    if user.get("role") != "admin" and user.get("client_id") != request.client_id:
+        raise HTTPException(status_code=403, detail="Not authorized for this client")
+
     try:
         await content_generator.save_monthly_plan(request.client_id, request.tasks)
         return {"status": "saved", "count": len(request.tasks)}
@@ -62,7 +69,7 @@ async def save_monthly_plan(request: SaveMonthRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.get("/{client_id}/history")
-async def get_planning_history(client_id: str, month_group: Optional[str] = None):
+async def get_planning_history(client_id: str, month_group: Optional[str] = None, _user: dict = Depends(verify_client_access)):
     """
     Get planning history (tasks) for a specific month or all time.
     """

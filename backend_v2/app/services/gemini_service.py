@@ -277,12 +277,7 @@ async def generate_interpretations(aggregated_json: dict, context: dict = None) 
     Takes the aggregated Q1-Q10 data AND full client context (Interview + Brand) 
     to generate human-readable explanations via REST.
     """
-    print("🔍 [DEBUG] generate_interpretations CALLED")
-    print(f"🔍 [DEBUG] OPENAI_API_KEY present: {bool(settings.OPENAI_API_KEY)}")
-    print(f"🔍 [DEBUG] OPENAI_API_KEY prefix: {settings.OPENAI_API_KEY[:10] if settings.OPENAI_API_KEY else 'NONE'}...")
-    
     if not settings.OPENAI_API_KEY:
-        print("❌ [DEBUG] OPENAI_API_KEY NOT CONFIGURED - RETURNING EMPTY")
         logger.warning("OPENAI_API_KEY not configured, skipping interpretations")
         return {}
     

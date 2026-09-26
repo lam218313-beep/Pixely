@@ -1,6 +1,7 @@
 
 
 import logging
+from datetime import datetime, timezone
 from typing import Optional, Any
 from supabase import create_client, Client
 from ..config import settings
@@ -53,7 +54,7 @@ class SupabaseService:
             "id": report_id,
             "client_id": client_id,
             "status": status,
-            "created_at": "now()"
+            "created_at": datetime.now(timezone.utc).isoformat()
         }
         try:
             self.client.table("analysis_reports").insert(data).execute()
@@ -175,20 +176,6 @@ class SupabaseService:
             logger.error(f"DB List Brand Users Error: {e}")
             return []
 
-    def create_user_profile(self, profile_data: dict):
-        """Create a user profile in the users table."""
-        if not self.client:
-            raise Exception("Database client not initialized")
-        try:
-            response = self.client.table("users").insert(profile_data).execute()
-            logger.info(f"Created user profile: {profile_data.get('email')}")
-            return response.data
-        except Exception as e:
-            logger.error(f"DB Create User Profile Error: {e}")
-            raise e
-
-
-
     # ============================================================================
     # Users
     # ============================================================================
@@ -197,7 +184,6 @@ class SupabaseService:
         if not self.client: return None
         try:
             response = self.client.table("users").select("*").eq("email", email).limit(1).execute()
-            print("DB RESPONSE", response) # Debug
             if response.data:
                 return response.data[0]
         except Exception as e:
@@ -350,7 +336,7 @@ class SupabaseService:
             payload = {
                 "client_id": client_id,
                 "data": data,
-                "updated_at": "now()"
+                "updated_at": datetime.now(timezone.utc).isoformat()
             }
             if file_url:
                 payload["file_url"] = file_url
@@ -415,22 +401,35 @@ class SupabaseService:
         if not self.client: return
         try:
             logger.info(f"💾 Syncing strategy nodes for client_id: {client_id} ({len(nodes)} nodes)")
-            
+
+            # 0. Keep a copy of the current nodes so we can restore them if the
+            #    insert below fails — delete+insert isn't atomic over the REST
+            #    API, so without this a failed insert would leave the client
+            #    with an empty strategy tree.
+            backup_response = self.client.table("strategy_nodes").select("*").eq("client_id", client_id).execute()
+            backup_nodes = backup_response.data or []
+
             # 1. Delete all current nodes for this client
-            delete_response = self.client.table("strategy_nodes").delete().eq("client_id", client_id).execute()
+            self.client.table("strategy_nodes").delete().eq("client_id", client_id).execute()
             logger.info(f"🗑️ Deleted existing nodes for client {client_id}")
-            
+
             # 2. Bulk Insert new nodes
             if nodes:
                 # Ensure client_id is set on all
                 for n in nodes:
                     n["client_id"] = client_id
-                
-                self.client.table("strategy_nodes").insert(nodes).execute()
-                logger.info(f"✅ Strategy nodes synced for {client_id} ({len(nodes)} nodes)")
+
+                try:
+                    self.client.table("strategy_nodes").insert(nodes).execute()
+                    logger.info(f"✅ Strategy nodes synced for {client_id} ({len(nodes)} nodes)")
+                except Exception as insert_err:
+                    logger.error(f"❌ Insert failed for {client_id}, restoring previous {len(backup_nodes)} nodes: {insert_err}")
+                    if backup_nodes:
+                        self.client.table("strategy_nodes").insert(backup_nodes).execute()
+                    raise
             else:
                 logger.info(f"ℹ️ No nodes to insert for client {client_id}")
-                
+
         except Exception as e:
             logger.error(f"❌ DB Sync Strategy Error for client {client_id}: {e}")
             raise e

@@ -73,3 +73,16 @@ async def require_admin(user: dict = Depends(get_current_user)) -> dict:
     if user.get("role") != "admin":
         raise HTTPException(status_code=403, detail="Admin access required")
     return user
+
+
+async def verify_client_access(client_id: str, user: dict = Depends(get_current_user)) -> dict:
+    """Path-param dependency: the caller must be admin or belong to this client_id.
+
+    FastAPI binds `client_id` here from the path automatically as long as the
+    route itself declares a `{client_id}` path segment. For endpoints where
+    client_id arrives in the request body instead, check it manually with
+    `get_current_user` + the same role/client_id comparison used here.
+    """
+    if user.get("role") != "admin" and user.get("client_id") != client_id:
+        raise HTTPException(status_code=403, detail="Not authorized for this client")
+    return user

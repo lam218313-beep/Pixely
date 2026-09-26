@@ -9,9 +9,10 @@ import logging
 from typing import Optional, Any
 from datetime import datetime
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from ..services.database import db
+from ..services.auth_service import require_admin, verify_client_access
 
 logger = logging.getLogger(__name__)
 
@@ -60,13 +61,13 @@ class ClientStatus(BaseModel):
 # Endpoints
 # ============================================================================
 
-@router.get("", response_model=list[ClientResponse])
+@router.get("", response_model=list[ClientResponse], dependencies=[Depends(require_admin)])
 async def list_clients():
-    """List all clients from Supabase."""
+    """List all clients from Supabase. Admin only — this is a cross-tenant listing."""
     return db.list_clients()
 
 
-@router.post("", response_model=ClientResponse)
+@router.post("", response_model=ClientResponse, dependencies=[Depends(require_admin)])
 async def create_client(request: ClientCreate):
     """Create a new client in Supabase."""
     import uuid
@@ -92,7 +93,7 @@ async def create_client(request: ClientCreate):
 
 
 @router.get("/{client_id}", response_model=ClientResponse)
-async def get_client(client_id: str):
+async def get_client(client_id: str, _user: dict = Depends(verify_client_access)):
     """Get a specific client from Supabase."""
     client = db.get_client(client_id)
     if not client:
@@ -101,7 +102,7 @@ async def get_client(client_id: str):
 
 
 @router.put("/{client_id}", response_model=ClientResponse)
-async def update_client(client_id: str, request: ClientUpdate):
+async def update_client(client_id: str, request: ClientUpdate, _user: dict = Depends(verify_client_access)):
     """Update client information."""
     existing = db.get_client(client_id)
     if not existing:
@@ -121,7 +122,7 @@ async def update_client(client_id: str, request: ClientUpdate):
 
 
 @router.get("/{client_id}/status", response_model=ClientStatus)
-async def get_client_status(client_id: str):
+async def get_client_status(client_id: str, _user: dict = Depends(verify_client_access)):
     """Get client setup status (interview, brand, analysis readiness)."""
     # Verify client exists
     client = db.get_client(client_id)

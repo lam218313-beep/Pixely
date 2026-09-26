@@ -1,9 +1,10 @@
 
 import logging
 from typing import List, Optional
-from fastapi import APIRouter, HTTPException, BackgroundTasks
+from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks
 from pydantic import BaseModel
 from ..services.database import db
+from ..services.auth_service import get_current_user, verify_client_access
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/strategy", tags=["Strategy"])
@@ -30,7 +31,7 @@ class StrategySyncRequest(BaseModel):
 # --- Endpoints ---
 
 @router.get("/{client_id}", response_model=List[dict])
-async def get_strategy(client_id: str):
+async def get_strategy(client_id: str, _user: dict = Depends(verify_client_access)):
     """
     Get the full strategy map for a client.
     """
@@ -58,12 +59,15 @@ async def get_strategy(client_id: str):
     return frontend_nodes
 
 @router.post("/sync")
-async def sync_strategy(request: StrategySyncRequest):
+async def sync_strategy(request: StrategySyncRequest, user: dict = Depends(get_current_user)):
     """
     Save the full state of the strategy map.
-    NOTE: Strategy v2 does NOT auto-create tasks effectively. 
+    NOTE: Strategy v2 does NOT auto-create tasks effectively.
     Planning is now handled by the Planning Module.
     """
+    if user.get("role") != "admin" and user.get("client_id") != request.client_id:
+        raise HTTPException(status_code=403, detail="Not authorized for this client")
+
     logger.info(f"💾 POST /strategy/sync for client_id: {request.client_id} ({len(request.nodes)} nodes)")
     
     # 1. Transform Frontend camelCase to DB snake_case for Strategy Nodes

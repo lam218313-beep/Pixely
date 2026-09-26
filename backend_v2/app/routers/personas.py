@@ -1,12 +1,13 @@
 
 import logging
 import json
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 
 from ..config import settings
 from ..services.database import db
 from ..services.gemini_service import _call_gemini
+from ..services.auth_service import verify_client_access
 
 router = APIRouter(prefix="/clients", tags=["Personas"])
 logger = logging.getLogger(__name__)
@@ -18,7 +19,7 @@ class PersonaRequest(BaseModel):
     business_context: dict = {}  # Contains businessName, history, vision, differentiator
 
 @router.post("/{client_id}/personas")
-async def generate_personas(client_id: str, request: PersonaRequest):
+async def generate_personas(client_id: str, request: PersonaRequest, _user: dict = Depends(verify_client_access)):
     """
     Generates Anti-Persona and Ideal Persona based on Interview Data.
     Uses the SAME fields as the regular customer profile.
@@ -139,7 +140,7 @@ async def generate_personas(client_id: str, request: PersonaRequest):
         return result
 
     except json.JSONDecodeError as e:
-        logger.error(f"JSON parsing error: {e}. Response was: {response_text[:500] if response_text else 'Empty'}")
+        logger.error(f"JSON parsing error for client {client_id}: {e}")
         raise HTTPException(status_code=500, detail=f"Error parsing AI response: {e}")
     except Exception as e:
         logger.error(f"Error generating personas: {e}", exc_info=True)

@@ -156,8 +156,8 @@ async def generate_monthly_plan(
     # 3. Build Enriched Strategy Hierarchy
     # Group nodes by type
     main_nodes = [n for n in nodes if n.get("type") == "main"]
-    objective_nodes = [n for n in nodes if n.get("type") == "secondary" and n.get("parentId") in [m["id"] for m in main_nodes]]
-    strategy_nodes = [n for n in nodes if n.get("type") == "secondary" and n.get("parentId") not in [m["id"] for m in main_nodes]]
+    objective_nodes = [n for n in nodes if n.get("type") == "secondary" and n.get("parent_id") in [m["id"] for m in main_nodes]]
+    strategy_nodes = [n for n in nodes if n.get("type") == "secondary" and n.get("parent_id") not in [m["id"] for m in main_nodes]]
     
     # Build hierarchy with full Phase 1 data
     hierarchy = {
@@ -167,7 +167,7 @@ async def generate_monthly_plan(
     
     for obj in objective_nodes:
         # Find strategies for this objective
-        obj_strategies = [s for s in strategy_nodes if s.get("parentId") == obj["id"]]
+        obj_strategies = [s for s in strategy_nodes if s.get("parent_id") == obj["id"]]
         
         objective_data = {
             "id": obj["id"],
@@ -178,7 +178,7 @@ async def generate_monthly_plan(
         
         for strat in obj_strategies:
             # Find concepts for this strategy
-            strat_concepts = [c for c in concepts if c.get("parentId") == strat["id"]]
+            strat_concepts = [c for c in concepts if c.get("parent_id") == strat["id"]]
             
             strategy_data = {
                 "id": strat["id"],

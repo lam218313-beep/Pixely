@@ -2,8 +2,9 @@
 import logging
 import json
 from typing import Optional
-from fastapi import APIRouter, UploadFile, File, Form, HTTPException, BackgroundTasks
+from fastapi import APIRouter, Depends, UploadFile, File, Form, HTTPException, BackgroundTasks
 from ..services.database import db
+from ..services.auth_service import verify_client_access
 
 logger = logging.getLogger(__name__)
 
@@ -13,7 +14,8 @@ router = APIRouter(prefix="/clients", tags=["Interview"])
 async def save_interview_data(
     client_id: str,
     data: str = Form(...),  # Expecting JSON string
-    file: Optional[UploadFile] = File(None)
+    file: Optional[UploadFile] = File(None),
+    _user: dict = Depends(verify_client_access)
 ):
     """
     Receives interview data as JSON string and an optional file.
@@ -66,7 +68,7 @@ async def save_interview_data(
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.get("/{client_id}/interview")
-async def get_interview_data(client_id: str):
+async def get_interview_data(client_id: str, _user: dict = Depends(verify_client_access)):
     """
     Retrieves the latest interview data.
     """
