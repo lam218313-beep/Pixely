@@ -1,5 +1,6 @@
 import React, { useState, useRef, useMemo, useCallback } from 'react';
 import { TrendingUp, Activity } from 'lucide-react';
+import { formatInterpretationHtml } from '../../utils/formatInterpretation';
 
 interface WeeklyPoint {
   fecha_semana: string;
@@ -262,7 +263,7 @@ export const CardLabsQ8_TemporalEvolution: React.FC<CardLabsQ8_TemporalEvolution
           <div className="flex-1 overflow-y-auto custom-scrollbar">
             {data.interpretation_text ? (
               <p className="text-sm text-gray-700 leading-relaxed px-1 text-justify"
-                dangerouslySetInnerHTML={{ __html: data.interpretation_text.replace(/\*\*(.*?)\*\*/g, '<strong class="text-primary-600">$1</strong>') }}
+                dangerouslySetInnerHTML={{ __html: formatInterpretationHtml(data.interpretation_text) }}
               />
             ) : (
               <table className="w-full text-left border-collapse">

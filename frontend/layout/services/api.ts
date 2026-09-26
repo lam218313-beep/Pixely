@@ -276,7 +276,7 @@ export function setStoredUser(user: AuthResponse): void {
   localStorage.setItem(USER_KEY, JSON.stringify(user));
 }
 
-function getAuthHeaders(): HeadersInit {
+export function getAuthHeaders(): HeadersInit {
   const token = getStoredToken();
   return token ? { 'Authorization': `Bearer ${token}` } : {};
 }
@@ -321,6 +321,7 @@ export async function login(email: string, password: string): Promise<AuthRespon
  */
 export function logout(): void {
   clearStoredToken();
+  localStorage.removeItem('clientId');
 }
 
 /**

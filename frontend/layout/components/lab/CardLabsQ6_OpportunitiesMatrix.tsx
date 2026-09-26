@@ -1,5 +1,6 @@
 import React, { useState, useRef, useMemo, useCallback } from 'react';
 import { Target, Zap, ArrowRight, MousePointer2, MoveUpRight, CheckCircle2, TrendingUp } from 'lucide-react';
+import { formatInterpretationHtml } from '../../utils/formatInterpretation';
 
 interface Opportunity {
   oportunidad: string;
@@ -241,7 +242,7 @@ export const CardLabsQ6_OpportunitiesMatrix: React.FC<CardLabsQ6_OpportunitiesMa
           <div className="flex-1 overflow-y-auto custom-scrollbar">
             {data.interpretation_text ? (
               <p className="text-sm text-gray-700 leading-relaxed px-1 text-justify"
-                dangerouslySetInnerHTML={{ __html: data.interpretation_text.replace(/\*\*(.*?)\*\*/g, '<strong class="text-primary-600">$1</strong>') }}
+                dangerouslySetInnerHTML={{ __html: formatInterpretationHtml(data.interpretation_text) }}
               />
             ) : (
               <div className="flex flex-col gap-3">
