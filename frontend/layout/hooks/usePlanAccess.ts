@@ -1,52 +1,11 @@
 /**
  * usePlanAccess Hook
- * 
- * Provides plan-based access control for features and panels
+ *
+ * Subscription-tier gating has been removed — every authenticated user now
+ * has access to every feature (the backend no longer has a concept of
+ * plans). Kept as a hook, unchanged shape, so existing callers don't need
+ * to be rewritten one by one.
  */
-
-import { useAuth } from '../contexts/AuthContext';
-
-// Define which plans have access to which features
-// See PLAN_ACCESS.md for documentation
-const FEATURE_ACCESS: Record<string, string[]> = {
-    // Workflow Panels
-    entrevista: ['free_trial', 'lite', 'basic', 'pro', 'premium'],
-    brand: ['basic', 'pro', 'premium'],
-    analisis_basico: ['free_trial', 'lite', 'basic', 'pro', 'premium'],
-    analisis_completo: ['basic', 'pro', 'premium'],
-    estrategia: ['pro', 'premium'],
-    validacion: ['pro', 'premium'],
-    planificacion: ['basic', 'pro', 'premium'],
-
-    // Benefits
-    benefit_1: ['lite', 'basic', 'pro', 'premium'],
-    benefit_2: ['basic', 'pro', 'premium'],
-    benefit_3: ['basic', 'pro', 'premium'],
-    benefit_4: ['pro', 'premium'],
-    benefit_5: ['premium'],
-};
-
-// Human-readable plan names
-const PLAN_NAMES: Record<string, string> = {
-    free_trial: 'Prueba Gratis',
-    lite: 'Lite',
-    basic: 'Basic',
-    pro: 'Pro',
-    premium: 'Premium',
-};
-
-// Get minimum required plan for a feature
-function getMinimumPlan(feature: string): string {
-    const plans = FEATURE_ACCESS[feature];
-    if (!plans || plans.length === 0) return 'premium';
-
-    // Return the first (lowest) plan in the access list
-    const planOrder = ['free_trial', 'lite', 'basic', 'pro', 'premium'];
-    for (const plan of planOrder) {
-        if (plans.includes(plan)) return plan;
-    }
-    return 'premium';
-}
 
 interface PlanAccessResult {
     hasAccess: boolean;
@@ -56,44 +15,24 @@ interface PlanAccessResult {
     currentPlanName: string;
 }
 
-export function usePlanAccess(feature: string): PlanAccessResult {
-    const { user } = useAuth();
-
-    // Get user's plan and check expiration
-    const rawPlan = (user?.plan || 'free_trial').toLowerCase();
-    const expiresAt = user?.planExpiresAt;
-
-    // Check if plan has expired
-    const isExpired = expiresAt ? new Date(expiresAt) < new Date() : false;
-
-    // If expired, treat as free_trial
-    const currentPlan = isExpired ? 'free_trial' : rawPlan;
-
-    const allowedPlans = FEATURE_ACCESS[feature] || [];
-    const hasAccess = allowedPlans.includes(currentPlan);
-    const requiredPlan = getMinimumPlan(feature);
-
+export function usePlanAccess(_feature: string): PlanAccessResult {
     return {
-        hasAccess,
-        requiredPlan,
-        requiredPlanName: PLAN_NAMES[requiredPlan] || requiredPlan,
-        currentPlan,
-        currentPlanName: PLAN_NAMES[currentPlan] || currentPlan,
+        hasAccess: true,
+        requiredPlan: 'none',
+        requiredPlanName: 'Sin restricción',
+        currentPlan: 'none',
+        currentPlanName: 'Sin restricción',
     };
 }
 
-// Helper to check benefit access (considering both plan and individual grants)
-export function useBenefitAccess(benefitId: string): PlanAccessResult & { isGranted: boolean } {
-    const { user } = useAuth();
-    const planAccess = usePlanAccess(benefitId);
-
-    // Check if benefit is individually granted to user
-    const isGranted = user?.benefits?.includes(benefitId) || false;
-
+export function useBenefitAccess(_benefitId: string): PlanAccessResult & { isGranted: boolean } {
     return {
-        ...planAccess,
-        hasAccess: planAccess.hasAccess || isGranted,
-        isGranted,
+        hasAccess: true,
+        requiredPlan: 'none',
+        requiredPlanName: 'Sin restricción',
+        currentPlan: 'none',
+        currentPlanName: 'Sin restricción',
+        isGranted: true,
     };
 }
 

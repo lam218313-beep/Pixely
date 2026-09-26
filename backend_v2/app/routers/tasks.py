@@ -3,6 +3,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from typing import List, Optional
 from pydantic import BaseModel
 from ..services.database import db
+from ..services.auth_service import get_current_user
 
 router = APIRouter(
     prefix="/api/v1",
@@ -79,10 +80,18 @@ async def get_tasks(client_id: str):
     }
 
 @router.patch("/tasks/{task_id}")
-async def update_task_status(task_id: str, update: TaskUpdate):
+async def update_task_status(task_id: str, update: TaskUpdate, user: dict = Depends(get_current_user)):
     if not db.client:
         raise HTTPException(status_code=500, detail="DB not connected")
-        
+
+    # Ownership check: only an admin or a user belonging to the task's own
+    # client_id may update it (previously anyone could update any task_id).
+    existing_task = db.get_task(task_id)
+    if not existing_task:
+        raise HTTPException(status_code=404, detail="Task not found")
+    if user.get("role") != "admin" and existing_task.get("client_id") != user.get("client_id"):
+        raise HTTPException(status_code=403, detail="Not authorized to modify this task")
+
     try:
         # Update status
         updated = db.client.table("tasks").update({"status": update.status}).eq("id", task_id).execute()

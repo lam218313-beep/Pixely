@@ -5,7 +5,7 @@ Endpoints for brand-centric admin panel.
 Brands contain users and have plans that define accessible modules.
 """
 
-from fastapi import APIRouter, HTTPException, BackgroundTasks
+from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks
 from pydantic import BaseModel
 from typing import Optional, List
 from datetime import datetime
@@ -13,24 +13,21 @@ import logging
 
 from ..services.database import db
 from ..services import gemini_service, aggregator
+from ..services.auth_service import require_admin
 
 
 
 logger = logging.getLogger(__name__)
 
-router = APIRouter(prefix="/api/admin", tags=["Admin"])
+# Every endpoint in this router requires an authenticated admin — see finding
+# that this router previously had zero role checks at all.
+router = APIRouter(prefix="/api/admin", tags=["Admin"], dependencies=[Depends(require_admin)])
 
 # =============================================================================
-# PLAN CONFIGURATION
+# MODULES — every brand gets every module now; there are no subscription tiers.
 # =============================================================================
 
-PLAN_MODULES = {
-    "free_trial": ["analysis", "schedule"],
-    "lite": ["interview", "analysis", "schedule"],
-    "basic": ["interview", "manual", "analysis", "schedule"],
-    "pro": ["interview", "manual", "analysis", "strategy", "schedule"],
-    "premium": ["interview", "manual", "analysis", "strategy", "schedule"]
-}
+ALL_MODULES = ["interview", "manual", "analysis", "strategy", "schedule"]
 
 MODULE_INFO = {
     "interview": {"name": "Entrevista", "icon": "clipboard-list"},
@@ -46,12 +43,10 @@ MODULE_INFO = {
 
 class BrandCreate(BaseModel):
     nombre: str
-    plan: str = "free_trial"
 
 class BrandResponse(BaseModel):
     id: str
     nombre: str
-    plan: str
     created_at: Optional[str] = None
     user_count: int = 0
     modules: List[str] = []
@@ -97,17 +92,13 @@ async def list_brands():
         # Count users for this brand
         users = db.list_brand_users(brand["id"]) if hasattr(db, 'list_brand_users') else []
         user_count = len(users) if users else 0
-        
-        plan = brand.get("plan", "free_trial")
-        modules = PLAN_MODULES.get(plan, [])
-        
+
         result.append(BrandResponse(
             id=brand["id"],
             nombre=brand.get("nombre", "Sin nombre"),
-            plan=plan,
             created_at=brand.get("created_at"),
             user_count=user_count,
-            modules=modules
+            modules=ALL_MODULES
         ))
     
     return result
@@ -117,30 +108,25 @@ async def list_brands():
 async def create_brand(request: BrandCreate):
     """Create a new brand."""
     import uuid
-    
-    if request.plan not in PLAN_MODULES:
-        raise HTTPException(status_code=400, detail=f"Invalid plan. Must be one of: {list(PLAN_MODULES.keys())}")
-    
+
     brand_id = str(uuid.uuid4())
     brand_data = {
         "id": brand_id,
         "nombre": request.nombre,
-        "plan": request.plan,
         "is_active": True,
         "created_at": datetime.utcnow().isoformat()
     }
-    
+
     try:
         db.create_client(brand_data)
         logger.info(f"✅ Created brand: {request.nombre}")
-        
+
         return BrandResponse(
             id=brand_id,
             nombre=request.nombre,
-            plan=request.plan,
             created_at=brand_data["created_at"],
             user_count=0,
-            modules=PLAN_MODULES[request.plan]
+            modules=ALL_MODULES
         )
     except Exception as e:
         logger.error(f"Failed to create brand: {e}")
@@ -153,13 +139,10 @@ async def get_brand_detail(brand_id: str):
     brand = db.get_client(brand_id)
     if not brand:
         raise HTTPException(status_code=404, detail="Brand not found")
-    
-    plan = brand.get("plan", "free_trial")
-    available_modules = PLAN_MODULES.get(plan, [])
-    
+
     # Get module statuses
     modules = []
-    for mod_id in available_modules:
+    for mod_id in ALL_MODULES:
         mod_info = MODULE_INFO.get(mod_id, {})
         status = await get_module_status(brand_id, mod_id)
         modules.append({
@@ -177,50 +160,10 @@ async def get_brand_detail(brand_id: str):
         "brand": {
             "id": brand["id"],
             "nombre": brand.get("nombre"),
-            "plan": plan,
             "created_at": brand.get("created_at")
         },
         "modules": modules,
         "users": users
-    }
-
-
-class PlanUpdateRequest(BaseModel):
-    plan: str
-
-
-@router.patch("/brands/{brand_id}/plan")
-async def update_brand_plan(brand_id: str, request: PlanUpdateRequest):
-    """Update a brand's plan and sync to all its users."""
-    if request.plan not in PLAN_MODULES:
-        raise HTTPException(
-            status_code=400,
-            detail=f"Invalid plan. Must be one of: {list(PLAN_MODULES.keys())}"
-        )
-    
-    # 1. Update brand (clients table)
-    try:
-        db.update_client(brand_id, {"plan": request.plan})
-    except Exception as e:
-        logger.error(f"Failed to update brand plan: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
-    
-    # 2. Sync plan to all users of this brand
-    try:
-        if db.client:
-            db.client.table("users")\
-                .update({"plan": request.plan})\
-                .eq("client_id", brand_id)\
-                .execute()
-            logger.info(f"✅ Plan synced to all users of brand {brand_id}")
-    except Exception as e:
-        logger.warning(f"⚠️ Failed to sync plan to users: {e}")
-    
-    return {
-        "status": "success",
-        "brand_id": brand_id,
-        "plan": request.plan,
-        "modules": PLAN_MODULES[request.plan]
     }
 
 
@@ -292,10 +235,7 @@ async def get_module_status(brand_id: str, module_id: str) -> dict:
         if strategies and len(strategies) > 0:
              return {"status": "ready", "can_execute": True}
         return {"status": "pending", "can_execute": False}
-    
-    elif module_id == "schedule": # Duplicate prevention, removed
-        pass
-    
+
     return {"status": "not_available", "can_execute": False}
 
 
@@ -517,19 +457,15 @@ async def seed_strategy_manually(brand_id: str):
     interview_record = db.get_interview(brand_id)
     interview_data = interview_record.get("data", {}) if interview_record else {}
     
-    # 3. Obtener plan (para saber si generar Tareas o Posts)
     client = db.get_client(brand_id)
     if not client:
         raise HTTPException(status_code=404, detail="Cliente no encontrado")
-        
-    plan_type = client.get("plan", "free_trial")
 
     try:
-        # 4. Generar Árbol con IA (El "Arquitecto")
+        # 3. Generar Árbol con IA (El "Arquitecto")
         strategy_json = await gemini_service.generate_strategic_plan(
             interview_data=interview_data,
-            analysis_json=analysis,
-            plan_type=plan_type
+            analysis_json=analysis
         )
         
         # 5. Convertir JSON a Nodos Visuales (x, y)
@@ -563,8 +499,7 @@ async def reset_brand_strategy(brand_id: str):
             raise HTTPException(status_code=404, detail="Brand not found")
         
         brand_name = brand.get("nombre", "Marca")
-        plan_type = brand.get("plan", "free_trial")
-        
+
         # 2. Get interview data
         interview_data = db.get_interview(brand_id)
         if not interview_data:
@@ -593,10 +528,9 @@ async def reset_brand_strategy(brand_id: str):
         logger.info(f"🤖 Generating AI strategy for {brand_name}")
         strategy_json = await gemini_service.generate_strategic_plan(
             interview_data=interview_data,
-            analysis_json=analysis,
-            plan_type=plan_type
+            analysis_json=analysis
         )
-        
+
         # 5. Convert JSON to visual nodes
         strategy_nodes = aggregator.convert_tree_to_nodes(brand_id, strategy_json)
         

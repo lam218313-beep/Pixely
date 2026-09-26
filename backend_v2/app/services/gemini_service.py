@@ -507,7 +507,6 @@ Tu misión es crear un PLAYBOOK ESTRATÉGICO INNOVADOR que servirá como la "Con
 **ANÁLISIS DE DATOS (Insights de Redes Sociales):**
 {analysis_insights}
 
-**PLAN DEL CLIENTE:** {plan_type}
 **NOMBRE DE LA MARCA:** {brand_name}
 
 ---
@@ -671,7 +670,7 @@ def _format_interview_data(data: dict) -> str:
     return "\n".join(lines)
 
 
-async def generate_strategic_plan(interview_data: dict, analysis_json: dict, plan_type: str = "pro") -> dict:
+async def generate_strategic_plan(interview_data: dict, analysis_json: dict) -> dict:
     """
     Genera el árbol estratégico usando TODO el contexto de la entrevista.
     """
@@ -695,7 +694,6 @@ async def generate_strategic_plan(interview_data: dict, analysis_json: dict, pla
     prompt = STRATEGY_PLAYBOOK_PROMPT.format(
         interview_context=interview_context_str, # <--- Aquí va TODO
         analysis_insights=insights_str,
-        plan_type=plan_type,
         brand_name=brand_name  # Pass brand name to prompt
     )
     

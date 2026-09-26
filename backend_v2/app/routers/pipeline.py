@@ -201,19 +201,14 @@ async def _run_full_pipeline(report_id: str, client_id: str, instagram_url: str,
         # =========================================================================
         try:
             logger.info("🧠 Generando Plan Estratégico con IA (Tree Structure)...")
-            
-            # 1. Obtener tipo de plan del cliente (para saber si generar tareas o contenido)
-            client_record = db.get_client(client_id)
-            plan_type = client_record.get("plan", "pro") if client_record else "pro"
-            
-            # 2. Contexto completo de Entrevista (reutilizando variable interview_data ya cargada arriba o DB)
+
+            # 1. Contexto completo de Entrevista (reutilizando variable interview_data ya cargada arriba o DB)
             # Nota: interview_data ya se cargó en línea 155, usamos esa.
-            
-            # 3. Generar Árbol
+
+            # 2. Generar Árbol
             strategy_tree = await gemini_service.generate_strategic_plan(
                 interview_data=interview_data, # Usamos la variable local ya cargada
-                analysis_json=result_json,
-                plan_type=plan_type
+                analysis_json=result_json
             )
             
             # 4. Convertir a Nodos Visuales para Frontend

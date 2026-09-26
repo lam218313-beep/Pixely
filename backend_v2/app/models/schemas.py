@@ -124,8 +124,6 @@ class UserBase(BaseModel):
     full_name: Optional[str] = None
     role: str = "client"
     client_id: Optional[str] = None
-    plan: str = "free_trial"
-    plan_expires_at: Optional[datetime] = None
 
 class UserCreate(UserBase):
     password: str
@@ -134,11 +132,7 @@ class UserResponse(UserBase):
     id: str
     is_active: bool = True
     created_at: Optional[datetime] = None
-    
+
     class Config:
         from_attributes = True
-
-class UserPlanUpdate(BaseModel):
-    plan: str
-    plan_expires_at: Optional[datetime] = None
 

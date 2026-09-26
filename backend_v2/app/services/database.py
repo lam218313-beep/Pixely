@@ -259,7 +259,7 @@ class SupabaseService:
     def list_users(self) -> list[dict]:
         if not self.client: return []
         try:
-            response = self.client.table("users").select("id, email, full_name, role, created_at, client_id, plan, plan_expires_at").execute()
+            response = self.client.table("users").select("id, email, full_name, role, created_at, client_id").execute()
             return response.data if response.data else []
         except Exception as e:
             logger.error(f"DB List Users Error: {e}")
@@ -297,21 +297,6 @@ class SupabaseService:
         except Exception as e:
             logger.error(f"DB Get User By ID Error: {e}")
         return None
-
-    def update_user_plan(self, user_id: str, plan: str, plan_expires_at: Optional[str], benefits: list = None):
-        """Update user's subscription plan."""
-        target_client = self.admin_client if self.admin_client else self.client
-        if not target_client: return
-        
-        try:
-            data = {
-                "plan": plan,
-                "plan_expires_at": plan_expires_at
-            }
-            target_client.table("users").update(data).eq("id", user_id).execute()
-        except Exception as e:
-            logger.error(f"DB Update User Plan Error: {e}")
-            raise e
 
     # ============================================================================
     # Tasks

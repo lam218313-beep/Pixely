@@ -26,7 +26,6 @@ class ClientCreate(BaseModel):
     """Request to create a new client."""
     brand_name: str
     industry: Optional[str] = None
-    plan: str = "free_trial"  # free_trial, lite, basic, pro, premium
 
 
 class ClientResponse(BaseModel):
@@ -34,10 +33,9 @@ class ClientResponse(BaseModel):
     id: str
     nombre: str  # Frontend compatibility
     industry: Optional[str] = None
-    plan: str = "free_trial"
     is_active: bool = True
     created_at: Optional[Any] = None  # Allow any for datetime serialization
-    
+
     class Config:
         from_attributes = True
 
@@ -46,7 +44,6 @@ class ClientUpdate(BaseModel):
     """Request to update client info."""
     nombre: Optional[str] = None
     industry: Optional[str] = None
-    plan: Optional[str] = None
     is_active: Optional[bool] = None
 
 
@@ -80,7 +77,6 @@ async def create_client(request: ClientCreate):
         "id": client_id,
         "nombre": request.brand_name,
         "industry": request.industry,
-        "plan": request.plan,
         "is_active": True,
         "created_at": datetime.utcnow().isoformat()
     }
@@ -147,16 +143,8 @@ async def get_client_status(client_id: str):
         # Consider complete if has mission or vision (flexible validation)
         has_brand = has_mission or has_vision
     
-    # Determine if can execute analysis
-    plan = client.get('plan', 'free_trial')
-    can_execute = False
-    
-    if plan == 'free_trial':
-        # Free trial only needs interview
-        can_execute = has_interview
-    else:
-        # Other plans need both interview AND brand
-        can_execute = has_interview and has_brand
+    # Analysis requires both the interview and the brand identity to be complete.
+    can_execute = has_interview and has_brand
     
     # Get latest analysis status (placeholder for now)
     latest_analysis = db.get_latest_completed_report(client_id)

@@ -12,6 +12,7 @@ from pydantic import BaseModel
 from typing import Optional
 
 from ..services.database import db
+from ..services.auth_service import get_current_user
 
 logger = logging.getLogger(__name__)
 
@@ -25,9 +26,6 @@ class AuthResponse(BaseModel):
     ficha_cliente_id: Optional[str] = None
     logo_url: Optional[str] = None
     role: str
-    plan: str
-    plan_expires_at: Optional[str] = None
-    benefits: list[str] = []
 
 class UserInfo(BaseModel):
     id: str
@@ -38,9 +36,6 @@ class UserInfo(BaseModel):
     is_active: bool
     logo_url: Optional[str] = None
     client_id: Optional[str] = None
-    plan: Optional[str] = None
-    plan_expires_at: Optional[str] = None
-    benefits: Optional[list[str]] = None
 
 
 @router.post("/token", response_model=AuthResponse)
@@ -61,42 +56,29 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
                 "ficha_cliente_id": None,
                 "logo_url": None,
                 "role": "admin",
-                "plan": "premium",
-                "plan_expires_at": None,
-                "benefits": []
             }
-            
+
         # This returns a session if successful (use anon_client for auth flows)
         auth_client = db.anon_client or db.client
         auth_response = auth_client.auth.sign_in_with_password({
             "email": form_data.username,
             "password": form_data.password
         })
-        
+
         if auth_response.user:
             # Get Role and Client from Public Profile
             user_profile = db.get_user_by_email(form_data.username)
             role = user_profile.get("role", "analyst") if user_profile else "analyst"
             client_id = user_profile.get("client_id") if user_profile else None
-            
-            # Get Plan from Client (Source of Truth)
-            plan = "free_trial"
-            if client_id:
-                client = db.get_client(client_id)
-                if client:
-                    plan = client.get("plan", "free_trial")
 
             return {
-                "access_token": auth_response.session.access_token, 
+                "access_token": auth_response.session.access_token,
                 "token_type": "bearer",
                 "user_email": auth_response.user.email,
                 "tenant_id": "tenant-default",
                 "ficha_cliente_id": client_id,
                 "logo_url": None,
                 "role": role,
-                "plan": plan,
-                "plan_expires_at": None, # TODO: Implement expiration logic
-                "benefits": [] # TODO: Implement benefits logic
             }
     except Exception as e:
         # Log error for debugging
@@ -108,18 +90,15 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
         )
 
 @router.get("/users/me", response_model=UserInfo)
-async def read_users_me(token: str = Depends(lambda: "mock")): # Simplify dependency
-    """Returns user info based on token (mock implementation for getting current user)."""
-    # In a real app, parse the token to get user ID. 
-    # Here we hardcode return for the 'admin' session or 'demo'.
-    
-    # If using the mock admin token
+async def read_users_me(user: dict = Depends(get_current_user)):
+    """Returns the real caller's identity, resolved from their verified bearer token."""
     return {
-        "id": "user-admin-001",
-        "email": "admin@pixely.pe",
-        "full_name": "Admin User",
+        "id": user["id"],
+        "email": user["email"],
+        "full_name": user.get("full_name") or user["email"].split("@")[0],
         "tenant_id": "tenant-default",
-        "role": "admin",
+        "role": user.get("role", "analyst"),
         "is_active": True,
-        "logo_url": None
+        "logo_url": None,
+        "client_id": user.get("client_id"),
     }
