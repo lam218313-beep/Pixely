@@ -11,13 +11,12 @@ import {
     Video,
     Instagram,
     ChevronLeft,
-    ChevronRight,
-    Sparkles
+    ChevronRight
 } from 'lucide-react';
 import * as api from '../services/api';
-import ImageGenerationModal from './ImageGenerationModal';
-import { useStudio } from '../contexts/StudioContext';
 import { useAuth } from '../contexts/AuthContext';
+// "Diseñar en Estudio" (ImageGenerationModal/StudioContext) retired — image
+// generation now happens in the local Magnific workflow, not in-app.
 
 interface PlanningViewProps {
     clientId: string;
@@ -33,8 +32,6 @@ const formatOptions = [
 const PlanningView: React.FC<PlanningViewProps> = ({ clientId, onNavigate }) => {
     // Auth context for admin check
     const { user } = useAuth();
-    // Studio Context for navigation / integration
-    const { dispatch } = useStudio();
 
     // State for inputs
     const now = new Date();
@@ -54,11 +51,6 @@ const PlanningView: React.FC<PlanningViewProps> = ({ clientId, onNavigate }) => 
     const [isSaving, setIsSaving] = useState(false);
     const [saveSuccess, setSaveSuccess] = useState(false);
     const [error, setError] = useState<string | null>(null);
-
-    // Image Generation Modal State
-    const [imageModalOpen, setImageModalOpen] = useState(false);
-    const [selectedTaskForImage, setSelectedTaskForImage] = useState<api.GeneratedTask | null>(null);
-    const [taskImages, setTaskImages] = useState<Record<string, string>>({});
 
     // Handlers
     const fetchExistingPlan = React.useCallback(async () => {
@@ -112,25 +104,6 @@ const PlanningView: React.FC<PlanningViewProps> = ({ clientId, onNavigate }) => 
             setError(err.message || "Error al guardar el plan");
         } finally {
             setIsSaving(false);
-        }
-    };
-
-    const handleOpenStudio = (task: api.GeneratedTask) => {
-        // Initialize Studio with this task's context
-        dispatch({
-            type: 'SET_INITIAL_DATA',
-            payload: {
-                clientId,
-                taskId: task.id,
-                taskData: task
-            }
-        });
-
-        // Navigate to Studio
-        if (onNavigate) {
-            onNavigate('img-generator');
-        } else {
-            console.warn('Navigation not available');
         }
     };
 
@@ -327,17 +300,6 @@ const PlanningView: React.FC<PlanningViewProps> = ({ clientId, onNavigate }) => 
                             <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
                                 {generatedTasks.map((task, idx) => (
                                     <div key={idx} className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-all group flex flex-col">
-                                        {/* Task Image Thumbnail */}
-                                        {taskImages[task.id] && (
-                                            <div className="mb-3 rounded-lg overflow-hidden">
-                                                <img
-                                                    src={taskImages[task.id]}
-                                                    alt={task.title}
-                                                    className="w-full h-32 object-cover"
-                                                />
-                                            </div>
-                                        )}
-
                                         <div className="flex justify-between items-start mb-3">
                                             <div className="flex items-center gap-2">
                                                 <span className={`p-1.5 rounded-lg ${task.format === 'video' || task.format === 'reel' ? 'bg-purple-50 text-purple-600' :
@@ -372,16 +334,6 @@ const PlanningView: React.FC<PlanningViewProps> = ({ clientId, onNavigate }) => 
                                             </div>
                                         )}
 
-                                        {/* Generate Image Button (Studio Integration) - Admin Only */}
-                                        {user?.isAdmin && (
-                                            <button
-                                                onClick={() => handleOpenStudio(task)}
-                                                className="mt-3 w-full py-2 px-3 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white rounded-lg text-xs font-bold transition-all shadow-md hover:shadow-lg hover:translate-y-[-1px] active:translate-y-[0px] flex items-center justify-center gap-1.5"
-                                            >
-                                                <Sparkles size={14} className="fill-white/20" />
-                                                {taskImages[task.id] ? 'Rediseñar en Estudio' : 'Diseñar en Estudio'}
-                                            </button>
-                                        )}
                                     </div>
                                 ))}
                             </div>
@@ -389,19 +341,6 @@ const PlanningView: React.FC<PlanningViewProps> = ({ clientId, onNavigate }) => 
                     )}
                 </div>
             </div>
-
-            {/* Image Generation Modal (Legacy/Fallback) - can remove or keep if needed */}
-            <ImageGenerationModal
-                isOpen={imageModalOpen}
-                onClose={() => {
-                    setImageModalOpen(false);
-                    setSelectedTaskForImage(null);
-                }}
-                clientId={clientId}
-                taskId={selectedTaskForImage?.id}
-                conceptId={selectedTaskForImage?.concept_id}
-                onImageGenerated={() => { }} // No-op for now
-            />
         </div>
     );
 };

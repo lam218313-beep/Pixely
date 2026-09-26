@@ -6,7 +6,8 @@ import { AlertCircle, Calendar, Star, Zap, Shield, Crown } from 'lucide-react';
 import { AuthProvider, useAuth } from './contexts/AuthContext.tsx';
 import { AnalysisProvider } from './hooks/useAnalysis.tsx';
 import { TasksProvider } from './hooks/useTasks.tsx';
-import { StudioProvider } from './contexts/StudioContext.tsx';
+// StudioProvider/ImageStudioPage/ImageGeneratorPage moved to _sandbox_ai_studio/ —
+// "Estudio IA" is retired, AI image generation now happens in the local Magnific workflow.
 
 // Lazy-loaded views for better performance
 const LabView = lazy(() => import('./components/LabView.tsx').then(m => ({ default: m.LabView })));
@@ -20,8 +21,6 @@ const BrandView = lazy(() => import('./components/BrandView.tsx').then(m => ({ d
 const ContentPlanView = lazy(() => import('./components/ContentPlanView.tsx').then(m => ({ default: m.ContentPlanView })));
 const StrategyView = lazy(() => import('./components/StrategyView.tsx').then(m => ({ default: m.StrategyView })));
 const BenefitsView = lazy(() => import('./components/BenefitsView.tsx').then(m => ({ default: m.BenefitsView })));
-const ImageGeneratorPage = lazy(() => import('./components/ImageGeneratorPage.tsx').then(m => ({ default: m.ImageGeneratorPage })));
-const ImageStudioPage = lazy(() => import('./components/ImageStudioPage.tsx').then(m => ({ default: m.ImageStudioPage })));
 
 // =============================================================================
 // ERROR BOUNDARY
@@ -247,12 +246,6 @@ const AppContent: React.FC = () => {
             <TasksView onNavigate={handleNavigate} />
           </ErrorBoundary>
         );
-      case 'img-generator':
-        return (
-          <ErrorBoundary key={viewKey}>
-            <ImageStudioPage />
-          </ErrorBoundary>
-        );
       case 'wiki':
         return (
           <ErrorBoundary key={viewKey}>
@@ -413,9 +406,7 @@ const App: React.FC = () => {
     <AuthProvider>
       <AnalysisProvider>
         <TasksProvider>
-          <StudioProvider>
-            <AppContent />
-          </StudioProvider>
+          <AppContent />
         </TasksProvider>
       </AnalysisProvider>
     </AuthProvider>
