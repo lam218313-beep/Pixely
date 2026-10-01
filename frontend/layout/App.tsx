@@ -18,7 +18,6 @@ const PartnersView = lazy(() => import('./components/PartnersView.tsx'));
 const AdminPanel = lazy(() => import('./components/AdminPanel.tsx').then(m => ({ default: m.AdminPanel })));
 const InterviewView = lazy(() => import('./components/InterviewView.tsx').then(m => ({ default: m.InterviewView })));
 const BrandView = lazy(() => import('./components/BrandView.tsx').then(m => ({ default: m.BrandView })));
-const ContentPlanView = lazy(() => import('./components/ContentPlanView.tsx').then(m => ({ default: m.ContentPlanView })));
 const StrategyView = lazy(() => import('./components/StrategyView.tsx').then(m => ({ default: m.StrategyView })));
 const BenefitsView = lazy(() => import('./components/BenefitsView.tsx').then(m => ({ default: m.BenefitsView })));
 
@@ -259,7 +258,6 @@ const AppContent: React.FC = () => {
           </ErrorBoundary>
         );
       // case 'dashboard': Removed
-      // case 'content-plan': Keeping just in case but seems redundant with 'work' now? Stepper has 'work' for Planificación.Sidebar has 'work'. So content-plan is unused by stepper/sidebar.
       default:
         return null;
     }

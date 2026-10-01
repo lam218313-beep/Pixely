@@ -1,6 +1,6 @@
 import React from 'react';
-import { WorkflowStepper } from './WorkflowStepper';
-import { AnimatedHeaderCard } from './AnimatedHeaderCard';
+import { WorkflowStepper } from '../../components/WorkflowStepper';
+import { AnimatedHeaderCard } from '../../components/AnimatedHeaderCard';
 import { ValidationKanban } from './ValidationKanban';
 
 export const ContentPlanView: React.FC<{ onNavigate: (view: string) => void }> = ({ onNavigate }) => {
