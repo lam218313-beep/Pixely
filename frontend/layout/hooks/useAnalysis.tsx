@@ -7,8 +7,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import * as api from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
-import { usePlanAccess } from './usePlanAccess';
-import { MOCK_ANALYSIS_DATA } from '../mocks/mockAnalysisData';
 
 // =============================================================================
 // TYPES
@@ -162,7 +160,6 @@ const DEFAULT_DATA: AnalysisData = {
 
 export function useAnalysis(): UseAnalysisReturn {
   const { user } = useAuth();
-  const { hasAccess } = usePlanAccess('analisis_completo'); // Check plan access
   const [data, setData] = useState<AnalysisData>(DEFAULT_DATA);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -184,12 +181,6 @@ export function useAnalysis(): UseAnalysisReturn {
 
   // Load existing analysis data
   const loadExistingAnalysis = useCallback(async () => {
-    // If user has no access, load MOCK data immediately mechanism
-    if (!hasAccess) {
-      setData(MOCK_ANALYSIS_DATA);
-      return;
-    }
-
     if (!clientId) return;
 
     setIsLoading(true);
@@ -214,7 +205,7 @@ export function useAnalysis(): UseAnalysisReturn {
     } finally {
       setIsLoading(false);
     }
-  }, [clientId, hasAccess]);
+  }, [clientId]);
 
   // Run full analysis
   const runAnalysis = useCallback(async () => {

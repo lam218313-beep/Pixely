@@ -18,8 +18,6 @@ export interface AuthResponse {
   ficha_cliente_id: string | null;
   logo_url: string | null;
   role: string | null;  // User role (admin, analyst, client)
-  plan: string;         // Subscription plan
-  plan_expires_at: string | null;
   benefits: string[];   // Enabled benefits
 }
 
@@ -32,8 +30,6 @@ export interface UserInfo {
   is_active: boolean;
   logo_url?: string;
   client_id?: string;
-  plan?: string;
-  plan_expires_at?: string;
   benefits?: string[];
   created_at?: string;
 }
@@ -343,7 +339,6 @@ export interface Client {
   id: string;
   nombre: string;
   industry: string;
-  plan: string;
   is_active: boolean;
   created_at: string;
 }
@@ -365,22 +360,6 @@ export async function getClients(): Promise<Client[]> {
     headers: getAuthHeaders(),
   });
   return handleResponse<Client[]>(response);
-}
-
-/**
- * Create a new client
- * POST /clients/
- */
-export async function createClient(data: { brand_name: string; industry?: string; plan: string }): Promise<Client> {
-  const response = await fetch(`${API_BASE_URL}/clients/`, {
-    method: 'POST',
-    headers: {
-      ...getAuthHeaders(),
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(data),
-  });
-  return handleResponse<Client>(response);
 }
 
 /**
@@ -678,38 +657,6 @@ export async function saveMonthlyPlan(
   });
   return handleResponse(response);
 }
-
-/**
- * Update user plan (Admin only)
- * PUT /users/{user_id}/plan
- */
-export async function updateUserPlan(
-  userId: string,
-  plan: string,
-  planExpiresAt?: string | null,
-  benefits: string[] = []
-): Promise<{ plan: string; plan_expires_at: string | null; benefits: string[] }> {
-  const response = await fetch(`${API_BASE_URL}/users/${userId}/plan`, {
-    method: 'PUT',
-    headers: {
-      ...getAuthHeaders(),
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      plan,
-      plan_expires_at: planExpiresAt || null,
-      benefits
-    }),
-  });
-
-  if (!response.ok) {
-    const errorBody = await response.json().catch(() => ({}));
-    throw new ApiError(response.status, errorBody.detail || `Failed to update plan: ${response.statusText}`);
-  }
-
-  return response.json();
-}
-
 
 /**
  * Generate Personas using AI

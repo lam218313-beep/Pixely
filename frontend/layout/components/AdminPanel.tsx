@@ -20,24 +20,8 @@ import PlanningView from './PlanningView';
 import { MercadoView } from './MercadoView';
 
 // =============================================================================
-// PLAN CONFIG
+// MODULE CONFIG
 // =============================================================================
-
-const PLAN_MODULES: Record<string, string[]> = {
-    free_trial: ['analysis', 'schedule'],
-    lite: ['interview', 'analysis', 'schedule'],
-    basic: ['interview', 'manual', 'analysis', 'schedule'],
-    pro: ['interview', 'manual', 'analysis', 'strategy', 'schedule'],
-    premium: ['interview', 'manual', 'analysis', 'strategy', 'schedule']
-};
-
-const PLAN_LABELS: Record<string, { label: string; color: string }> = {
-    free_trial: { label: 'Free Trial', color: 'gray' },
-    lite: { label: 'Lite', color: 'blue' },
-    basic: { label: 'Basic', color: 'green' },
-    pro: { label: 'Pro', color: 'purple' },
-    premium: { label: 'Premium', color: 'amber' }
-};
 
 const MODULE_CONFIG: Record<string, { name: string; icon: React.ElementType; color: string }> = {
     interview: { name: 'Entrevista', icon: ClipboardList, color: 'blue' },
@@ -54,7 +38,6 @@ const MODULE_CONFIG: Record<string, { name: string; icon: React.ElementType; col
 interface Brand {
     id: string;
     nombre: string;
-    plan: string;
     created_at?: string;
     user_count: number;
     modules: string[];
@@ -199,16 +182,6 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onNavigate }) => {
 // =============================================================================
 
 const BrandCard: React.FC<{ brand: Brand; onClick: () => void }> = ({ brand, onClick }) => {
-    const planInfo = PLAN_LABELS[brand.plan] || PLAN_LABELS.free_trial;
-
-    const colorClasses: Record<string, string> = {
-        gray: 'bg-gray-100 text-gray-600',
-        blue: 'bg-blue-100 text-blue-600',
-        green: 'bg-green-100 text-green-600',
-        purple: 'bg-purple-100 text-purple-600',
-        amber: 'bg-amber-100 text-amber-600'
-    };
-
     return (
         <motion.button
             onClick={onClick}
@@ -220,9 +193,6 @@ const BrandCard: React.FC<{ brand: Brand; onClick: () => void }> = ({ brand, onC
                 <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-gray-800 to-gray-900 flex items-center justify-center text-white text-xl font-bold shadow-lg">
                     {brand.nombre.charAt(0).toUpperCase()}
                 </div>
-                <span className={`px-3 py-1 rounded-full text-xs font-bold ${colorClasses[planInfo.color]}`}>
-                    {planInfo.label}
-                </span>
             </div>
 
             <h3 className="text-xl font-bold text-gray-900 mb-1">{brand.nombre}</h3>
@@ -266,7 +236,6 @@ const BrandCard: React.FC<{ brand: Brand; onClick: () => void }> = ({ brand, onC
 
 const CreateBrandModal: React.FC<{ onClose: () => void; onCreated: () => void }> = ({ onClose, onCreated }) => {
     const [nombre, setNombre] = useState('');
-    const [plan, setPlan] = useState('free_trial');
     const [loading, setLoading] = useState(false);
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -281,7 +250,7 @@ const CreateBrandModal: React.FC<{ onClose: () => void; onCreated: () => void }>
             const response = await fetch(url, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', ...api.getAuthHeaders() },
-                body: JSON.stringify({ nombre, plan })
+                body: JSON.stringify({ nombre })
             });
 
             if (response.ok) {
@@ -328,34 +297,6 @@ const CreateBrandModal: React.FC<{ onClose: () => void; onCreated: () => void }>
                             placeholder="Ej: Nike, Adidas..."
                             required
                         />
-                    </div>
-
-                    <div>
-                        <label className="block text-xs font-bold text-gray-700 uppercase mb-2">
-                            Plan
-                        </label>
-                        <select
-                            value={plan}
-                            onChange={(e) => setPlan(e.target.value)}
-                            className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20 outline-none transition-all"
-                        >
-                            {Object.entries(PLAN_LABELS).map(([key, { label }]) => (
-                                <option key={key} value={key}>{label}</option>
-                            ))}
-                        </select>
-
-                        {/* Preview modules */}
-                        <div className="mt-3 flex gap-1.5 flex-wrap">
-                            {PLAN_MODULES[plan]?.map(modId => {
-                                const mod = MODULE_CONFIG[modId];
-                                if (!mod) return null;
-                                return (
-                                    <span key={modId} className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-md">
-                                        {mod.name}
-                                    </span>
-                                );
-                            })}
-                        </div>
                     </div>
 
                     <button
@@ -546,15 +487,6 @@ const BrandDetailView: React.FC<{ brandId: string; onBack: () => void; onNavigat
         );
     }
 
-    const planInfo = brand ? PLAN_LABELS[brand.plan] || PLAN_LABELS.free_trial : PLAN_LABELS.free_trial;
-    const colorClasses: Record<string, string> = {
-        gray: 'bg-gray-100 text-gray-600',
-        blue: 'bg-blue-100 text-blue-600',
-        green: 'bg-green-100 text-green-600',
-        purple: 'bg-purple-100 text-purple-600',
-        amber: 'bg-amber-100 text-amber-600'
-    };
-
     return (
         <div className="h-full flex flex-col p-6 overflow-y-auto relative">
             {/* Header */}
@@ -568,9 +500,6 @@ const BrandDetailView: React.FC<{ brandId: string; onBack: () => void; onNavigat
                 <div className="flex-1">
                     <div className="flex items-center gap-3">
                         <h1 className="text-3xl font-black text-gray-900">{brand?.nombre}</h1>
-                        <span className={`px-3 py-1 rounded-full text-xs font-bold ${colorClasses[planInfo.color]}`}>
-                            {planInfo.label}
-                        </span>
                         <button
                             onClick={() => setShowMercado(true)}
                             className="flex items-center gap-2 px-4 py-2 bg-gray-900 text-white font-bold rounded-xl hover:bg-gray-800 transition-colors text-sm"

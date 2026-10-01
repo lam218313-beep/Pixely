@@ -2,7 +2,7 @@ import React, { useState, useEffect, Component, ErrorInfo, ReactNode, Suspense, 
 import { LoginForm, WorkflowVisual, SuccessAnimation } from './components/LoginComponents.tsx';
 import { Sidebar } from './components/Sidebar.tsx';
 // import { RightSidebar } from './components/RightSidebar.tsx';
-import { AlertCircle, Calendar, Star, Zap, Shield, Crown } from 'lucide-react';
+import { AlertCircle, Calendar } from 'lucide-react';
 import { AuthProvider, useAuth } from './contexts/AuthContext.tsx';
 import { AnalysisProvider } from './hooks/useAnalysis.tsx';
 import { TasksProvider } from './hooks/useTasks.tsx';
@@ -76,34 +76,6 @@ type ViewType = 'dashboard' | 'partners' | 'lab' | 'work' | 'wiki' | 'interview'
 
 
 // ... ErrorBoundary ...
-
-const PlanBadge = ({ plan, isAdmin }: { plan?: string, isAdmin?: boolean }) => {
-  if (isAdmin) {
-    return (
-      <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r from-purple-100 to-fuchsia-100 border border-purple-200 text-purple-700 shadow-sm pointer-events-auto backdrop-blur-md">
-        <Crown size={14} className="fill-purple-700 text-purple-700" />
-        <span className="text-xs font-bold tracking-widest uppercase">Admin</span>
-      </div>
-    );
-  }
-
-  const planMap: Record<string, { label: string, color: string, icon: any, fill?: string }> = {
-    'starter': { label: 'Emprendedor', color: 'bg-emerald-50/90 border-emerald-200 text-emerald-700', icon: Star, fill: 'fill-emerald-700 text-emerald-700' },
-    'growth': { label: 'Agencia', color: 'bg-blue-50/90 border-blue-200 text-blue-700', icon: Zap, fill: 'fill-blue-700 text-blue-700' },
-    'scale': { label: 'Enterprise', color: 'bg-slate-900 border-slate-700 text-yellow-400', icon: Shield, fill: 'fill-yellow-400 text-yellow-400' },
-    'free_trial': { label: 'Prueba Gratuita', color: 'bg-amber-50/90 border-amber-200 text-amber-700', icon: Zap, fill: 'fill-amber-700 text-amber-700' },
-  };
-
-  const current = plan ? (planMap[plan] || planMap['free_trial']) : planMap['free_trial'];
-  const Icon = current.icon;
-
-  return (
-    <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full border shadow-sm pointer-events-auto backdrop-blur-md ${current.color}`}>
-      <Icon size={14} className={current.fill} />
-      <span className="text-xs font-bold tracking-widest uppercase">{current.label}</span>
-    </div>
-  );
-};
 
 // Inner App component that uses auth context
 const AppContent: React.FC = () => {
@@ -372,11 +344,6 @@ const AppContent: React.FC = () => {
 
             {/* Center Content */}
             <main className="flex-1 flex flex-col relative h-full overflow-hidden p-4 lg:py-4 lg:pr-4">
-
-              {/* Floating Plan Badge */}
-              <div className="absolute top-8 right-8 lg:top-8 lg:right-8 z-50 pointer-events-none hidden sm:block">
-                <PlanBadge plan={authUser?.plan} isAdmin={authUser?.isAdmin} />
-              </div>
 
               {/* Dynamic Card Container */}
               <div key={activeView} ref={contentRef} className="flex-1 min-h-0 bg-transparent rounded-[30px] lg:rounded-[40px] relative overflow-y-auto group flex flex-col items-stretch justify-start mb-0">

@@ -43,7 +43,6 @@ MODULE_INFO = {
 
 class BrandCreate(BaseModel):
     nombre: str
-    plan: str = "free_trial"
 
 class BrandResponse(BaseModel):
     id: str
@@ -114,7 +113,6 @@ async def create_brand(request: BrandCreate):
     brand_data = {
         "id": brand_id,
         "nombre": request.nombre,
-        "plan": request.plan,
         "is_active": True,
         "created_at": datetime.utcnow().isoformat()
     }
@@ -162,7 +160,6 @@ async def get_brand_detail(brand_id: str):
         "brand": {
             "id": brand["id"],
             "nombre": brand.get("nombre"),
-            "plan": brand.get("plan", "free_trial"),
             "created_at": brand.get("created_at")
         },
         "modules": modules,

@@ -2,8 +2,6 @@ import React from 'react';
 import { Download, Brain, Wand2, Loader2 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import * as api from '../services/api';
-import { usePlanAccess } from '../hooks/usePlanAccess';
-import { MOCK_BRAND_DATA } from '../mocks/mockBrandData';
 
 import {
     CardMission,
@@ -31,18 +29,7 @@ const App: React.FC<BrandBookProps> = ({ overrideClientId }) => {
     const { user } = useAuth();
     const CLIENT_ID = overrideClientId || user?.fichaClienteId;
 
-    // Check Plan Access
-    const { hasAccess } = usePlanAccess('brand');
-    const canView = overrideClientId ? true : hasAccess; // Admin bypass
-
     const fetchBrand = async () => {
-        // If Demo Mode (no access), use mock data
-        if (!canView) {
-            setBrandData(MOCK_BRAND_DATA);
-            setIsLoading(false);
-            return;
-        }
-
         if (!CLIENT_ID) {
             setIsLoading(false);
             return;
@@ -85,7 +72,7 @@ const App: React.FC<BrandBookProps> = ({ overrideClientId }) => {
         );
     }
 
-    if (!brandData && canView) {
+    if (!brandData) {
         return (
             <div className="flex flex-col items-center justify-center p-12 text-center h-[60vh] bg-white rounded-3xl border-2 border-dashed border-gray-200 m-4">
                 <div className="w-20 h-20 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center mb-6 shadow-inner">

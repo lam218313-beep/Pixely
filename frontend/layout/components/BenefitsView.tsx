@@ -1,14 +1,13 @@
 /**
- * BenefitsView - Plan Benefits with Access Control
- * 
- * Shows 5 benefit cards (mock AI tools) with plan-based access
+ * BenefitsView
+ *
+ * Shows 5 benefit cards (mock AI tools).
  */
 
 import React from 'react';
 import { WorkflowStepper } from './WorkflowStepper';
 import { AnimatedHeaderCard } from './AnimatedHeaderCard';
-import { useBenefitAccess } from '../hooks/usePlanAccess';
-import { Sparkles, Brain, Target, TrendingUp, Wand2, Lock, Crown } from 'lucide-react';
+import { Sparkles, Brain, Target, TrendingUp, Wand2 } from 'lucide-react';
 
 // Benefit definitions
 const BENEFITS = [
@@ -51,16 +50,12 @@ const BENEFITS = [
 
 // Individual Benefit Card Component
 const BenefitCard: React.FC<{ benefit: typeof BENEFITS[0] }> = ({ benefit }) => {
-    const { hasAccess, requiredPlanName } = useBenefitAccess(benefit.id);
     const Icon = benefit.icon;
 
     return (
         <div className="relative group">
             {/* Card */}
-            <div className={`relative overflow-hidden rounded-3xl border transition-all duration-300 ${hasAccess
-                ? 'bg-white border-gray-100 hover:border-gray-200 hover:shadow-xl cursor-pointer'
-                : 'bg-gray-50/80 border-gray-100'
-                }`}>
+            <div className="relative overflow-hidden rounded-3xl border bg-white border-gray-100 hover:border-gray-200 hover:shadow-xl cursor-pointer transition-all duration-300">
 
                 {/* Gradient Background (subtle) */}
                 <div className={`absolute inset-0 bg-gradient-to-br ${benefit.color} opacity-5`} />
@@ -68,44 +63,26 @@ const BenefitCard: React.FC<{ benefit: typeof BENEFITS[0] }> = ({ benefit }) => 
                 {/* Content */}
                 <div className="relative p-6">
                     {/* Icon */}
-                    <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${benefit.color} flex items-center justify-center mb-4 shadow-lg ${hasAccess ? '' : 'grayscale opacity-50'
-                        }`}>
+                    <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${benefit.color} flex items-center justify-center mb-4 shadow-lg`}>
                         <Icon size={28} className="text-white" />
                     </div>
 
                     {/* Title */}
-                    <h3 className={`text-xl font-bold mb-2 ${hasAccess ? 'text-gray-800' : 'text-gray-400'}`}>
+                    <h3 className="text-xl font-bold mb-2 text-gray-800">
                         {benefit.name}
                     </h3>
 
                     {/* Description */}
-                    <p className={`text-sm leading-relaxed ${hasAccess ? 'text-gray-600' : 'text-gray-400'}`}>
+                    <p className="text-sm leading-relaxed text-gray-600">
                         {benefit.description}
                     </p>
 
                     {/* Access Status */}
-                    {hasAccess ? (
-                        <div className="mt-4 flex items-center gap-2 text-green-600">
-                            <div className="w-2 h-2 rounded-full bg-green-500" />
-                            <span className="text-xs font-medium">Disponible</span>
-                        </div>
-                    ) : (
-                        <div className="mt-4 flex items-center gap-2 text-gray-400">
-                            <Lock size={14} />
-                            <span className="text-xs font-medium">Disponible en {requiredPlanName}</span>
-                        </div>
-                    )}
-                </div>
-
-                {/* Locked Overlay */}
-                {!hasAccess && (
-                    <div className="absolute inset-0 bg-gradient-to-t from-white/90 via-white/40 to-transparent flex items-end justify-center pb-6 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white text-sm font-bold rounded-full shadow-md hover:shadow-lg transition-all">
-                            <Crown size={16} />
-                            Mejorar Plan
-                        </button>
+                    <div className="mt-4 flex items-center gap-2 text-green-600">
+                        <div className="w-2 h-2 rounded-full bg-green-500" />
+                        <span className="text-xs font-medium">Disponible</span>
                     </div>
-                )}
+                </div>
             </div>
         </div>
     );
@@ -133,7 +110,7 @@ export const BenefitsView: React.FC<{ onNavigate: (view: string) => void }> = ({
                 {/* Footer Note */}
                 <div className="mt-12 text-center">
                     <p className="text-gray-400 text-sm">
-                        Nuevos beneficios se agregan mensualmente para clientes con planes activos.
+                        Nuevos beneficios se agregan mensualmente.
                     </p>
                 </div>
             </div>

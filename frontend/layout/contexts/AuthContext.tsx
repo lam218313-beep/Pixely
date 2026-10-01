@@ -18,8 +18,6 @@ export interface AuthUser {
   logoUrl: string | null;
   role: string | null;  // User role (admin, analyst, client)
   isAdmin: boolean;    // Convenience flag
-  plan: string;        // Subscription plan
-  planExpiresAt: string | null;
   benefits: string[];  // Enabled benefits
 }
 
@@ -66,8 +64,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
         logoUrl: storedUser.logo_url || null,
         role: storedUser.role || null,
         isAdmin: storedUser.role === 'admin',
-        plan: storedUser.plan || 'free_trial',
-        planExpiresAt: storedUser.plan_expires_at || null,
         benefits: storedUser.benefits || [],
       });
     }
@@ -87,8 +83,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
         logoUrl: response.logo_url || null,
         role: response.role || null,
         isAdmin: response.role === 'admin',
-        plan: response.plan || 'free_trial',
-        planExpiresAt: response.plan_expires_at || null,
         benefits: response.benefits || [],
       });
     } catch (err) {

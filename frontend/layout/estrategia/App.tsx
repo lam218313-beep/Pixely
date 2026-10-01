@@ -29,8 +29,6 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import * as api from '../services/api';
-import { usePlanAccess } from '../hooks/usePlanAccess';
-import { MOCK_STRATEGY_DATA } from '../mocks/mockStrategyData';
 
 // --- Constants & Config ---
 const MAX_MAIN_OBJECTIVES = 6;
@@ -110,13 +108,6 @@ const App: React.FC<{ overrideClientId?: string }> = ({ overrideClientId }) => {
     const panStart = useRef({ x: 0, y: 0 });
     const panStartOffset = useRef({ x: 0, y: 0 });
 
-    // Plan Access Check
-    let { hasAccess } = usePlanAccess('estrategia');
-
-    if (overrideClientId) {
-        hasAccess = true;
-    }
-
     const CLIENT_ID = overrideClientId || localStorage.getItem('clientId');
 
     // Fetch Client Name
@@ -144,7 +135,7 @@ const App: React.FC<{ overrideClientId?: string }> = ({ overrideClientId }) => {
 
     // --- Persistence Handlers (Autosave) ---
     const handleSaveStrategy = useCallback(async (currentNodes: NodeData[]) => {
-        if (!CLIENT_ID || !hasAccess) return;
+        if (!CLIENT_ID) return;
         setIsSaving(true);
 
         console.log('💾 Strategy: Saving for CLIENT_ID:', CLIENT_ID, 'Nodes:', currentNodes.length);
@@ -159,7 +150,7 @@ const App: React.FC<{ overrideClientId?: string }> = ({ overrideClientId }) => {
         } finally {
             setIsSaving(false);
         }
-    }, [CLIENT_ID, hasAccess]);
+    }, [CLIENT_ID]);
 
     // Debounced Autosave
     useEffect(() => {
@@ -173,13 +164,6 @@ const App: React.FC<{ overrideClientId?: string }> = ({ overrideClientId }) => {
     }, [nodes, handleSaveStrategy]);
 
     useEffect(() => {
-        // If Demo Mode (no access), load mock data
-        if (!hasAccess) {
-            console.log('🎭 Strategy: Demo mode - loading mock data');
-            setNodes(MOCK_STRATEGY_DATA.initialNodes as any);
-            return;
-        }
-
         // Load existing strategy nodes
         const loadStrategy = async () => {
             if (!CLIENT_ID) {
@@ -219,7 +203,7 @@ const App: React.FC<{ overrideClientId?: string }> = ({ overrideClientId }) => {
             }
         };
         loadStrategy();
-    }, [CLIENT_ID, hasAccess]); // Removed brandName dependency to avoid reload loops, will update label separately if needed
+    }, [CLIENT_ID]); // Removed brandName dependency to avoid reload loops, will update label separately if needed
 
     // Update root node label if brand name changes and it's still default? 
     // Maybe risky if user edited it. Let's leave it.
