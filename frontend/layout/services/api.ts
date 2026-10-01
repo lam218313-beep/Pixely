@@ -816,3 +816,78 @@ export async function syncStrategy(clientId: string, nodes: StrategyNode[]): Pro
   return handleResponse(response);
 }
 
+// =============================================================================
+// MARKET (FASE MERCADO) ENDPOINTS
+// =============================================================================
+// Read-only: the génesis study and the recurring scan are run by hand from
+// Claude Desktop (lam218313-beep/Pixely_Automatizaciones), never from here.
+
+export interface CompetitorEntry {
+  nombre: string;
+  categoria?: string;
+  direccion?: string;
+  telefono?: string;
+  website?: string;
+  rating?: number;
+  reseñas?: number;
+  place_id?: string;
+}
+
+export interface MarketStudy {
+  id: string;
+  client_id: string;
+  ciudad: string | null;
+  rubro: string | null;
+  fecha_estudio: string | null;
+  version: string | null;
+  universo_competidores: {
+    total_detectado_maps?: number;
+    total_relevante_filtrado?: number;
+    listado?: CompetitorEntry[];
+  } | null;
+  dossier_profundo: any[] | null;
+  tamano_mercado: {
+    metodo_top_down?: any;
+    metodo_bottom_up?: any;
+    cruce_de_metodos?: string;
+  } | null;
+  panorama_producto_precio: any | null;
+  notas_metodologicas: any | null;
+  pdf_url: string | null;
+  created_at: string;
+}
+
+export type MarketFindingCluster = 'Problema' | 'Identidad' | 'Prueba';
+export type MarketFindingConfianza = 'Alta' | 'Media' | 'Baja';
+
+export interface MarketFinding {
+  id: string;
+  client_id: string;
+  fecha: string;
+  fuente: string | null;
+  tema: string | null;
+  dato_o_angulo: string | null;
+  evidencia: string | null;
+  cluster: MarketFindingCluster | null;
+  confianza: MarketFindingConfianza | null;
+  tipo_senal: string | null;
+  competidor: string | null;
+  link: string | null;
+}
+
+export async function getMarketStudy(clientId: string): Promise<MarketStudy | null> {
+  const response = await fetch(`${API_BASE_URL}/market/${clientId}/study`, {
+    headers: getAuthHeaders(),
+  });
+  const result = await handleResponse<{ status: string; data: MarketStudy | null }>(response);
+  return result.data;
+}
+
+export async function getMarketFindings(clientId: string): Promise<MarketFinding[]> {
+  const response = await fetch(`${API_BASE_URL}/market/${clientId}/findings`, {
+    headers: getAuthHeaders(),
+  });
+  const result = await handleResponse<{ status: string; data: MarketFinding[] }>(response);
+  return result.data;
+}
+

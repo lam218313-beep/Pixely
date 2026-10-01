@@ -1,5 +1,5 @@
 import React from 'react';
-import { LayoutGrid, Users, Layers, FileText, BookOpen, Power, Hexagon, Shield, ClipboardList, Palette, CalendarRange, CheckCircle, CheckCircle2 } from 'lucide-react';
+import { LayoutGrid, Users, Layers, FileText, BookOpen, Power, Hexagon, Shield, ClipboardList, Palette, CalendarRange, CheckCircle, CheckCircle2, Radar } from 'lucide-react';
 import pixelyLogo from '../src/assets/logo.png';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -70,6 +70,15 @@ export const Sidebar: React.FC<SidebarProps> = ({ isExpanded, setIsExpanded, act
                     label="Análisis"
                     viewId="lab"
                     isActive={activeView === 'lab'}
+                    onClick={setActiveView}
+                />
+
+                {/* 4-B. Mercado (fuera de la secuencia numerada de fases por ahora) */}
+                <SidebarItem
+                    icon={Radar}
+                    label="Mercado"
+                    viewId="mercado"
+                    isActive={activeView === 'mercado'}
                     onClick={setActiveView}
                 />
 

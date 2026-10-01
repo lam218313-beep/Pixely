@@ -2,7 +2,7 @@
 
 import logging
 from datetime import datetime, timezone
-from typing import Optional, Any
+from typing import Optional, Any, List
 from supabase import create_client, Client
 from ..config import settings
 
@@ -453,15 +453,35 @@ class SupabaseService:
             # Check if exists
             exists = self.get_brand_identity(client_id)
             data["client_id"] = client_id
-            
+
             if exists:
                 self.client.table("brand_identities").update(data).eq("client_id", client_id).execute()
             else:
                 self.client.table("brand_identities").insert(data).execute()
-                
+
             logger.info(f"✅ Brand identity updated for {client_id}")
         except Exception as e:
             logger.error(f"DB Update Brand Error: {e}")
             raise e
+
+    def get_market_study(self, client_id: str) -> Optional[dict]:
+        """Génesis study (00_genesis_cliente), written by hand from Claude Desktop. None if not run yet."""
+        if not self.client: return None
+        try:
+            response = self.client.table("market_studies").select("*").eq("client_id", client_id).order("created_at", desc=True).limit(1).execute()
+            return response.data[0] if response.data else None
+        except Exception as e:
+            logger.error(f"DB Get Market Study Error: {e}")
+            return None
+
+    def get_market_findings(self, client_id: str, limit: int = 50) -> List[dict]:
+        """Recurring competitive findings (01_escanearmercado), newest first."""
+        if not self.client: return []
+        try:
+            response = self.client.table("market_findings").select("*").eq("client_id", client_id).order("fecha", desc=True).limit(limit).execute()
+            return response.data if response.data else []
+        except Exception as e:
+            logger.error(f"DB Get Market Findings Error: {e}")
+            return []
 
 db = SupabaseService()

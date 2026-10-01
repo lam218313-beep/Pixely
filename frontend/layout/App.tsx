@@ -11,6 +11,7 @@ import { TasksProvider } from './hooks/useTasks.tsx';
 
 // Lazy-loaded views for better performance
 const LabView = lazy(() => import('./components/LabView.tsx').then(m => ({ default: m.LabView })));
+const MercadoView = lazy(() => import('./components/MercadoView.tsx').then(m => ({ default: m.MercadoView })));
 const TasksView = lazy(() => import('./components/TasksView.tsx').then(m => ({ default: m.TasksView })));
 const WikiView = lazy(() => import('./components/WikiView.tsx'));
 const PartnersView = lazy(() => import('./components/PartnersView.tsx'));
@@ -224,6 +225,12 @@ const AppContent: React.FC = () => {
         return (
           <ErrorBoundary key={viewKey}>
             <LabView onNavigate={handleNavigate} />
+          </ErrorBoundary>
+        );
+      case 'mercado':
+        return (
+          <ErrorBoundary key={viewKey}>
+            <MercadoView onNavigate={handleNavigate} />
           </ErrorBoundary>
         );
       case 'strategy':
