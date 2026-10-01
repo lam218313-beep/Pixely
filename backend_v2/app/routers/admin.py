@@ -162,6 +162,7 @@ async def get_brand_detail(brand_id: str):
         "brand": {
             "id": brand["id"],
             "nombre": brand.get("nombre"),
+            "plan": brand.get("plan", "free_trial"),
             "created_at": brand.get("created_at")
         },
         "modules": modules,
