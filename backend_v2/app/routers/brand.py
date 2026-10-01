@@ -75,7 +75,22 @@ async def get_brand(client_id: str, _user: dict = Depends(verify_client_access))
             "ideal": audience.get("idealPersona"),
             "anti": audience.get("antiPersona")
         }
-    
+
+    # "values" is stored as an array of JSON-encoded strings; parse before sending
+    if identity.get("values"):
+        parsed_values = []
+        for v in identity["values"]:
+            if isinstance(v, str):
+                try:
+                    parsed_values.append(json.loads(v))
+                except (json.JSONDecodeError, TypeError):
+                    parsed_values.append(v)
+            else:
+                parsed_values.append(v)
+        identity["values"] = parsed_values
+
+    identity["download_url"] = client.get("brand_manual_url") if client else None
+
     return {"status": "success", "data": identity, "brand_name": brand_name}
 
 @router.put("/{client_id}")
