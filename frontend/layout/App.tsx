@@ -12,7 +12,6 @@ import { TasksProvider } from './hooks/useTasks.tsx';
 // Lazy-loaded views for better performance
 const LabView = lazy(() => import('./components/LabView.tsx').then(m => ({ default: m.LabView })));
 const TasksView = lazy(() => import('./components/TasksView.tsx').then(m => ({ default: m.TasksView })));
-const DashboardView = lazy(() => import('./components/DashboardView.tsx').then(m => ({ default: m.DashboardView })));
 const WikiView = lazy(() => import('./components/WikiView.tsx'));
 const PartnersView = lazy(() => import('./components/PartnersView.tsx'));
 const AdminPanel = lazy(() => import('./components/AdminPanel.tsx').then(m => ({ default: m.AdminPanel })));
@@ -257,7 +256,6 @@ const AppContent: React.FC = () => {
             <AdminPanel onNavigate={handleNavigate} />
           </ErrorBoundary>
         );
-      // case 'dashboard': Removed
       default:
         return null;
     }
