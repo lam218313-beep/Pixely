@@ -1,5 +1,6 @@
 import React, { useState, useRef, useMemo, useCallback } from 'react';
 import { Zap, Info } from 'lucide-react';
+import { formatInterpretationHtml } from '../../utils/formatInterpretation';
 
 interface TopicData {
   topic: string;
@@ -152,7 +153,7 @@ export const CardLabsQ3_ConclusionGauge: React.FC<CardLabsQ3_ConclusionGaugeProp
             {data.interpretation_text ? (
               <div className="overflow-y-auto custom-scrollbar max-h-[160px]">
                 <p className="text-sm text-white/90 leading-relaxed text-justify px-2"
-                  dangerouslySetInnerHTML={{ __html: data.interpretation_text.replace(/\*\*(.*?)\*\*/g, '<strong class="text-white">$1</strong>') }}
+                  dangerouslySetInnerHTML={{ __html: formatInterpretationHtml(data.interpretation_text, 'text-white') }}
                 />
               </div>
             ) : (

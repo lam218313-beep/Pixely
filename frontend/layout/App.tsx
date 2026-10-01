@@ -12,13 +12,11 @@ import { TasksProvider } from './hooks/useTasks.tsx';
 // Lazy-loaded views for better performance
 const LabView = lazy(() => import('./components/LabView.tsx').then(m => ({ default: m.LabView })));
 const TasksView = lazy(() => import('./components/TasksView.tsx').then(m => ({ default: m.TasksView })));
-const DashboardView = lazy(() => import('./components/DashboardView.tsx').then(m => ({ default: m.DashboardView })));
 const WikiView = lazy(() => import('./components/WikiView.tsx'));
 const PartnersView = lazy(() => import('./components/PartnersView.tsx'));
 const AdminPanel = lazy(() => import('./components/AdminPanel.tsx').then(m => ({ default: m.AdminPanel })));
 const InterviewView = lazy(() => import('./components/InterviewView.tsx').then(m => ({ default: m.InterviewView })));
 const BrandView = lazy(() => import('./components/BrandView.tsx').then(m => ({ default: m.BrandView })));
-const ContentPlanView = lazy(() => import('./components/ContentPlanView.tsx').then(m => ({ default: m.ContentPlanView })));
 const StrategyView = lazy(() => import('./components/StrategyView.tsx').then(m => ({ default: m.StrategyView })));
 const BenefitsView = lazy(() => import('./components/BenefitsView.tsx').then(m => ({ default: m.BenefitsView })));
 
@@ -258,8 +256,6 @@ const AppContent: React.FC = () => {
             <AdminPanel onNavigate={handleNavigate} />
           </ErrorBoundary>
         );
-      // case 'dashboard': Removed
-      // case 'content-plan': Keeping just in case but seems redundant with 'work' now? Stepper has 'work' for Planificación.Sidebar has 'work'. So content-plan is unused by stepper/sidebar.
       default:
         return null;
     }

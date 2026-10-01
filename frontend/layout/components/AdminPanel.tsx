@@ -91,7 +91,9 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onNavigate }) => {
         setLoading(true);
         try {
             console.log('Fetching brands from:', `${api.API_BASE_URL}/api/admin/brands`);
-            const response = await fetch(`${api.API_BASE_URL}/api/admin/brands`);
+            const response = await fetch(`${api.API_BASE_URL}/api/admin/brands`, {
+                headers: api.getAuthHeaders()
+            });
 
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
@@ -277,7 +279,7 @@ const CreateBrandModal: React.FC<{ onClose: () => void; onCreated: () => void }>
 
             const response = await fetch(url, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 'Content-Type': 'application/json', ...api.getAuthHeaders() },
                 body: JSON.stringify({ nombre, plan })
             });
 
@@ -396,7 +398,9 @@ const BrandDetailView: React.FC<{ brandId: string; onBack: () => void; onNavigat
     const loadBrandDetail = async () => {
         setLoading(true);
         try {
-            const response = await fetch(`${api.API_BASE_URL}/api/admin/brands/${brandId}`);
+            const response = await fetch(`${api.API_BASE_URL}/api/admin/brands/${brandId}`, {
+                headers: api.getAuthHeaders()
+            });
             const data = await response.json();
             setBrand(data.brand);
             setModules(data.modules);
@@ -455,7 +459,7 @@ const BrandDetailView: React.FC<{ brandId: string; onBack: () => void; onNavigat
                                 setToast({ message: 'Regenerando estrategia con IA...', type: 'success' });
                                 const response = await fetch(`${api.API_BASE_URL}/api/admin/brands/${brandId}/reset-strategy`, {
                                     method: 'POST',
-                                    headers: { 'Content-Type': 'application/json' }
+                                    headers: { 'Content-Type': 'application/json', ...api.getAuthHeaders() }
                                 });
                                 if (response.ok) {
                                     const result = await response.json();
@@ -748,7 +752,7 @@ const AddUserModal: React.FC<{ brandId: string; onClose: () => void; onCreated: 
         try {
             const response = await fetch(`${api.API_BASE_URL}/api/admin/brands/${brandId}/users`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 'Content-Type': 'application/json', ...api.getAuthHeaders() },
                 body: JSON.stringify({ email, password, full_name: fullName || undefined })
             });
 
@@ -839,7 +843,7 @@ const AnalysisModal: React.FC<{ brandId: string; onClose: () => void; onStarted:
         try {
             const response = await fetch(`${api.API_BASE_URL}/api/admin/brands/${brandId}/analysis`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 'Content-Type': 'application/json', ...api.getAuthHeaders() },
                 body: JSON.stringify({ analysis_type: analysisType, instagram_url: instagramUrl })
             });
 
@@ -950,7 +954,7 @@ const StrategyGenerationModal: React.FC<{
             // Llamada al nuevo endpoint backend
             const response = await fetch(`${api.API_BASE_URL}/api/admin/brands/${brandId}/strategy/seed`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' }
+                headers: { 'Content-Type': 'application/json', ...api.getAuthHeaders() }
             });
 
             if (response.ok) {

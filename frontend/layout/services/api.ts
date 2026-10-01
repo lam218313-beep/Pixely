@@ -276,7 +276,7 @@ export function setStoredUser(user: AuthResponse): void {
   localStorage.setItem(USER_KEY, JSON.stringify(user));
 }
 
-function getAuthHeaders(): HeadersInit {
+export function getAuthHeaders(): HeadersInit {
   const token = getStoredToken();
   return token ? { 'Authorization': `Bearer ${token}` } : {};
 }
@@ -321,6 +321,7 @@ export async function login(email: string, password: string): Promise<AuthRespon
  */
 export function logout(): void {
   clearStoredToken();
+  localStorage.removeItem('clientId');
 }
 
 /**
@@ -332,86 +333,6 @@ export async function getCurrentUser(): Promise<UserInfo> {
     headers: getAuthHeaders(),
   });
   return handleResponse<UserInfo>(response);
-}
-
-/**
- * Get all users (Admin only)
- * GET /users/
- */
-export async function getUsers(): Promise<UserInfo[]> {
-  const response = await fetch(`${API_BASE_URL}/users/`, {
-    headers: getAuthHeaders(),
-  });
-  return handleResponse<UserInfo[]>(response);
-}
-
-/**
- * Create a new user (Admin only)
- * POST /users/
- */
-export async function createUser(userData: any): Promise<UserInfo> {
-  const response = await fetch(`${API_BASE_URL}/users/`, {
-    method: 'POST',
-    headers: {
-      ...getAuthHeaders(),
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(userData),
-  });
-  return handleResponse<UserInfo>(response);
-}
-
-/**
- * Update a user (Admin only)
- * PATCH /admin-users/{user_id}
- */
-export async function updateUser(userId: string, userData: any): Promise<UserInfo> {
-  const url = `${API_BASE_URL}/admin-users/${userId}`;
-  console.log("updateUser calling:", url);
-
-  // Clean updates - remove id if present
-  const updates = { ...userData };
-  if ("id" in updates) delete updates["id"];
-
-  const response = await fetch(url, {
-    method: 'PATCH',
-    body: JSON.stringify(updates),
-    headers: {
-      ...getAuthHeaders(),
-      'Content-Type': 'application/json',
-    },
-  });
-  return handleResponse<UserInfo>(response);
-}
-
-/**
- * Upload User Logo
- * POST /users/upload-logo
- */
-export async function uploadUserLogo(file: File): Promise<{ url: string }> {
-  const formData = new FormData();
-  formData.append('file', file);
-
-  const response = await fetch(`${API_BASE_URL}/users/upload-logo`, {
-    method: 'POST',
-    headers: getAuthHeaders(),
-    body: formData,
-  });
-  return handleResponse<{ url: string }>(response);
-}
-
-/**
- * Delete a user (Admin only)
- * DELETE /users/{user_id}
- */
-export async function deleteUser(userId: string): Promise<void> {
-  const response = await fetch(`${API_BASE_URL}/users/${userId}`, {
-    method: 'DELETE',
-    headers: getAuthHeaders(),
-  });
-  if (!response.ok) {
-    throw new ApiError(response.status, `Failed to delete user: ${response.statusText}`);
-  }
 }
 
 // =============================================================================
@@ -573,98 +494,6 @@ export async function getLatestAnalysis(clientId: string): Promise<FullAnalysisR
   return data as FullAnalysisResponse;
 }
 
-/**
- * Send chat message
- * POST /semantic/chat/{client_id}/{session_id}
- */
-export async function sendChatMessage(
-  clientId: string,
-  sessionId: string,
-  message: string
-): Promise<{ response: string }> {
-  const formData = new URLSearchParams();
-  formData.append('message', message);
-
-  const response = await fetch(`${API_BASE_URL}/semantic/chat/${clientId}/${sessionId}`, {
-    method: 'POST',
-    headers: {
-      ...getAuthHeaders(),
-      'Content-Type': 'application/x-www-form-urlencoded',
-    },
-    body: formData,
-  });
-  return handleResponse(response);
-}
-
-/**
- * Create chat session
- * POST /semantic/chat/{client_id}/session
- */
-export async function createChatSession(
-  clientId: string,
-  title: string = 'Nueva Conversación'
-): Promise<{ id: string; title: string }> {
-  const response = await fetch(
-    `${API_BASE_URL}/semantic/chat/${clientId}/session?title=${encodeURIComponent(title)}`,
-    {
-      method: 'POST',
-      headers: getAuthHeaders(),
-    }
-  );
-  return handleResponse(response);
-}
-
-/**
- * Get chat sessions for client
- * GET /semantic/chat/{client_id}/sessions
- */
-export async function getChatSessions(clientId: string): Promise<Array<{ id: string; title: string; last_message_at: string }>> {
-  const response = await fetch(`${API_BASE_URL}/semantic/chat/${clientId}/sessions`, {
-    headers: getAuthHeaders(),
-  });
-  return handleResponse(response);
-}
-
-/**
- * Get chat messages for session
- * GET /semantic/chat/session/{session_id}/messages
- */
-export async function getChatMessages(sessionId: string): Promise<Array<{ role: string; content: string; timestamp: string }>> {
-  const response = await fetch(`${API_BASE_URL}/semantic/chat/session/${sessionId}/messages`, {
-    headers: getAuthHeaders(),
-  });
-  return handleResponse(response);
-}
-
-// =============================================================================
-// CLIENTS (FICHAS) ENDPOINTS
-// =============================================================================
-
-export interface FichaCliente {
-  id: string;
-  nombre_empresa: string;
-  tenant_id: string;
-  created_at: string;
-}
-
-/**
- * Get all fichas for current tenant
- * GET /fichas
- */
-export async function getFichas(): Promise<FichaCliente[]> {
-  const response = await fetch(`${API_BASE_URL}/fichas`, {
-    headers: getAuthHeaders(),
-  });
-  return handleResponse<FichaCliente[]>(response);
-}
-
-export async function getFicha(fichaId: string): Promise<FichaCliente> {
-  const response = await fetch(`${API_BASE_URL}/fichas/${fichaId}`, {
-    headers: getAuthHeaders(),
-  });
-  return handleResponse<FichaCliente>(response);
-}
-
 // =============================================================================
 // INTERVIEW ENDPOINTS
 // =============================================================================
@@ -735,17 +564,6 @@ export interface TasksByWeekResponse {
   completed_tasks: number;
 }
 
-export interface TaskCreate {
-  title: string;
-  description?: string;
-  area_estrategica?: string;
-  urgencia?: string;
-  score_impacto?: number;
-  score_esfuerzo?: number;
-  prioridad?: number;
-  week: number;
-}
-
 export interface TaskUpdate {
   status: TaskStatus;
 }
@@ -762,22 +580,6 @@ export async function getTasks(fichaId: string): Promise<TasksByWeekResponse> {
 }
 
 /**
- * Create a new task
- * POST /api/v1/fichas/{ficha_id}/tasks
- */
-export async function createTask(fichaId: string, taskData: TaskCreate): Promise<Task> {
-  const response = await fetch(`${API_BASE_URL}/api/v1/fichas/${fichaId}/tasks`, {
-    method: 'POST',
-    headers: {
-      ...getAuthHeaders(),
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(taskData),
-  });
-  return handleResponse<Task>(response);
-}
-
-/**
  * Update task status
  * PATCH /api/v1/tasks/{task_id}
  */
@@ -791,20 +593,6 @@ export async function updateTaskStatus(taskId: string, status: TaskStatus): Prom
     body: JSON.stringify({ status }),
   });
   return handleResponse<Task>(response);
-}
-
-/**
- * Delete a task
- * DELETE /api/v1/tasks/{task_id}
- */
-export async function deleteTask(taskId: string): Promise<void> {
-  const response = await fetch(`${API_BASE_URL}/api/v1/tasks/${taskId}`, {
-    method: 'DELETE',
-    headers: getAuthHeaders(),
-  });
-  if (!response.ok) {
-    throw new ApiError(response.status, `Failed to delete task: ${response.statusText}`);
-  }
 }
 
 // =============================================================================
@@ -890,44 +678,6 @@ export async function saveMonthlyPlan(
   });
   return handleResponse(response);
 }
-
-
-/**
- * Add note to a task
- * POST /api/v1/tasks/{task_id}/notes
- */
-export async function addTaskNote(taskId: string, content: string): Promise<TaskNote> {
-  const response = await fetch(`${API_BASE_URL}/api/v1/tasks/${taskId}/notes`, {
-    method: 'POST',
-    headers: {
-      ...getAuthHeaders(),
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ content }),
-  });
-  return handleResponse<TaskNote>(response);
-}
-
-/**
- * Reset user password (Admin only)
- * PUT /users/{user_id}/password
- */
-export async function resetPassword(userId: string, password: string): Promise<void> {
-  const response = await fetch(`${API_BASE_URL}/users/${userId}/password`, {
-    method: 'PUT',
-    headers: {
-      ...getAuthHeaders(),
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ password }),
-  });
-
-  if (!response.ok) {
-    const errorBody = await response.json().catch(() => ({}));
-    throw new ApiError(response.status, errorBody.detail || `Failed to reset password: ${response.statusText}`);
-  }
-}
-
 
 /**
  * Update user plan (Admin only)

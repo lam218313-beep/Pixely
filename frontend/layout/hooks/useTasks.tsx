@@ -27,8 +27,6 @@ export interface TasksState {
 interface UseTasksReturn extends TasksState {
   refreshTasks: () => Promise<void>;
   updateTaskStatus: (taskId: string, status: api.TaskStatus) => Promise<void>;
-  createTask: (taskData: api.TaskCreate) => Promise<api.Task | null>;
-  deleteTask: (taskId: string) => Promise<void>;
   getTasksByStatus: (status: api.TaskStatus) => api.Task[];
   getPendingTasks: (limit?: number) => api.Task[];
 }
@@ -87,31 +85,6 @@ function useTasks(): UseTasksReturn {
     }
   }, []);
 
-  // Create new task
-  const createTask = useCallback(async (taskData: api.TaskCreate): Promise<api.Task | null> => {
-    if (!clientId) return null;
-
-    try {
-      const newTask = await api.createTask(clientId, taskData);
-      setTasks(prev => [...prev, newTask]);
-      return newTask;
-    } catch (err) {
-      console.error('Failed to create task:', err);
-      throw err;
-    }
-  }, [clientId]);
-
-  // Delete task
-  const deleteTask = useCallback(async (taskId: string) => {
-    try {
-      await api.deleteTask(taskId);
-      setTasks(prev => prev.filter(t => t.id !== taskId));
-    } catch (err) {
-      console.error('Failed to delete task:', err);
-      throw err;
-    }
-  }, []);
-
   // Get tasks by status
   const getTasksByStatus = useCallback((status: api.TaskStatus) => {
     return tasks.filter(t => t.status === status);
@@ -153,8 +126,6 @@ function useTasks(): UseTasksReturn {
     stats,
     refreshTasks,
     updateTaskStatus,
-    createTask,
-    deleteTask,
     getTasksByStatus,
     getPendingTasks,
   };

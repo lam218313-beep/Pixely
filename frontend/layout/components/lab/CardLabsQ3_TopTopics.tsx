@@ -1,5 +1,6 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { AlertTriangle, CheckCircle, HelpCircle, Hash, ArrowRight, TrendingUp, Tag, Activity } from 'lucide-react';
+import { formatInterpretationHtml } from '../../utils/formatInterpretation';
 
 interface TopicData {
   topic: string;
@@ -200,7 +201,7 @@ const MicroTopicCard: React.FC<{ topic: TopicData; index: number; interpretation
           <div className="flex flex-col items-center justify-center flex-1 overflow-y-auto px-1">
             {interpretation_text ? (
               <p className="text-sm text-gray-700 leading-relaxed text-justify"
-                dangerouslySetInnerHTML={{ __html: interpretation_text.replace(/\*\*(.*?)\*\*/g, '<strong class="text-primary-600">$1</strong>') }}
+                dangerouslySetInnerHTML={{ __html: formatInterpretationHtml(interpretation_text) }}
               />
             ) : (
               <>
