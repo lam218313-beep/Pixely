@@ -9,7 +9,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
     Plus, Building2, Users, ChevronRight, X, Loader2,
     ClipboardList, BookOpen, BarChart2, Target, Calendar,
-    Check, Clock, Play, ArrowLeft, Edit2, Trash2, RefreshCw
+    Check, Clock, Play, ArrowLeft, Edit2, Trash2, RefreshCw, Radar
 } from 'lucide-react';
 import * as api from '../services/api';
 
@@ -17,6 +17,7 @@ import * as api from '../services/api';
 import BrandBookApp from '../brand-book/App';
 import StrategyApp from '../estrategia/App';
 import PlanningView from './PlanningView';
+import { MercadoView } from './MercadoView';
 
 // =============================================================================
 // PLAN CONFIG
@@ -384,6 +385,7 @@ const BrandDetailView: React.FC<{ brandId: string; onBack: () => void; onNavigat
     const [showBrandBook, setShowBrandBook] = useState(false);
     const [showStrategy, setShowStrategy] = useState(false);
     const [showSchedule, setShowSchedule] = useState(false);
+    const [showMercado, setShowMercado] = useState(false);
     const [showStrategyGenModal, setShowStrategyGenModal] = useState(false);
     const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
@@ -515,6 +517,27 @@ const BrandDetailView: React.FC<{ brandId: string; onBack: () => void; onNavigat
         );
     }
 
+    if (showMercado) {
+        return (
+            <div className="h-full flex flex-col bg-gray-50 relative animate-in fade-in zoom-in duration-300">
+                <div className="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between shadow-sm z-10 shrink-0">
+                    <div className="flex items-center gap-4">
+                        <button onClick={() => setShowMercado(false)} className="p-2 hover:bg-gray-100 rounded-xl transition-colors">
+                            <ArrowLeft size={20} className="text-gray-600" />
+                        </button>
+                        <div>
+                            <h2 className="text-lg font-bold text-gray-900">Mercado</h2>
+                            <p className="text-xs text-gray-500">{brand?.nombre}</p>
+                        </div>
+                    </div>
+                </div>
+                <div className="flex-1 overflow-hidden">
+                    <MercadoView clientId={brandId} />
+                </div>
+            </div>
+        );
+    }
+
     if (loading) {
         return (
             <div className="h-full flex items-center justify-center">
@@ -550,6 +573,13 @@ const BrandDetailView: React.FC<{ brandId: string; onBack: () => void; onNavigat
                         </span>
                     </div>
                 </div>
+                <button
+                    onClick={() => setShowMercado(true)}
+                    className="flex items-center gap-2 px-4 py-2 bg-gray-900 text-white font-bold rounded-xl hover:bg-gray-800 transition-colors"
+                >
+                    <Radar size={18} />
+                    Mercado
+                </button>
             </div>
 
             {/* Modules Section */}

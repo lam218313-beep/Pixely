@@ -28,9 +28,9 @@ const CLUSTER_LABELS: Record<string, string> = {
     Prueba: 'Prueba / Conversión',
 };
 
-export const MercadoView: React.FC<{ onNavigate?: (view: string) => void }> = () => {
+export const MercadoView: React.FC<{ onNavigate?: (view: string) => void; clientId?: string }> = ({ clientId: clientIdProp }) => {
     const { user } = useAuth();
-    const clientId = user?.fichaClienteId;
+    const clientId = clientIdProp || user?.fichaClienteId;
 
     const [loading, setLoading] = useState(true);
     const [study, setStudy] = useState<api.MarketStudy | null>(null);
