@@ -571,15 +571,15 @@ const BrandDetailView: React.FC<{ brandId: string; onBack: () => void; onNavigat
                         <span className={`px-3 py-1 rounded-full text-xs font-bold ${colorClasses[planInfo.color]}`}>
                             {planInfo.label}
                         </span>
+                        <button
+                            onClick={() => setShowMercado(true)}
+                            className="flex items-center gap-2 px-4 py-2 bg-gray-900 text-white font-bold rounded-xl hover:bg-gray-800 transition-colors text-sm"
+                        >
+                            <Radar size={16} />
+                            Mercado
+                        </button>
                     </div>
                 </div>
-                <button
-                    onClick={() => setShowMercado(true)}
-                    className="flex items-center gap-2 px-4 py-2 bg-gray-900 text-white font-bold rounded-xl hover:bg-gray-800 transition-colors"
-                >
-                    <Radar size={18} />
-                    Mercado
-                </button>
             </div>
 
             {/* Modules Section */}
