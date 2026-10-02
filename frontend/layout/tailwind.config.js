@@ -6,6 +6,12 @@ export default {
     ],
     theme: {
         extend: {
+            // Design Tokens: Typography (matches lam218313-beep/Pixely_web)
+            fontFamily: {
+                sans: ['"Albert Sans"', 'Arial', 'sans-serif'],
+                display: ['"Bricolage Grotesque"', 'Arial', 'sans-serif'],
+            },
+
             // Design Tokens: Border Radius
             borderRadius: {
                 'card': '32px',
@@ -32,8 +38,8 @@ export default {
                     200: '#FFC2E1',
                     300: '#FFA3D2',
                     400: '#FF85C3',
-                    500: '#F20F79',
-                    600: '#D10C68',
+                    500: '#EB0C6E',
+                    600: '#D90B66',
                     700: '#B00957',
                     800: '#8F0746',
                     900: '#6E0535',
@@ -44,6 +50,14 @@ export default {
                     green: '#10B981',
                     blue: '#3B82F6',
                 },
+                // Pixely brand identity tokens (mirrors lam218313-beep/Pixely_web src/styles/tokens.css)
+                'ink': '#0A0A0C',
+                'carbon': '#141418',
+                'carbon-2': '#1C1C22',
+                'paper': '#FFFFFF',
+                'mist': '#F3F3F5',
+                'line-ink': 'rgba(255, 255, 255, 0.10)',
+                'line-paper': '#E4E4E8',
             },
 
             // Documented Breakpoints

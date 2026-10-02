@@ -9,14 +9,16 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+  <link
+    href="https://fonts.googleapis.com/css2?family=Albert+Sans:wght@300;400;500;600;700;800&family=Bricolage+Grotesque:wght@400;500;600;700;800&display=swap"
     rel="stylesheet">
   <script>
     tailwind.config = {
       theme: {
         extend: {
           fontFamily: {
-            sans: ['"Inter"', 'sans-serif'],
+            sans: ['"Albert Sans"', 'Arial', 'sans-serif'],
+            display: ['"Bricolage Grotesque"', 'Arial', 'sans-serif'],
           },
           colors: {
             brand: {
@@ -27,27 +29,32 @@
               800: '#465362',
               900: '#465362',
             },
-            // THEME COLOR: Magenta
+            // THEME COLOR: Magenta (Pixely brand identity)
             primary: {
-              50: '#fff0f6',
-              100: '#ffe3f1',
-              200: '#ffc2e2',
-              300: '#ff91c8',
-              400: '#ff52a6',
-              500: '#F20F79',
-              600: '#e00062',
-              700: '#b8004b',
+              50: '#FFF0F7',
+              100: '#FFE0F0',
+              200: '#FFC2E1',
+              300: '#FFA3D2',
+              400: '#FF85C3',
+              500: '#EB0C6E',
+              600: '#D90B66',
+              700: '#B00957',
             },
             accent: {
-              50: '#fff0f6',
-              100: '#ffe3f1',
-              200: '#ffc2e2',
-              300: '#ff91c8',
-              400: '#ff52a6',
-              500: '#F20F79',
-              600: '#e00062',
-              700: '#b8004b',
+              50: '#FFF0F7',
+              100: '#FFE0F0',
+              200: '#FFC2E1',
+              300: '#FFA3D2',
+              400: '#FF85C3',
+              500: '#EB0C6E',
+              600: '#D90B66',
+              700: '#B00957',
             },
+            ink: '#0A0A0C',
+            carbon: '#141418',
+            'carbon-2': '#1C1C22',
+            paper: '#FFFFFF',
+            mist: '#F3F3F5',
             // STRICT CHART PALETTE
             chart: {
               yellow: '#f3dfa2',
