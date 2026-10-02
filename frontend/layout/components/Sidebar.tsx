@@ -19,8 +19,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ isExpanded, setIsExpanded, act
             onMouseEnter={() => setIsExpanded(true)}
             onMouseLeave={() => setIsExpanded(false)}
             className={`
-                relative flex flex-col z-40 transition-all duration-300 ease-in-out group overflow-hidden shadow-xl 
-                rounded-[30px] border border-gray-200 font-sans bg-white text-gray-600
+                relative flex flex-col z-40 transition-all duration-300 ease-in-out group overflow-hidden shadow-xl
+                rounded-[30px] border border-[#1C1C22] font-sans bg-[#0A0A0C] text-white/60
                 my-4 mx-2 h-[calc(100vh-2rem)]
                 w-full
             `}
@@ -122,7 +122,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isExpanded, setIsExpanded, act
 
                 {/* Admin Panel - Only visible for admin users */}
                 {user?.isAdmin && (
-                    <div className="pt-4 mt-4 border-t border-gray-200">
+                    <div className="pt-4 mt-4 border-t border-[#1C1C22]">
                         <SidebarItem
                             icon={Shield}
                             label="Admin"
@@ -136,7 +136,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isExpanded, setIsExpanded, act
 
             {/* --- Bottom User Section --- */}
             <div className="px-3 mb-2 w-full shrink-0">
-                <div className="flex items-center p-3 rounded-[20px] bg-gray-50 border border-gray-100 cursor-pointer hover:bg-gray-100 transition-colors overflow-hidden relative h-[68px] group/user">
+                <div className="flex items-center p-3 rounded-[20px] bg-[#141418] border border-[#1C1C22] cursor-pointer hover:bg-[#1C1C22] transition-colors overflow-hidden relative h-[68px] group/user">
 
                     {/* Avatar with Initial */}
                     <div className="relative w-10 h-10 shrink-0">
@@ -144,22 +144,22 @@ export const Sidebar: React.FC<SidebarProps> = ({ isExpanded, setIsExpanded, act
                             <img
                                 src={user.logoUrl}
                                 alt="User"
-                                className="w-full h-full object-cover rounded-full border-2 border-gray-200 shadow-sm"
+                                className="w-full h-full object-cover rounded-full border-2 border-[#1C1C22] shadow-sm"
                             />
                         ) : (
-                            <div className="w-full h-full rounded-full border-2 border-gray-200 shadow-sm bg-gradient-to-br from-primary-500 to-primary-700 flex items-center justify-center">
+                            <div className="w-full h-full rounded-full border-2 border-[#1C1C22] shadow-sm bg-gradient-to-br from-primary-500 to-primary-700 flex items-center justify-center">
                                 <span className="text-white font-bold text-lg">
                                     {user?.email ? user.email.charAt(0).toUpperCase() : "U"}
                                 </span>
                             </div>
                         )}
-                        <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></div>
+                        <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-[#0A0A0C] rounded-full"></div>
                     </div>
 
                     {/* User Info (Reveals on hover) */}
                     <div className="ml-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300 min-w-[120px]">
-                        <span className="block text-sm font-bold text-gray-800 leading-none mb-1">{user?.email ? user.email.split('@')[0] : "Usuario Demo"}</span>
-                        <span className="block text-[10px] text-gray-500 font-medium">{user?.email || "admin@pixely.com"}</span>
+                        <span className="block text-sm font-bold text-white leading-none mb-1">{user?.email ? user.email.split('@')[0] : "Usuario Demo"}</span>
+                        <span className="block text-[10px] text-white/60 font-medium">{user?.email || "admin@pixely.com"}</span>
                     </div>
 
                     {/* Logout / Power Icon (Absolute right, reveals on hover) */}
@@ -168,7 +168,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isExpanded, setIsExpanded, act
                             e.stopPropagation();
                             onLogout();
                         }}
-                        className="absolute right-4 text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                        className="absolute right-4 text-white/40 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                         aria-label="Cerrar sesión"
                     >
                         <Power size={18} />
@@ -193,7 +193,7 @@ const SidebarItem: React.FC<SidebarItemProps> = ({ icon: Icon, label, viewId, is
         onClick={() => onClick(viewId)}
         className={`w-full flex items-center h-12 rounded-[18px] transition-all duration-200 relative group/item overflow-hidden px-4 ${isActive
             ? 'bg-gradient-to-r from-pink-500 to-rose-500 text-white shadow-lg shadow-pink-500/30'
-            : 'text-gray-500 hover:text-primary-600 hover:bg-primary-50'
+            : 'text-white/50 hover:text-white hover:bg-[#1C1C22]'
             }`}
         aria-label={`Ir a ${label}`}
         aria-current={isActive ? 'page' : undefined}
