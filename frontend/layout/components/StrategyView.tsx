@@ -1,5 +1,4 @@
 import React from 'react';
-import { WorkflowStepper } from './WorkflowStepper';
 import { AnimatedHeaderCard } from './AnimatedHeaderCard';
 import StrategyMap from '../estrategia/App';
 
@@ -7,10 +6,9 @@ export const StrategyView: React.FC<{ onNavigate: (view: string) => void }> = ({
     return (
         <div className='p-4 md:p-8 h-full overflow-y-auto custom-scrollbar animate-fade-in-up bg-brand-bg'>
             <div className="max-w-7xl mx-auto">
-                <WorkflowStepper currentStep={4} onNavigate={onNavigate} />
 
                 <AnimatedHeaderCard
-                    supertitle="Fase 4: Dirección"
+                    supertitle="Tu marca"
                     title="Estrategia"
                     subtitle="Definición del mapa estratégico y táctico."
                 />

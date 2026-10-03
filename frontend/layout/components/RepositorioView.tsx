@@ -48,8 +48,8 @@ export const RepositorioView: React.FC<{ onNavigate?: (view: string) => void; cl
     return (
         <div className="p-4 md:p-8 h-full overflow-y-auto custom-scrollbar animate-fade-in-up bg-brand-bg">
             <div className="max-w-7xl mx-auto">
-                {onNavigate && <WorkflowStepper currentStep={8} onNavigate={onNavigate} />}
-                <AnimatedHeaderCard supertitle="Fase 8: Archivo" title="Repositorio" subtitle="Todo lo que ya se publicó, mes a mes." />
+                {onNavigate && <WorkflowStepper currentStep={4} onNavigate={onNavigate} />}
+                <AnimatedHeaderCard supertitle="Archivo" title="Repositorio" subtitle="Todo lo que ya se publicó, mes a mes." />
 
                 {!clientId ? <NoClientSelected /> : (
                     <>

@@ -516,7 +516,22 @@ export async function saveInterview(clientId: string, data: any, file?: File | n
   return handleResponse(response);
 }
 
-export async function getInterview(clientId: string): Promise<any> {
+/** A module built from the interview; `desactualizado` = generated before the interview's last update. */
+export interface DownstreamModule {
+  modulo: 'manual' | 'analisis' | 'estrategia';
+  nombre: string;
+  generado_at: string;
+  desactualizado: boolean;
+}
+
+export interface InterviewRecord {
+  id?: string;
+  data: Record<string, any>;
+  updated_at?: string | null;
+  downstream?: DownstreamModule[];
+}
+
+export async function getInterview(clientId: string): Promise<InterviewRecord> {
   const response = await fetch(`${API_BASE_URL}/clients/${clientId}/interview`, {
     headers: getAuthHeaders()
   });

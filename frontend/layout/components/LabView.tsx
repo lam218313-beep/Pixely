@@ -20,7 +20,6 @@ import {
   CardLabsQ8_TemporalEvolution,
   CardLabs_SemanticDistribution
 } from './lab';
-import { WorkflowStepper } from './WorkflowStepper';
 import { AnimatedHeaderCard } from './AnimatedHeaderCard';
 export const LabView: React.FC<{ onNavigate: (view: string) => void }> = ({ onNavigate }) => {
   const { data, isLoading } = useAnalysisContext();
@@ -63,11 +62,10 @@ export const LabView: React.FC<{ onNavigate: (view: string) => void }> = ({ onNa
         <div className="max-w-7xl mx-auto">
 
           {/* Workflow Stepper */}
-          <WorkflowStepper currentStep={3} onNavigate={onNavigate} />
 
           {/* Header Card */}
           <AnimatedHeaderCard
-            supertitle="Fase 3: Inteligencia"
+            supertitle="Tu marca"
             title="Lab."
             subtitle="Análisis de mercado."
           />

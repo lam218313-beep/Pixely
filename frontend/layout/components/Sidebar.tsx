@@ -1,7 +1,9 @@
-import React from 'react';
-import { LayoutGrid, Users, Layers, BookOpen, Power, Shield, ClipboardList, Palette, CalendarRange, CheckCircle2, Radar, Images, Send } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { LayoutGrid, Home, Layers, BookOpen, Power, Shield, ClipboardList, Palette, CalendarRange, CheckCircle2, Radar, Images, Send } from 'lucide-react';
 import pixelyLogo from '../src/assets/logo.png';
 import { useAuth } from '../contexts/AuthContext';
+import * as api from '../services/api';
+import { pieceStage } from './content/ContentPieceUI';
 
 interface SidebarProps {
     isExpanded: boolean;
@@ -13,6 +15,18 @@ interface SidebarProps {
 
 export const Sidebar: React.FC<SidebarProps> = ({ isExpanded, setIsExpanded, activeView, setActiveView, onLogout }) => {
     const { user } = useAuth();
+    // The one place the client has to act: surface it from anywhere in the app.
+    // Re-counted on every navigation so it drops right after the client reviews.
+    const [toReview, setToReview] = useState(0);
+    const clientId = user?.fichaClienteId;
+    useEffect(() => {
+        if (!clientId) return;
+        let cancelled = false;
+        api.getContentPieces(clientId)
+            .then((pieces) => { if (!cancelled) setToReview(pieces.filter((p) => pieceStage(p) === 'revision').length); })
+            .catch(() => { /* the badge is a hint; never block the menu on it */ });
+        return () => { cancelled = true; };
+    }, [clientId, activeView]);
 
     return (
         <aside
@@ -34,119 +48,35 @@ export const Sidebar: React.FC<SidebarProps> = ({ isExpanded, setIsExpanded, act
                 </div>
             </div>
 
-            {/* Navigation */}
-            <nav className="flex-1 flex flex-col justify-center space-y-2 px-2 w-full overflow-y-auto custom-scrollbar" role="navigation" aria-label="Navegación principal">
+            {/* Navigation: grouped by what each page is for, not a flat list of steps */}
+            <nav className="flex-1 flex flex-col justify-center gap-1 px-2 w-full overflow-y-auto custom-scrollbar" role="navigation" aria-label="Navegación principal">
+                <SidebarItem icon={Home} label="Inicio" viewId="partners" isActive={activeView === 'partners'} onClick={setActiveView} />
 
-                {/* 1. Partners */}
-                <SidebarItem
-                    icon={Users}
-                    label="Partners"
-                    viewId="partners"
-                    isActive={activeView === 'partners'}
-                    onClick={setActiveView}
-                />
+                <SidebarGroup label="Tu marca">
+                    <SidebarItem icon={ClipboardList} label="Ficha" viewId="interview" isActive={activeView === 'interview'} onClick={setActiveView} />
+                    <SidebarItem icon={Palette} label="Manual" viewId="brand" isActive={activeView === 'brand'} onClick={setActiveView} />
+                    <SidebarItem icon={Layers} label="Análisis" viewId="lab" isActive={activeView === 'lab'} onClick={setActiveView} />
+                    <SidebarItem icon={Radar} label="Mercado" viewId="mercado" isActive={activeView === 'mercado'} onClick={setActiveView} />
+                    <SidebarItem icon={LayoutGrid} label="Estrategia" viewId="strategy" isActive={activeView === 'strategy'} onClick={setActiveView} />
+                </SidebarGroup>
 
-                {/* 2. Entrevista */}
-                <SidebarItem
-                    icon={ClipboardList}
-                    label="Entrevista"
-                    viewId="interview"
-                    isActive={activeView === 'interview'}
-                    onClick={setActiveView}
-                />
+                <SidebarGroup label="Contenido">
+                    <SidebarItem icon={CalendarRange} label="Planificación" viewId="work" isActive={activeView === 'work'} onClick={setActiveView} />
+                    <SidebarItem icon={CheckCircle2} label="Validación" viewId="validacion" isActive={activeView === 'validacion'} onClick={setActiveView} badge={toReview} />
+                    <SidebarItem icon={Send} label="Publicación" viewId="publicacion" isActive={activeView === 'publicacion'} onClick={setActiveView} />
+                </SidebarGroup>
 
-                {/* 3. Manual */}
-                <SidebarItem
-                    icon={Palette}
-                    label="Manual"
-                    viewId="brand"
-                    isActive={activeView === 'brand'}
-                    onClick={setActiveView}
-                />
+                <SidebarGroup label="Archivo">
+                    <SidebarItem icon={Images} label="Repositorio" viewId="repositorio" isActive={activeView === 'repositorio'} onClick={setActiveView} />
+                </SidebarGroup>
 
-                {/* 4. Análisis */}
-                <SidebarItem
-                    icon={Layers}
-                    label="Análisis"
-                    viewId="lab"
-                    isActive={activeView === 'lab'}
-                    onClick={setActiveView}
-                />
-
-                {/* 4-B. Mercado (fuera de la secuencia numerada de fases por ahora) */}
-                <SidebarItem
-                    icon={Radar}
-                    label="Mercado"
-                    viewId="mercado"
-                    isActive={activeView === 'mercado'}
-                    onClick={setActiveView}
-                />
-
-                {/* 5. Estrategia */}
-                <SidebarItem
-                    icon={LayoutGrid}
-                    label="Estrategia"
-                    viewId="strategy"
-                    isActive={activeView === 'strategy'}
-                    onClick={setActiveView}
-                />
-
-                {/* 5–8: the content production line, in the order a piece travels */}
-                <SidebarItem
-                    icon={CalendarRange}
-                    label="Planificación"
-                    viewId="work"
-                    isActive={activeView === 'work'}
-                    onClick={setActiveView}
-                />
-
-                <SidebarItem
-                    icon={CheckCircle2}
-                    label="Validación"
-                    viewId="validacion"
-                    isActive={activeView === 'validacion'}
-                    onClick={setActiveView}
-                />
-
-                <SidebarItem
-                    icon={Send}
-                    label="Publicación"
-                    viewId="publicacion"
-                    isActive={activeView === 'publicacion'}
-                    onClick={setActiveView}
-                />
-
-                <SidebarItem
-                    icon={Images}
-                    label="Repositorio"
-                    viewId="repositorio"
-                    isActive={activeView === 'repositorio'}
-                    onClick={setActiveView}
-                />
-
-                {/* Wiki */}
-                <SidebarItem
-                    icon={BookOpen}
-                    label="Wiki"
-                    viewId="wiki"
-                    isActive={activeView === 'wiki'}
-                    onClick={setActiveView}
-                />
-
-
-
-                {/* Admin Panel - Only visible for admin users */}
-                {user?.isAdmin && (
-                    <div className="pt-4 mt-4 border-t border-gray-200">
-                        <SidebarItem
-                            icon={Shield}
-                            label="Admin"
-                            viewId="admin"
-                            isActive={activeView === 'admin'}
-                            onClick={setActiveView}
-                        />
-                    </div>
-                )}
+                <div className="pt-3 mt-2 border-t border-gray-100">
+                    <SidebarItem icon={BookOpen} label="Wiki" viewId="wiki" isActive={activeView === 'wiki'} onClick={setActiveView} />
+                    {/* Admin Panel - Only visible for admin users */}
+                    {user?.isAdmin && (
+                        <SidebarItem icon={Shield} label="Admin" viewId="admin" isActive={activeView === 'admin'} onClick={setActiveView} />
+                    )}
+                </div>
             </nav>
 
             {/* --- Bottom User Section --- */}
@@ -201,21 +131,35 @@ interface SidebarItemProps {
     viewId: string;
     isActive: boolean;
     onClick: (view: string) => void;
+    badge?: number;
 }
 
-const SidebarItem: React.FC<SidebarItemProps> = ({ icon: Icon, label, viewId, isActive, onClick }) => (
+/** Section label shows with the expanded rail; collapsed, a hairline keeps the groups apart. */
+const SidebarGroup: React.FC<{ label: string; children: React.ReactNode }> = ({ label, children }) => (
+    <div className="pt-3 mt-1 border-t border-gray-100 group-hover:border-transparent transition-colors" role="group" aria-label={label}>
+        <p className="h-0 group-hover:h-5 overflow-hidden px-4 text-[10px] font-bold uppercase tracking-[0.15em] text-gray-400 opacity-0 group-hover:opacity-100 transition-all duration-300 whitespace-nowrap">{label}</p>
+        <div className="space-y-1">{children}</div>
+    </div>
+);
+
+const SidebarItem: React.FC<SidebarItemProps> = ({ icon: Icon, label, viewId, isActive, onClick, badge }) => (
     <button
         onClick={() => onClick(viewId)}
-        className={`w-full flex items-center h-12 rounded-[18px] transition-all duration-200 relative group/item overflow-hidden px-4 ${isActive
+        className={`w-full flex items-center h-11 rounded-[18px] transition-all duration-200 relative group/item overflow-hidden px-4 ${isActive
             ? 'bg-gradient-to-r from-pink-500 to-rose-500 text-white shadow-lg shadow-pink-500/30'
             : 'text-gray-500 hover:text-primary-600 hover:bg-primary-50'
             }`}
-        aria-label={`Ir a ${label}`}
+        aria-label={`Ir a ${label}${badge ? ` (${badge} por revisar)` : ''}`}
         aria-current={isActive ? 'page' : undefined}
     >
         {/* Icon container */}
-        <div className="w-8 flex items-center justify-center shrink-0">
+        <div className="w-8 flex items-center justify-center shrink-0 relative">
             <Icon size={22} strokeWidth={isActive ? 2.5 : 2} />
+            {!!badge && (
+                <span className={`absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] px-1 rounded-full text-[10px] font-bold flex items-center justify-center ring-2 ${isActive ? 'bg-white text-primary-600 ring-primary-500' : 'bg-primary-600 text-white ring-white'}`}>
+                    {badge}
+                </span>
+            )}
         </div>
 
         {/* Label */}
