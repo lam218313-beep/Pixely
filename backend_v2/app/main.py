@@ -12,7 +12,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from .config import settings
-from .routers import pipeline, clients, analysis, auth, tasks, interview, personas, tts, strategy, brand, admin, planning, market
+from .routers import pipeline, clients, analysis, auth, tasks, interview, personas, tts, strategy, brand, admin, planning, market, content
 # NOTE: images/studio routers (AI image generation: NanoBanana, DALL-E, ComfyUI) moved to
 # backend_v2/_sandbox_ai_studio/ — image generation now happens in the local Magnific workflow,
 # which uploads finished content straight to Supabase. See docs/superpowers/specs/ for the plan.
@@ -101,6 +101,7 @@ app.include_router(brand.router)
 app.include_router(admin.router)
 app.include_router(planning.router)
 app.include_router(market.router)
+app.include_router(content.router)
 
 @app.get("/", tags=["Health"])
 async def root():

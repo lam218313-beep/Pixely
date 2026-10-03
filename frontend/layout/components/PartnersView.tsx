@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Zap, Sparkles, Users, Palette, BarChart3, Target, ListChecks, TrendingUp, Check } from 'lucide-react';
+import { Zap, Sparkles, Users, Palette, BarChart3, Target, ListChecks, Check } from 'lucide-react';
 import OrbitalHero from './OrbitalHero';
 import TetrisCards from './TetrisCards';
 import { TutorialModal } from './TutorialModal';
@@ -44,12 +44,6 @@ const TUTORIAL_SLIDES = [
     description: "Tu tablero Kanban convierte planes en tareas ejecutables. Aprueba contenido con un click y olvídate del caos.",
     icon: ListChecks,
     audioUrl: "/assets/audio/tutorial_step6_planning.mp3"
-  },
-  {
-    title: "Crecimiento Continuo",
-    description: "Mientras más trabajamos juntos, más herramientas avanzadas desbloqueamos. Análisis predictivo, automatizaciones y más.",
-    icon: TrendingUp,
-    audioUrl: "/assets/audio/tutorial_step7_benefits.mp3"
   },
   {
     title: "Comencemos Tu Historia",

@@ -18,7 +18,6 @@ export interface AuthUser {
   logoUrl: string | null;
   role: string | null;  // User role (admin, analyst, client)
   isAdmin: boolean;    // Convenience flag
-  benefits: string[];  // Enabled benefits
 }
 
 
@@ -64,7 +63,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
         logoUrl: storedUser.logo_url || null,
         role: storedUser.role || null,
         isAdmin: storedUser.role === 'admin',
-        benefits: storedUser.benefits || [],
       });
     }
     setIsLoading(false);
@@ -83,7 +81,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
         logoUrl: response.logo_url || null,
         role: response.role || null,
         isAdmin: response.role === 'admin',
-        benefits: response.benefits || [],
       });
     } catch (err) {
       const message = err instanceof api.ApiError

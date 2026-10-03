@@ -1,5 +1,5 @@
 import React from 'react';
-import { LayoutGrid, Users, Layers, FileText, BookOpen, Power, Hexagon, Shield, ClipboardList, Palette, CalendarRange, CheckCircle, CheckCircle2, Radar } from 'lucide-react';
+import { LayoutGrid, Users, Layers, BookOpen, Power, Shield, ClipboardList, Palette, CalendarRange, CheckCircle2, Radar, Images, Send } from 'lucide-react';
 import pixelyLogo from '../src/assets/logo.png';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -100,16 +100,34 @@ export const Sidebar: React.FC<SidebarProps> = ({ isExpanded, setIsExpanded, act
                     onClick={setActiveView}
                 />
 
-                {/* 7. Beneficios - Temporalmente oculto */}
-                {/* <SidebarItem
-                    icon={CheckCircle2}
-                    label="Beneficios"
-                    viewId="benefits"
-                    isActive={activeView === 'benefits'}
+                {/* 7. Repositorio */}
+                <SidebarItem
+                    icon={Images}
+                    label="Repositorio"
+                    viewId="repositorio"
+                    isActive={activeView === 'repositorio'}
                     onClick={setActiveView}
-                /> */}
+                />
 
-                {/* 9. Wiki */}
+                {/* 8. Validación */}
+                <SidebarItem
+                    icon={CheckCircle2}
+                    label="Validación"
+                    viewId="validacion"
+                    isActive={activeView === 'validacion'}
+                    onClick={setActiveView}
+                />
+
+                {/* 9. Publicación */}
+                <SidebarItem
+                    icon={Send}
+                    label="Publicación"
+                    viewId="publicacion"
+                    isActive={activeView === 'publicacion'}
+                    onClick={setActiveView}
+                />
+
+                {/* Wiki */}
                 <SidebarItem
                     icon={BookOpen}
                     label="Wiki"

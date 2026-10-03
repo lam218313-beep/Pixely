@@ -5,6 +5,14 @@
 /* Import Accessibility Styles */
 @import './styles/accessibility.css';
 
+/* Pixely brand identity: Bricolage Grotesque for headings site-wide,
+   Albert Sans for body (set via tailwind.config.js fontFamily.sans on <html>).
+   Mirrors lam218313-beep/Pixely_web's title-xl/title-l/title-m convention. */
+h1, h2, h3, h4 {
+  font-family: 'Bricolage Grotesque', Arial, sans-serif;
+  letter-spacing: -0.01em;
+}
+
 /* Custom Scrollbar */
 .custom-scrollbar::-webkit-scrollbar {
   width: 6px;

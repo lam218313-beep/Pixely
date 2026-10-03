@@ -15,10 +15,10 @@ export interface AuthResponse {
   access_token: string;
   token_type: string;
   user_email: string;
+  tenant_id: string;
   ficha_cliente_id: string | null;
   logo_url: string | null;
   role: string | null;  // User role (admin, analyst, client)
-  benefits: string[];   // Enabled benefits
 }
 
 
@@ -30,7 +30,6 @@ export interface UserInfo {
   is_active: boolean;
   logo_url?: string;
   client_id?: string;
-  benefits?: string[];
   created_at?: string;
 }
 
@@ -835,6 +834,65 @@ export async function getMarketFindings(clientId: string): Promise<MarketFinding
     headers: getAuthHeaders(),
   });
   const result = await handleResponse<{ status: string; data: MarketFinding[] }>(response);
+  return result.data;
+}
+
+// =============================================================================
+// CONTENT PIECES (Repositorio / Validación / Publicación)
+// Filled by the Claude Desktop pipeline: 02 crea, 03 copy, 04 render, 05 publica.
+// =============================================================================
+
+export type ContentFormato = 'Imagen' | 'Carrusel' | 'Estado' | 'Reel';
+export type ContentPilar = 'Problema' | 'Identidad' | 'Prueba';
+export type ContentAprobacion = 'Pendiente' | 'Aprobado' | 'Cambios solicitados';
+
+export interface ContentPiece {
+  id: string;
+  client_id: string;
+  fecha: string;
+  formato: ContentFormato | null;
+  pilar: ContentPilar | null;
+  topico_angulo: string | null;
+  marcador: 'I' | 'C' | null;
+  estado_copy: string | null;
+  estado_render: string | null;
+  estado_publicado: string | null;
+  estado_aprobacion: ContentAprobacion;
+  comentario_cliente: string | null;
+  revisado_at: string | null;
+  revisado_por: string | null;
+  copy_instagram: string | null;
+  copy_linkedin: string | null;
+  copy_pinterest: string | null;
+  copy_gbp: string | null;
+  copy_x: string | null;
+  prompt_visual: string | null;  // English Magnific prompt, or the reel script when formato = 'Reel'
+  url_imagen: string | null;
+  url_piezas_finales: string[] | null;
+  created_at: string;
+}
+
+export async function getContentPieces(clientId: string, month?: string): Promise<ContentPiece[]> {
+  const query = month ? `?month=${encodeURIComponent(month)}` : '';
+  const response = await fetch(`${API_BASE_URL}/content/${clientId}/pieces${query}`, {
+    headers: getAuthHeaders(),
+  });
+  const result = await handleResponse<{ status: string; data: ContentPiece[] }>(response);
+  return result.data;
+}
+
+export async function reviewContentPiece(
+  clientId: string,
+  pieceId: string,
+  estado: Exclude<ContentAprobacion, 'Pendiente'>,
+  comentario?: string
+): Promise<ContentPiece> {
+  const response = await fetch(`${API_BASE_URL}/content/${clientId}/pieces/${pieceId}/review`, {
+    method: 'PATCH',
+    headers: { ...getAuthHeaders(), 'Content-Type': 'application/json' },
+    body: JSON.stringify({ estado, comentario }),
+  });
+  const result = await handleResponse<{ status: string; data: ContentPiece }>(response);
   return result.data;
 }
 
