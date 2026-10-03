@@ -234,6 +234,27 @@ export class ApiError extends Error {
   }
 }
 
+/**
+ * An expired session made every screen load empty (the backend answers 401) while the app
+ * still showed the user as logged in. Watch every request: a 401 to our API on a request that
+ * carried a token means the session is over — clear it and reload into the login screen.
+ * The login call itself is exempt, so a wrong password still shows its normal error.
+ */
+export function installSessionGuard(): void {
+  const originalFetch = window.fetch.bind(window);
+  window.fetch = async (input, init) => {
+    const response = await originalFetch(input, init);
+    if (response.status === 401 && getStoredToken()) {
+      const url = typeof input === 'string' ? input : input instanceof URL ? input.href : input.url;
+      if (url.startsWith(API_BASE_URL) && !url.endsWith('/token')) {
+        logout();
+        window.location.reload();
+      }
+    }
+    return response;
+  };
+}
+
 async function handleResponse<T>(response: Response): Promise<T> {
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({ detail: 'Unknown error' }));
