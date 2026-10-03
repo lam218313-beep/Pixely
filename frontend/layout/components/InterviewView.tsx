@@ -2,7 +2,7 @@
  * InterviewView - "Ficha de tu negocio"
  *
  * First visit: the interview form. Once submitted it becomes a read-only profile
- * the client can update; after an update it warns which modules (Manual, Análisis,
+ * the client can update; after an update it warns which modules (Voz de marca,
  * Estrategia) were generated from the previous version and are now out of date.
  */
 
@@ -75,7 +75,7 @@ const AUDIENCE_LABELS: [string, string][] = [
     ['decisionRole', 'Rol en la decisión'], ['usage', 'Uso del producto'],
 ];
 
-const MODULE_VIEW: Record<api.DownstreamModule['modulo'], string> = { manual: 'brand', analisis: 'lab', estrategia: 'strategy' };
+const MODULE_VIEW: Record<api.DownstreamModule['modulo'], string> = { manual: 'brand', estrategia: 'strategy' };
 
 const Ficha: React.FC<{ record: api.InterviewRecord; onEdit: () => void; onNavigate?: (view: string) => void }> = ({ record, onEdit, onNavigate }) => {
     const d = record.data;

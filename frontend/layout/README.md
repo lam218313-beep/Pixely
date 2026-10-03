@@ -1,6 +1,6 @@
 # Pixely Partners Frontend
 
-Frontend React + TypeScript + Vite para la plataforma de análisis de redes sociales.
+Frontend React + TypeScript + Vite de Pixely Partners: la ficha del negocio, su mercado, su estrategia y la línea de producción de contenido.
 
 ## Stack Tecnológico
 
@@ -38,29 +38,36 @@ VITE_API_URL=http://localhost:8000
 
 ```
 frontend/layout/
-├── components/          # Componentes React
-│   ├── CardLabsQ1-Q8    # Visualizaciones Q1-Q10
-│   ├── LabView.tsx      # Vista principal del Lab
-│   ├── LoginComponents  # Login y animaciones
-│   ├── Sidebar.tsx      # Navegación lateral
+├── components/              # Componentes React
+│   ├── Sidebar.tsx          # Menú por zonas: Inicio · Tu marca · Contenido · Archivo
+│   ├── InterviewView.tsx    # Ficha del negocio (la entrevista)
+│   ├── MercadoView.tsx      # Mercado: tamaño, competencia, precios, señales
+│   ├── PlanificacionView / ValidacionView / PublicacionView / RepositorioView
+│   ├── content/             # Tarjeta y detalle de cada pieza de contenido
+│   ├── LoginComponents.tsx  # Login y animaciones
 │   └── ...
-├── contexts/            # React Contexts
-│   └── AuthContext.tsx  # Estado de autenticación
-├── hooks/               # Custom hooks
-│   └── useAnalysis.tsx  # Datos Q1-Q10
-├── services/            # Servicios API
-│   └── api.ts           # Llamadas al backend
-├── App.tsx              # Componente principal
-└── index.tsx            # Entry point
+├── brand-book/              # Voz de marca
+├── estrategia/              # Estrategia (mapa de objetivos y conceptos)
+├── entrevista/              # Formulario de la Ficha
+├── contexts/
+│   └── AuthContext.tsx      # Estado de autenticación
+├── hooks/
+│   └── useContentPieces.ts  # Piezas de contenido del cliente
+├── services/
+│   └── api.ts               # Llamadas al backend (y cierre de sesión al expirar)
+├── App.tsx                  # Componente principal
+└── index.tsx                # Entry point
 ```
 
 ## Conexión con Backend
 
 El frontend se conecta al backend FastAPI en:
-- **Auth**: `POST /token` (OAuth2)
-- **Analysis**: `POST /semantic/analyze/{client_id}`
-- **Context**: `GET/POST /semantic/context/{client_id}`
-- **Chat**: `POST /semantic/chat/{client_id}/{session_id}`
+- **Auth**: `POST /token` (OAuth2), `GET /users/me`
+- **Ficha**: `GET/PUT /clients/{client_id}/interview`
+- **Voz de marca**: `GET /brand/{client_id}`, `PATCH /brand/{client_id}/voice/review`, `PUT /brand/{client_id}/colors`
+- **Mercado**: `GET /market/{client_id}/study`, `GET /market/{client_id}/findings`
+- **Estrategia**: `GET /strategy/{client_id}`, `POST /strategy/sync`
+- **Contenido**: `GET /content/{client_id}/pieces`, `PATCH /content/{client_id}/pieces/{piece_id}/review`
 
 ## Desarrollo
 
@@ -69,16 +76,3 @@ Para desarrollo local con el backend:
 1. Iniciar backend: `docker compose up -d` (en `/backend`)
 2. Iniciar frontend: `npm run dev`
 3. Abrir http://localhost:5173
-
-## Visualizaciones Q1-Q10
-
-| Card | Análisis | Descripción |
-|------|----------|-------------|
-| Q1 | Emociones | Radar de Plutchik (8 emociones) |
-| Q2 | Personalidad | Pentágono Aaker (5 dimensiones) |
-| Q3 | Tópicos | Top temas con sentimiento |
-| Q4 | Marcos Narrativos | Distribución Positivo/Negativo/Aspiracional |
-| Q5 | Influencers | Ranking por centralidad |
-| Q6 | Oportunidades | Matriz gap vs capacidad |
-| Q7 | Sentimiento | Barras de distribución |
-| Q8 | Temporal | Evolución semanal |

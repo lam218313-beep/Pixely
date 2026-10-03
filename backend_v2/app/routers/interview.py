@@ -103,10 +103,9 @@ def _downstream_status(client_id: str, interview_updated_at: Optional[str]) -> l
     """
     generated = {
         "manual": (db.get_brand_identity(client_id) or {}).get("updated_at"),
-        "analisis": (db.get_latest_completed_report(client_id) or {}).get("created_at"),
         "estrategia": max((n.get("created_at") or "" for n in db.get_strategy_nodes(client_id)), default="") or None,
     }
-    labels = {"manual": "Voz de marca", "analisis": "Análisis", "estrategia": "Estrategia"}
+    labels = {"manual": "Voz de marca", "estrategia": "Estrategia"}
     out = []
     for key, at in generated.items():
         if not at:

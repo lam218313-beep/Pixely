@@ -5,14 +5,16 @@ Endpoints for brand-centric admin panel.
 Brands contain users and have plans that define accessible modules.
 """
 
-from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks
+from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from typing import Optional, List
 from datetime import datetime
 import logging
 
 from ..services.database import db
-from ..services import gemini_service, aggregator
+from ..services import gemini_service
+from ..services.strategy_context import build_market_insights, interview_answers
+from ..services.strategy_tree import convert_tree_to_nodes
 from ..services.auth_service import require_admin
 
 
@@ -27,12 +29,11 @@ router = APIRouter(prefix="/api/admin", tags=["Admin"], dependencies=[Depends(re
 # MODULES — every brand gets every module now; there are no subscription tiers.
 # =============================================================================
 
-ALL_MODULES = ["interview", "manual", "analysis", "strategy", "schedule"]
+ALL_MODULES = ["interview", "manual", "strategy", "schedule"]
 
 MODULE_INFO = {
     "interview": {"name": "Entrevista", "icon": "clipboard-list"},
-    "manual": {"name": "Manual", "icon": "book-open"},
-    "analysis": {"name": "Análisis", "icon": "bar-chart-2"},
+    "manual": {"name": "Voz de marca", "icon": "book-open"},
     "strategy": {"name": "Estrategia", "icon": "target"},
     "schedule": {"name": "Cronograma", "icon": "calendar"}
 }
@@ -68,10 +69,6 @@ class ModuleStatus(BaseModel):
     icon: str
     status: str  # "completed", "pending", "ready", "not_available"
     can_execute: bool = False
-
-class AnalysisRequest(BaseModel):
-    analysis_type: str  # "real" or "aspirational"
-    instagram_url: str
 
 # =============================================================================
 # ENDPOINTS
@@ -173,10 +170,9 @@ async def get_module_status(brand_id: str, module_id: str) -> dict:
     # ==============================================================================
     # ORDEN DE FLUJO:
     # 1. Interview (Base)
-    # 2. Manual (Requiere Interview)
-    # 3. Analysis (Requiere Manual)
-    # 4. Strategy (Requiere Analysis)
-    # 5. Schedule (Requiere Strategy)
+    # 2. Voz de marca (Requiere Interview)
+    # 3. Strategy (Requiere Interview; usa la inteligencia de mercado si existe)
+    # 4. Schedule (lo escribe /02_crearcronograma en content_pieces)
     # ==============================================================================
 
     if module_id == "interview":
@@ -186,49 +182,25 @@ async def get_module_status(brand_id: str, module_id: str) -> dict:
         return {"status": "pending", "can_execute": False}
     
     elif module_id == "manual":
-        # Depende de Interview
+        # Voz de marca: generated from the Ficha (interview)
         interview = db.get_interview(brand_id)
-        brand_identity = db.get_brand_identity(brand_id)
-        
-        if brand_identity and brand_identity.get("mission"):
-            return {"status": "completed", "can_execute": True} # Can view
-        elif interview:
-            return {"status": "ready", "can_execute": True} # Ready to generate/view empty?
-        return {"status": "pending", "can_execute": False}
-    
-    elif module_id == "analysis":
-        # Depende de Manual (Identidad)
-        brand_identity = db.get_brand_identity(brand_id)
-        
-        # Check status using existing method
-        client_status = db.get_client_status(brand_id)
-        status = client_status.get("status")
-        
-        if status:
-             if status == "COMPLETED":
-                 return {"status": "completed", "can_execute": True}
-             elif status in ["PROCESSING", "CLASSIFYING", "AGGREGATING"]:
-                 return {"status": "processing", "can_execute": False}
-             elif status == "ERROR":
-                 # Allow retry on error
-                 return {"status": "ready", "can_execute": True}
+        voice = db.get_brand_identity(brand_id)
 
-        # Fallback if no report exists
-        if brand_identity and brand_identity.get("mission"):
-            return {"status": "ready", "can_execute": True}
-        return {"status": "pending", "can_execute": False}
-    
-    elif module_id == "strategy":
-        # Depende de Analysis
-        report = db.get_latest_completed_report(brand_id)
-        strategies = db.get_strategy_nodes(brand_id) if hasattr(db, 'get_strategy_nodes') else []
-        
-        if strategies and len(strategies) > 0:
+        if voice and (voice.get("tone_traits") or voice.get("archetype")):
             return {"status": "completed", "can_execute": True}
-        elif report:
+        elif interview:
             return {"status": "ready", "can_execute": True}
         return {"status": "pending", "can_execute": False}
-    
+
+    elif module_id == "strategy":
+        # Generated from the Ficha + market intelligence (study, surveillance, voice)
+        strategies = db.get_strategy_nodes(brand_id)
+        if strategies:
+            return {"status": "completed", "can_execute": True}
+        elif db.get_interview(brand_id):
+            return {"status": "ready", "can_execute": True}
+        return {"status": "pending", "can_execute": False}
+
     elif module_id == "schedule":
         # The monthly plan is written only by /02_crearcronograma (Claude Desktop) into
         # content_pieces; the panel just opens it in Planificación once it exists.
@@ -337,56 +309,6 @@ async def create_brand_user(brand_id: str, request: UserCreate):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.post("/brands/{brand_id}/analysis")
-async def execute_analysis(brand_id: str, request: AnalysisRequest, background_tasks: BackgroundTasks):
-    """Execute analysis for a brand."""
-    from ..routers.pipeline import _run_full_pipeline
-    import uuid
-    
-    # Verify brand exists
-    brand = db.get_client(brand_id)
-    if not brand:
-        raise HTTPException(status_code=404, detail="Brand not found")
-    
-    # Verify interview is completed
-    brand_identity = db.get_brand_identity(brand_id)
-    if not brand_identity or not brand_identity.get("mission"):
-        raise HTTPException(status_code=400, detail="Manual de Marca (Identidad) debe estar completo antes del análisis")
-    
-    # Validate analysis type
-    if request.analysis_type not in ["real", "aspirational"]:
-        raise HTTPException(status_code=400, detail="Invalid analysis type. Must be 'real' or 'aspirational'")
-    
-    try:
-        # Call the pipeline manually
-        logger.info(f"Starting {request.analysis_type} analysis for brand {brand_id}")
-        
-        report_id = str(uuid.uuid4())
-        
-        # 1. Create record in Supabase
-        db.create_report(report_id, brand_id, status="PROCESSING")
-        
-        # 2. Launch background task
-        background_tasks.add_task(
-            _run_full_pipeline, 
-            report_id=report_id,
-            client_id=brand_id,
-            instagram_url=request.instagram_url,
-            comments_limit=1000 # Default limit
-        )
-        
-        return {
-            "status": "started",
-            "analysis_type": request.analysis_type,
-            "report_id": report_id,
-            "message": f"Análisis {'de marca real' if request.analysis_type == 'real' else 'aspiracional'} iniciado"
-        }
-        
-    except Exception as e:
-        logger.error(f"Failed to start analysis: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
-
-
 @router.get("/brands/{brand_id}/strategies")
 async def get_brand_strategies(brand_id: str):
     """Get strategies for a brand."""
@@ -427,50 +349,30 @@ async def generate_brand_manual(brand_id: str):
 @router.post("/brands/{brand_id}/strategy/seed")
 async def seed_strategy_manually(brand_id: str):
     """
-    Trigger manual para generar la Estrategia (Árbol de Objetivos) 
-    usando IA basada en el Análisis completado.
+    Generate the Estrategia (objectives tree) with AI from the Ficha (interview)
+    and the market intelligence (study, surveillance, brand voice).
     """
-    logger.info(f"♟️ [Admin] Iniciando generación manual de estrategia para {brand_id}")
-    
-    # 1. Validar prerrequisitos
-    report = db.get_latest_completed_report(brand_id)
-    if not report or not report.get("frontend_compatible_json"):
-        raise HTTPException(
-            status_code=400, 
-            detail="No se puede generar estrategia: El Análisis no está completado o no existe."
-        )
-    
-    analysis = report["frontend_compatible_json"]
-    if "Q10" not in analysis:
-        raise HTTPException(
-            status_code=400, 
-            detail="No se puede generar estrategia: El Análisis (Q1-Q10) no está completo (Falta Q10)."
-        )
+    logger.info(f"♟️ [Admin] Iniciando generación de estrategia para {brand_id}")
 
-    # 2. Obtener contexto (Entrevista)
-    interview_record = db.get_interview(brand_id)
-    interview_data = interview_record.get("data", {}) if interview_record else {}
-    
     client = db.get_client(brand_id)
     if not client:
         raise HTTPException(status_code=404, detail="Cliente no encontrado")
 
+    interview_data = interview_answers(db.get_interview(brand_id))
+    if not interview_data:
+        raise HTTPException(status_code=400, detail="No se puede generar estrategia: falta la Ficha del negocio (entrevista).")
+
     try:
-        # 3. Generar Árbol con IA (El "Arquitecto")
         strategy_json = await gemini_service.generate_strategic_plan(
             interview_data=interview_data,
-            analysis_json=analysis
+            market_insights=build_market_insights(brand_id),
         )
-        
-        # 5. Convertir JSON a Nodos Visuales (x, y)
-        strategy_nodes = aggregator.convert_tree_to_nodes(brand_id, strategy_json)
-        
-        # 6. Guardar en Base de Datos
+        strategy_nodes = convert_tree_to_nodes(brand_id, strategy_json)
         db.sync_strategy_nodes(brand_id, strategy_nodes)
-        
+
         return {
-            "status": "success", 
-            "message": "Estrategia generada correctamente", 
+            "status": "success",
+            "message": "Estrategia generada correctamente",
             "nodes_count": len(strategy_nodes)
         }
 
@@ -494,39 +396,21 @@ async def reset_brand_strategy(brand_id: str):
         
         brand_name = brand.get("nombre", "Marca")
 
-        # 2. Get interview data
-        interview_data = db.get_interview(brand_id)
+        # 2. Ficha (interview answers) + market intelligence
+        interview_data = interview_answers(db.get_interview(brand_id))
         if not interview_data:
             logger.warning(f"⚠️ No interview data found for {brand_name}, using minimal data")
-            interview_data = {
-                "brand_name": brand_name,
-                "industry": brand.get("industry", "General"),
-                "target_audience": "Público general",
-                "objectives": ["Aumentar visibilidad", "Generar engagement"]
-            }
-        
-        # 3. Get analysis data
-        analysis = db.get_latest_completed_report(brand_id)
-        if not analysis:
-            logger.warning(f"⚠️ No analysis data found for {brand_name}, using minimal data")
-            analysis = {
-                "frontend_compatible_json": {
-                    "summary": "Análisis pendiente",
-                    "recommendations": []
-                }
-            }
-        else:
-            analysis = analysis.get("frontend_compatible_json", {})
-        
-        # 4. Generate strategy with AI
+            interview_data = {"businessName": brand_name}
+
+        # 3. Generate strategy with AI
         logger.info(f"🤖 Generating AI strategy for {brand_name}")
         strategy_json = await gemini_service.generate_strategic_plan(
             interview_data=interview_data,
-            analysis_json=analysis
+            market_insights=build_market_insights(brand_id),
         )
 
         # 5. Convert JSON to visual nodes
-        strategy_nodes = aggregator.convert_tree_to_nodes(brand_id, strategy_json)
+        strategy_nodes = convert_tree_to_nodes(brand_id, strategy_json)
         
         # 6. Save to database (this will delete old nodes and create new ones)
         db.sync_strategy_nodes(brand_id, strategy_nodes)

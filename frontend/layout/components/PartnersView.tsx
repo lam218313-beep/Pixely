@@ -28,8 +28,8 @@ const TUTORIAL_SLIDES = [
     audioUrl: "/assets/audio/tutorial_step3_brand.mp3"
   },
   {
-    title: "Datos que Hablan",
-    description: "Monitoreamos tus redes y el mercado 24/7. Metodologías estadísticas revelan oportunidades ocultas.",
+    title: "Conocemos tu Mercado",
+    description: "Estudiamos a tu competencia, sus precios y promociones, y la vigilamos cada mes para encontrar oportunidades reales.",
     icon: BarChart3,
     audioUrl: "/assets/audio/tutorial_step4_analysis.mp3"
   },

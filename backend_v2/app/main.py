@@ -12,7 +12,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from .config import settings
-from .routers import pipeline, clients, analysis, auth, interview, personas, tts, strategy, brand, admin, market, content
+from .routers import clients, auth, interview, personas, tts, strategy, brand, admin, market, content
 # NOTE: images/studio routers (AI image generation: NanoBanana, DALL-E, ComfyUI) moved to
 # backend_v2/_sandbox_ai_studio/ — image generation now happens in the local Magnific workflow,
 # which uploads finished content straight to Supabase. See docs/superpowers/specs/ for the plan.
@@ -90,8 +90,6 @@ app.add_middleware(
 # Routers
 app.include_router(auth.router)
 app.include_router(clients.router)
-app.include_router(analysis.router)
-app.include_router(pipeline.router)
 app.include_router(interview.router)
 app.include_router(personas.router)
 app.include_router(tts.router)
@@ -123,7 +121,6 @@ async def health_check():
         "status": "healthy",
         "version": "2.0.0",
         "components": {
-            "apify": "connected" if settings.APIFY_TOKEN else "missing_token",
             "gemini": "connected" if settings.GEMINI_API_KEY else "missing_key",
         }
     }

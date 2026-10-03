@@ -4,15 +4,12 @@ import { Sidebar } from './components/Sidebar.tsx';
 // import { RightSidebar } from './components/RightSidebar.tsx';
 import { AlertCircle, Calendar } from 'lucide-react';
 import { AuthProvider, useAuth } from './contexts/AuthContext.tsx';
-import { AnalysisProvider } from './hooks/useAnalysis.tsx';
 // StudioProvider/ImageStudioPage/ImageGeneratorPage moved to _sandbox_ai_studio/ —
 // "Estudio IA" is retired, AI image generation now happens in the local Magnific workflow.
 
 // Lazy-loaded views for better performance
-const LabView = lazy(() => import('./components/LabView.tsx').then(m => ({ default: m.LabView })));
 const MercadoView = lazy(() => import('./components/MercadoView.tsx').then(m => ({ default: m.MercadoView })));
 const PlanificacionView = lazy(() => import('./components/PlanificacionView.tsx').then(m => ({ default: m.PlanificacionView })));
-const WikiView = lazy(() => import('./components/WikiView.tsx'));
 const PartnersView = lazy(() => import('./components/PartnersView.tsx'));
 const AdminPanel = lazy(() => import('./components/AdminPanel.tsx').then(m => ({ default: m.AdminPanel })));
 const InterviewView = lazy(() => import('./components/InterviewView.tsx').then(m => ({ default: m.InterviewView })));
@@ -71,7 +68,7 @@ class ErrorBoundary extends Component<{ children: ReactNode }, ErrorBoundaryStat
 
 // Transition States
 type FlowState = 'LOGIN_ACTIVE' | 'LOGIN_EXITING' | 'ANIMATION_ENTRY' | 'ANIMATION_EXITING' | 'DASHBOARD_ACTIVE';
-type ViewType = 'dashboard' | 'partners' | 'lab' | 'mercado' | 'work' | 'repositorio' | 'validacion' | 'publicacion' | 'wiki' | 'interview' | 'brand' | 'strategy';
+type ViewType = 'dashboard' | 'partners' | 'mercado' | 'work' | 'repositorio' | 'validacion' | 'publicacion' | 'interview' | 'brand' | 'strategy';
 
 // ... imports
 
@@ -194,12 +191,6 @@ const AppContent: React.FC = () => {
             <BrandView onNavigate={handleNavigate} />
           </ErrorBoundary>
         );
-      case 'lab':
-        return (
-          <ErrorBoundary key={viewKey}>
-            <LabView onNavigate={handleNavigate} />
-          </ErrorBoundary>
-        );
       case 'mercado':
         return (
           <ErrorBoundary key={viewKey}>
@@ -234,12 +225,6 @@ const AppContent: React.FC = () => {
         return (
           <ErrorBoundary key={viewKey}>
             <RepositorioView onNavigate={handleNavigate} />
-          </ErrorBoundary>
-        );
-      case 'wiki':
-        return (
-          <ErrorBoundary key={viewKey}>
-            <WikiView />
           </ErrorBoundary>
         );
       case 'admin':
@@ -387,9 +372,7 @@ const AppContent: React.FC = () => {
 const App: React.FC = () => {
   return (
     <AuthProvider>
-      <AnalysisProvider>
-        <AppContent />
-      </AnalysisProvider>
+      <AppContent />
     </AuthProvider>
   );
 };

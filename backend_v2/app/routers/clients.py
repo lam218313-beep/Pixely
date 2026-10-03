@@ -48,15 +48,6 @@ class ClientUpdate(BaseModel):
     is_active: Optional[bool] = None
 
 
-class ClientStatus(BaseModel):
-    """Client setup status."""
-    hasInterview: bool
-    hasBrandIdentity: bool
-    canExecuteAnalysis: bool
-    lastAnalysisDate: Optional[str] = None
-    analysisStatus: Optional[str] = None
-
-
 # ============================================================================
 # Endpoints
 # ============================================================================
@@ -119,50 +110,6 @@ async def update_client(client_id: str, request: ClientUpdate, _user: dict = Dep
     # Return updated client
     updated = db.get_client(client_id)
     return updated
-
-
-@router.get("/{client_id}/status", response_model=ClientStatus)
-async def get_client_status(client_id: str, _user: dict = Depends(verify_client_access)):
-    """Get client setup status (interview, brand, analysis readiness)."""
-    # Verify client exists
-    client = db.get_client(client_id)
-    if not client:
-        raise HTTPException(status_code=404, detail="Client not found")
-    
-    # Check interview completion
-    interview = db.get_interview(client_id)
-    has_interview = interview is not None
-    
-    # Check brand identity completion - validate multiple required fields
-    brand = db.get_brand_identity(client_id)
-    has_brand = False
-    if brand:
-        # Brand is complete if it has at least mission OR vision with actual content
-        has_mission = bool(brand.get('mission') and len(str(brand.get('mission')).strip()) > 0)
-        has_vision = bool(brand.get('vision') and len(str(brand.get('vision')).strip()) > 0)
-        has_values = bool(brand.get('values') and len(brand.get('values')) > 0)
-        # Consider complete if has mission or vision (flexible validation)
-        has_brand = has_mission or has_vision
-    
-    # Analysis requires both the interview and the brand identity to be complete.
-    can_execute = has_interview and has_brand
-    
-    # Get latest analysis status (placeholder for now)
-    latest_analysis = db.get_latest_completed_report(client_id)
-    last_date = None
-    analysis_status = None
-    
-    if latest_analysis:
-        last_date = latest_analysis.get('created_at')
-        analysis_status = 'completed'
-    
-    return ClientStatus(
-        hasInterview=has_interview,
-        hasBrandIdentity=has_brand,
-        canExecuteAnalysis=can_execute,
-        lastAnalysisDate=last_date,
-        analysisStatus=analysis_status
-    )
 
 
 @router.delete("/{client_id}")

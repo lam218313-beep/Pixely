@@ -14,7 +14,7 @@ const cards: CardData[] = [
   {
     id: 1,
     title: "Inteligencia de Mercado",
-    description: "No somos una herramienta de Social Listening convencional. Pixely Partners aplica un diagnóstico continuo que va más allá de las métricas de vanidad (likes y alcance) para entender el porqué detrás de los datos, analizando la psicología y sociología de tu audiencia en tiempo real.",
+    description: "No adivinamos: estudiamos tu mercado. Mapeamos a tu competencia, sus precios, sus promociones y su tráfico real, y lo vigilamos cada mes para saber qué cambia antes que nadie.",
     icon: <Brain className="w-8 h-8 md:w-10 md:h-10 text-primary-500" />,
     gridClass: "md:col-span-2 md:row-span-1",
     hoverClass: "md:group-hover:h-[calc(200%+1rem)]"
@@ -22,7 +22,7 @@ const cards: CardData[] = [
   {
     id: 2,
     title: "Tecnología",
-    description: "Nuestro cerebro digital procesa la conversación de tu marca a través de 10 módulos analíticos avanzados. Desde la Rueda de las Emociones de Plutchik hasta los Marcos Narrativos, utilizamos modelos científicos para decodificar la mente de tu consumidor con precisión.",
+    description: "Combinamos inteligencia artificial con criterio humano: cada estudio, plan y pieza se trabaja a mano, con fuentes verificadas y sin automatización ciega. Tu mercado no se entiende solo con datos.",
     icon: <Cpu className="w-8 h-8 md:w-10 md:h-10 text-blue-500" />,
     gridClass: "md:col-span-1 md:row-span-2",
     hoverClass: "md:group-hover:w-[calc(200%+1rem)]"
@@ -30,7 +30,7 @@ const cards: CardData[] = [
   {
     id: 3,
     title: "Muéstrate",
-    description: "¿Tu marca se percibe como crees? Comparamos tu identidad proyectada vs. la percibida usando el modelo de Personalidad de Marca de Aaker para corregir disonancias.",
+    description: "Definimos cómo habla tu marca —su tono, las palabras que usa y las que evita— y tú la apruebas. Cada publicación sale con esa voz.",
     icon: <Fingerprint className="w-8 h-8 md:w-10 md:h-10 text-purple-500" />,
     gridClass: "md:col-span-1 md:row-span-1",
     hoverClass: "md:group-hover:h-[calc(200%+1rem)]"
@@ -38,7 +38,7 @@ const cards: CardData[] = [
   {
     id: 4,
     title: "Acierta",
-    description: "Elimina la subjetividad. Utiliza nuestro sistema para detectar necesidades no atendidas y tomar decisiones.",
+    description: "Elimina la subjetividad. Cada idea de contenido nace de un hallazgo real de tu mercado, con su nivel de confianza.",
     icon: <Target className="w-8 h-8 md:w-10 md:h-10 text-teal-500" />,
     gridClass: "md:col-span-1 md:row-span-1",
     hoverClass: "md:group-hover:w-[calc(200%+1rem)]"
@@ -46,23 +46,23 @@ const cards: CardData[] = [
   {
     id: 5,
     title: "Anticipa",
-    description: "Nuestro sistema de alertas tempranas identifica emociones negativas antes de que sean un problema",
+    description: "Vigilamos a tu competencia cada mes: si un rival lanza una promoción o empieza a pagar anuncios, lo sabrás a tiempo.",
     icon: <Radar className="w-8 h-8 md:w-10 md:h-10 text-indigo-500" />,
     gridClass: "md:col-span-1 md:row-span-1",
     hoverClass: "md:group-hover:w-[calc(200%+1rem)] md:group-hover:-ml-[calc(100%+1rem)]"
   },
   {
     id: 6,
-    title: "Influye",
-    description: "Identifica a los verdaderos líderes de opinión en tu nicho. Analizamos la centralidad y el engagement para encontrar quién mueve realmente la conversación.",
+    title: "Destaca",
+    description: "Conoces las promociones que ya usa tu competencia y la vara de calidad de tu mercado, para que tu marca no sea una más.",
     icon: <Megaphone className="w-8 h-8 md:w-10 md:h-10 text-yellow-500" />,
     gridClass: "md:col-span-1 md:row-span-1",
     hoverClass: "md:group-hover:h-[calc(200%+1rem)] md:group-hover:-mt-[calc(100%+1rem)]"
   },
   {
     id: 7,
-    title: "Tareas",
-    description: "Transformamos la complejidad de la data en tareas simples. El sistema no solo entrega gráficos; sintetiza los hallazgos en tareas específicas, priorizados por urgencia e impacto, listos para ser ejecutados.",
+    title: "Apruebas tú",
+    description: "Ves cada pieza antes de que salga: apruebas o pides cambios con un comentario, y el equipo la corrige. Nada se publica sin tu visto bueno.",
     icon: <ListTodo className="w-8 h-8 md:w-10 md:h-10 text-cyan-500" />,
     gridClass: "md:col-span-2 md:row-span-1",
     hoverClass: "md:group-hover:w-[calc(200%+1rem)]"
@@ -70,7 +70,7 @@ const cards: CardData[] = [
   {
     id: 8,
     title: "30 días",
-    description: "Operamos bajo un ciclo de mejora continua dividido en 4 semanas estratégicas: Quick Wins para apagar fuegos, Alineación de identidad, Amplificación de alcance y Consolidación de resultados. Tu estrategia evoluciona mes a mes, nunca se estanca.",
+    description: "Cada mes: plan, producción, tu revisión y publicación programada. Todo lo publicado queda archivado en tu Repositorio, mes a mes.",
     icon: <Calendar className="w-8 h-8 md:w-10 md:h-10 text-rose-500" />,
     gridClass: "md:col-span-2 md:row-span-1",
     hoverClass: "md:group-hover:w-[calc(200%+1rem)] md:group-hover:-ml-[calc(100%+1rem)]"
