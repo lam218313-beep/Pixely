@@ -8,7 +8,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     Plus, Building2, Users, ChevronRight, X, Loader2,
-    ClipboardList, BookOpen, BarChart2, Target, Calendar,
+    ClipboardList, BookOpen, Target, Calendar,
     Check, Clock, Play, ArrowLeft, Edit2, Trash2, RefreshCw, Radar, Images, CheckCircle2, Send, CalendarRange
 } from 'lucide-react';
 import * as api from '../services/api';
@@ -39,8 +39,7 @@ type PhaseKey = keyof typeof PHASE_VIEWS;
 
 const MODULE_CONFIG: Record<string, { name: string; icon: React.ElementType; color: string }> = {
     interview: { name: 'Entrevista', icon: ClipboardList, color: 'blue' },
-    manual: { name: 'Manual', icon: BookOpen, color: 'purple' },
-    analysis: { name: 'Análisis', icon: BarChart2, color: 'pink' },
+    manual: { name: 'Voz de marca', icon: BookOpen, color: 'purple' },
     strategy: { name: 'Estrategia', icon: Target, color: 'emerald' },
     schedule: { name: 'Cronograma', icon: Calendar, color: 'orange' }
 };
@@ -336,7 +335,6 @@ const BrandDetailView: React.FC<{ brandId: string; onBack: () => void; onNavigat
     const [modules, setModules] = useState<ModuleStatus[]>([]);
     const [users, setUsers] = useState<BrandUser[]>([]);
     const [showAddUser, setShowAddUser] = useState(false);
-    const [showAnalysisModal, setShowAnalysisModal] = useState(false);
     const [showBrandBook, setShowBrandBook] = useState(false);
     const [showStrategy, setShowStrategy] = useState(false);
     const [phaseView, setPhaseView] = useState<PhaseKey | null>(null);
@@ -514,9 +512,6 @@ const BrandDetailView: React.FC<{ brandId: string; onBack: () => void; onNavigat
                             key={mod.id}
                             module={mod}
                             onClick={() => {
-                                if (mod.id === 'analysis' && mod.can_execute) {
-                                    setShowAnalysisModal(true);
-                                }
                                 if (mod.id === 'manual' && mod.can_execute) {
                                     setShowBrandBook(true);
                                 }
@@ -629,20 +624,6 @@ const BrandDetailView: React.FC<{ brandId: string; onBack: () => void; onNavigat
                 )}
             </AnimatePresence>
 
-            {/* Analysis Modal */}
-            <AnimatePresence>
-                {showAnalysisModal && (
-                    <AnalysisModal
-                        brandId={brandId}
-                        onClose={() => setShowAnalysisModal(false)}
-                        onStarted={() => {
-                            setShowAnalysisModal(false);
-                            loadBrandDetail();
-                            setToast({ message: "Análisis iniciado. Puede tardar unos minutos.", type: 'success' });
-                        }}
-                    />
-                )}
-            </AnimatePresence>
         </div>
     );
 };
@@ -784,115 +765,6 @@ const AddUserModal: React.FC<{ brandId: string; onClose: () => void; onCreated: 
 
 // =============================================================================
 // ANALYSIS MODAL
-// =============================================================================
-
-const AnalysisModal: React.FC<{ brandId: string; onClose: () => void; onStarted: () => void }> = ({ brandId, onClose, onStarted }) => {
-    const [analysisType, setAnalysisType] = useState<'real' | 'aspirational'>('real');
-    const [instagramUrl, setInstagramUrl] = useState('');
-    const [loading, setLoading] = useState(false);
-
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setLoading(true);
-        try {
-            const response = await fetch(`${api.API_BASE_URL}/api/admin/brands/${brandId}/analysis`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', ...api.getAuthHeaders() },
-                body: JSON.stringify({ analysis_type: analysisType, instagram_url: instagramUrl })
-            });
-
-            if (response.ok) {
-                onStarted();
-            } else {
-                const error = await response.json();
-                alert(error.detail || 'Error al iniciar análisis');
-            }
-        } catch (error) {
-            alert('Error al iniciar análisis');
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-            <motion.div
-                initial={{ scale: 0.95, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                exit={{ scale: 0.95, opacity: 0 }}
-                className="bg-white rounded-3xl p-8 w-full max-w-lg shadow-2xl"
-            >
-                <div className="flex items-center justify-between mb-6">
-                    <h2 className="text-2xl font-black text-gray-900">Ejecutar Análisis</h2>
-                    <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-full">
-                        <X size={20} className="text-gray-400" />
-                    </button>
-                </div>
-
-                <form onSubmit={handleSubmit} className="space-y-6">
-                    {/* Analysis Type Selector */}
-                    <div>
-                        <label className="block text-xs font-bold text-gray-700 uppercase mb-3">Tipo de Análisis</label>
-                        <div className="grid grid-cols-2 gap-3">
-                            <button
-                                type="button"
-                                onClick={() => setAnalysisType('real')}
-                                className={`p-4 rounded-xl border-2 transition-all text-left ${analysisType === 'real'
-                                    ? 'border-pink-500 bg-pink-50'
-                                    : 'border-gray-200 hover:border-gray-300'
-                                    }`}
-                            >
-                                <p className="font-bold text-gray-900">Marca Real</p>
-                                <p className="text-xs text-gray-500 mt-1">Analiza las redes propias de la marca</p>
-                            </button>
-                            <button
-                                type="button"
-                                onClick={() => setAnalysisType('aspirational')}
-                                className={`p-4 rounded-xl border-2 transition-all text-left ${analysisType === 'aspirational'
-                                    ? 'border-purple-500 bg-purple-50'
-                                    : 'border-gray-200 hover:border-gray-300'
-                                    }`}
-                            >
-                                <p className="font-bold text-gray-900">Marca Aspiracional</p>
-                                <p className="text-xs text-gray-500 mt-1">Analiza al líder del mercado</p>
-                            </button>
-                        </div>
-                    </div>
-
-                    {/* Instagram URL */}
-                    <div>
-                        <label className="block text-xs font-bold text-gray-700 uppercase mb-2">
-                            {analysisType === 'real' ? 'URL de Instagram de la Marca' : 'URL de Instagram del Líder'}
-                        </label>
-                        <input
-                            type="url"
-                            value={instagramUrl}
-                            onChange={(e) => setInstagramUrl(e.target.value)}
-                            className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-pink-500 outline-none"
-                            placeholder="https://instagram.com/..."
-                            required
-                        />
-                    </div>
-
-                    <button
-                        type="submit"
-                        disabled={loading}
-                        className={`w-full py-4 text-white font-bold rounded-xl shadow-lg transition-all disabled:opacity-50 ${analysisType === 'real'
-                            ? 'bg-gradient-to-r from-pink-500 to-rose-500 shadow-pink-500/30'
-                            : 'bg-gradient-to-r from-purple-500 to-indigo-500 shadow-purple-500/30'
-                            }`}
-                    >
-                        {loading ? <Loader2 className="animate-spin mx-auto" size={20} /> : 'Iniciar Análisis'}
-                    </button>
-                </form>
-            </motion.div>
-        </div>
-    );
-};
-
-
-// =============================================================================
-// STRATEGY GENERATION MODAL
 // =============================================================================
 
 const StrategyGenerationModal: React.FC<{

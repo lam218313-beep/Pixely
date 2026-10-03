@@ -75,7 +75,7 @@ export const WorkflowStepper: React.FC<WorkflowStepperProps> = ({ currentStep, o
                                     )}
                                 </motion.div>
 
-                                {/* Label (desktop only: 8 labels don't fit side by side on a phone) */}
+                                {/* Label (desktop only: on a phone the line below names the current step) */}
                                 <div className="text-center hidden md:block">
                                     <p className={`text-sm font-bold transition-colors duration-300 ${isActive ? 'text-primary-600' : isCompleted ? 'text-brand-dark' : 'text-gray-400'
                                         }`}>

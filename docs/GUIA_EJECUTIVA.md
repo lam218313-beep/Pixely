@@ -1,6 +1,8 @@
 # Pixely Partners
 ### Guía Ejecutiva del Sistema
 
+> **Nota (octubre 2026): esta guía describe una versión anterior.** Ya no existen el Lab (Fase 3, el análisis de comentarios de Instagram), los planes (Free Trial / Starter / Professional) ni el Kanban. La Estrategia se genera ahora con la Ficha del negocio + Mercado. El resumen de lo que cambió está en la nota al inicio de `ARQUITECTURA_SISTEMA.md`.
+
 ---
 
 > *"De los datos de tu audiencia real, a contenido listo para publicar — con inteligencia artificial de principio a fin."*

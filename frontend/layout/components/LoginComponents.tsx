@@ -2,7 +2,6 @@ import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { Mail, Lock, ArrowRight, Eye, EyeOff, Loader2, AlertCircle, Database, Target, Sparkles } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import pixelyLogo from '../src/assets/logo.png';
-import { CardLabs_SemanticDistribution } from './lab/CardLabs_SemanticDistribution';
 
 // --- 1. Interactive Workflow Card ---
 export const WorkflowVisual: React.FC = () => {
@@ -61,9 +60,9 @@ export const WorkflowVisual: React.FC = () => {
                     <path d="M 160 140 C 160 180, 240 180, 240 220" fill="none" stroke="#F20F79" strokeWidth="2" strokeDasharray="6 4" className="opacity-40" />
                 </svg>
 
-                {/* Node 2: AI Analysis (Center) -> Replaced with Semantic Card Mini */}
+                {/* Node 2: market intelligence (illustrative, no figures) */}
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 [transform:translateZ(60px)] z-10 w-48">
-                    <CardLabs_SemanticDistribution compact={true} className="!border-primary-100 !shadow-xl !shadow-primary-500/20" />
+                    <MarketMini />
                 </div>
 
                 {/* Connecting Line 2 */}
@@ -83,6 +82,41 @@ export const WorkflowVisual: React.FC = () => {
                     <div className="p-2 bg-gray-50 rounded-xl text-gray-400"><Sparkles size={18} /></div>
                 </div>
 
+            </div>
+        </div>
+    );
+};
+
+/** Decorative mini card for the login illustration: the three content pillars Mercado tracks. */
+const MarketMini: React.FC = () => {
+    const pilares = [
+        { label: 'Problema', color: '#D90B66', share: 0.38 },
+        { label: 'Identidad', color: '#2a78d6', share: 0.25 },
+        { label: 'Prueba', color: '#eb6834', share: 0.37 },
+    ];
+    const R = 30;
+    const C = 2 * Math.PI * R;
+    let offset = 0;
+    return (
+        <div className="bg-white rounded-2xl border border-primary-100 shadow-xl shadow-primary-500/20 p-4">
+            <p className="text-[11px] font-bold text-gray-900 mb-0.5">Inteligencia de mercado</p>
+            <p className="text-[10px] text-gray-400 mb-3">Tu mercado, en 3 pilares</p>
+            <div className="flex items-center gap-3">
+                <svg width="72" height="72" viewBox="0 0 80 80" className="-rotate-90 shrink-0" aria-hidden="true">
+                    {pilares.map((p) => {
+                        const len = p.share * C;
+                        const seg = <circle key={p.label} cx="40" cy="40" r={R} fill="none" stroke={p.color} strokeWidth={10} strokeDasharray={`${len - 2} ${C}`} strokeDashoffset={-offset} />;
+                        offset += len;
+                        return seg;
+                    })}
+                </svg>
+                <ul className="space-y-1">
+                    {pilares.map((p) => (
+                        <li key={p.label} className="flex items-center gap-1.5 text-[10px] font-semibold text-gray-600">
+                            <span className="w-2 h-2 rounded-full" style={{ backgroundColor: p.color }} />{p.label}
+                        </li>
+                    ))}
+                </ul>
             </div>
         </div>
     );

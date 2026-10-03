@@ -33,196 +33,6 @@ export interface UserInfo {
   created_at?: string;
 }
 
-export interface ContextStatus {
-  status: 'active' | 'no_context' | 'processing' | 'scraping' | 'classifying' | 'aggregating';
-  context_id?: string;
-  cache_active: boolean;
-  cache_name?: string;
-  last_updated?: string;
-  files: Array<{
-    id: string;
-    filename: string;
-    category: string;
-    uploaded_at: string;
-  }>;
-}
-
-// =============================================================================
-// Q1-Q10 ANALYSIS RESPONSE TYPES
-// =============================================================================
-
-export interface Q1EmotionData {
-  name: string;
-  value: number;
-}
-
-export interface Q1Response {
-  emociones: Q1EmotionData[];
-}
-
-export interface Q2PersonalityData {
-  Sinceridad: number;
-  Emocion: number;
-  Competencia: number;
-  Sofisticacion: number;
-  Rudeza: number;
-}
-
-export interface Q2Response {
-  resumen_global_personalidad: Q2PersonalityData;
-}
-
-export interface Q3TopicData {
-  topic: string;
-  frecuencia_relativa: number;
-  sentimiento_promedio: number;
-  palabras_clave?: string[];
-}
-
-export interface Q3Response {
-  results: {
-    analisis_agregado: Q3TopicData[];
-  };
-}
-
-export interface Q4FrameDistribution {
-  Positivo: number;
-  Negativo: number;
-  Aspiracional: number;
-}
-
-export interface Q4EvolutionPoint {
-  semana: number;
-  marcos_distribucion: Q4FrameDistribution;
-}
-
-export interface Q4Response {
-  results: {
-    analisis_agregado: Q4FrameDistribution;
-    evolucion_temporal: Q4EvolutionPoint[];
-  };
-}
-
-export interface Q5Influencer {
-  username: string;
-  autoridad_promedio: number;
-  afinidad_promedio: number;
-  menciones: number;
-  score_centralidad: number;
-  sentimiento: number;
-  comentario_evidencia: string;
-}
-
-export interface Q5Response {
-  results: {
-    influenciadores_globales: Q5Influencer[];
-  };
-}
-
-export interface Q6Opportunity {
-  oportunidad: string;
-  gap_score: number;
-  competencia_score: number;
-  recomendacion_accion: string;
-  detalle: string;
-}
-
-export interface Q6Response {
-  results: {
-    oportunidades: Q6Opportunity[];
-  };
-}
-
-export interface Q7SentimentAggregated {
-  Positivo: number;
-  Negativo: number;
-  Neutral: number;
-  Mixto: number;
-  subjetividad_promedio_global: number;
-  ejemplo_mixto?: string;
-}
-
-export interface Q7Response {
-  results: {
-    analisis_agregado: Q7SentimentAggregated;
-  };
-}
-
-export interface Q8WeeklyPoint {
-  fecha_semana: string;
-  porcentaje_positivo: number;
-  engagement: number;
-  topico_principal: string;
-}
-
-export interface Q8Response {
-  results: {
-    serie_temporal_semanal: Q8WeeklyPoint[];
-    resumen_global: {
-      tendencia: string;
-    };
-  };
-}
-
-export interface Q9Recommendation {
-  recomendacion: string;
-  descripcion: string;
-  area_estrategica: string;
-  score_impacto: number;
-  score_esfuerzo: number;
-  prioridad: number;
-  urgencia: string;
-}
-
-export interface Q9Response {
-  results: {
-    lista_recomendaciones: Q9Recommendation[];
-    resumen_global: {
-      recomendaciones_criticas: number;
-      areas_prioritarias: string[];
-    };
-    insight: string;
-  };
-}
-
-export interface Q10Response {
-  results: {
-    alerta_prioritaria: string;
-    hallazgos_clave: string[];
-    resumen_general: string;
-    kpis_principales: {
-      emocion_dominante: string;
-      emocion_porcentaje: number;
-      personalidad_marca: string;
-      tema_principal: string;
-      sentimiento_positivo_pct: number;
-      sentimiento_negativo_pct: number;
-      tendencia_temporal: string;
-      anomalias_detectadas: number;
-      recomendaciones_criticas: number;
-    };
-    urgencias_por_prioridad: {
-      "48_horas": string[];
-      "semana_1": string[];
-      "semanas_2_3": string[];
-      "no_urgente": string[];
-    };
-  };
-}
-
-export interface FullAnalysisResponse {
-  Q1: Q1Response;
-  Q2: Q2Response;
-  Q3: Q3Response;
-  Q4: Q4Response;
-  Q5: Q5Response;
-  Q6: Q6Response;
-  Q7: Q7Response;
-  Q8: Q8Response;
-  Q9: Q9Response;
-  Q10: Q10Response;
-}
-
 // =============================================================================
 // API ERROR HANDLING
 // =============================================================================
@@ -363,14 +173,6 @@ export interface Client {
   created_at: string;
 }
 
-export interface ClientStatus {
-  hasInterview: boolean;
-  hasBrandIdentity: boolean;
-  canExecuteAnalysis: boolean;
-  lastAnalysisDate?: string;
-  analysisStatus?: string;
-}
-
 /**
  * Get all clients for current tenant
  * GET /clients/
@@ -380,18 +182,6 @@ export async function getClients(): Promise<Client[]> {
     headers: getAuthHeaders(),
   });
   return handleResponse<Client[]>(response);
-}
-
-/**
- * Get client setup status
- * GET /clients/{client_id}/status
- */
-export async function getClientStatus(clientId: string): Promise<ClientStatus> {
-  const response = await fetch(`${API_BASE_URL}/clients/${clientId}/status`, {
-    method: 'GET',
-    headers: getAuthHeaders(),
-  });
-  return handleResponse<ClientStatus>(response);
 }
 
 /**
@@ -424,75 +214,6 @@ export async function deleteClient(clientId: string): Promise<void> {
   }
 }
 
-/**
- * Get context status for a client
- * GET /semantic/context/{client_id}
- */
-export async function getContextStatus(clientId: string): Promise<ContextStatus> {
-  const response = await fetch(`${API_BASE_URL}/semantic/context/${clientId}`, {
-    headers: getAuthHeaders(),
-  });
-  return handleResponse<ContextStatus>(response);
-}
-
-/**
- * Upload file for context ingestion (Not supported in v2 yet, using Apify)
- */
-export async function ingestFile(
-  clientId: string,
-  file: File,
-  category: string = 'General'
-): Promise<{ status: string; context_id: string; cache_active: boolean }> {
-  // Placeholder for v2
-  return { status: "active", context_id: clientId, cache_active: true };
-}
-
-/**
- * Run full Analysis Pipeline (Apify + Gemini)
- * POST /pipeline/start
- */
-export async function startPipeline(clientId: string, instagramUrl: string): Promise<{ report_id: string; status: string }> {
-  const response = await fetch(`${API_BASE_URL}/pipeline/start`, {
-    method: 'POST',
-    headers: {
-      ...getAuthHeaders(),
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-      client_id: clientId,
-      instagram_url: instagramUrl,
-      comments_limit: 1000
-    }),
-  });
-  return handleResponse(response);
-}
-
-/**
- * Legacy support for Q1-Q10 analysis endpoint
- */
-export async function runFullAnalysis(clientId: string): Promise<FullAnalysisResponse> {
-  // This is likely replaced by startPipeline, but keeping for compatibility
-  throw new Error("Use startPipeline instead");
-}
-
-/**
- * Get latest analysis results
- * GET /semantic/analysis/{client_id}
- */
-export async function getLatestAnalysis(clientId: string): Promise<FullAnalysisResponse | null> {
-  const response = await fetch(`${API_BASE_URL}/semantic/analysis/${clientId}`, {
-    headers: getAuthHeaders(),
-  });
-  const data = await handleResponse<any>(response);
-
-  // If no analysis found, return null
-  if (data.status === 'no_analysis') {
-    return null;
-  }
-
-  return data as FullAnalysisResponse;
-}
-
 // =============================================================================
 // INTERVIEW ENDPOINTS
 // =============================================================================
@@ -518,7 +239,7 @@ export async function saveInterview(clientId: string, data: any, file?: File | n
 
 /** A module built from the interview; `desactualizado` = generated before the interview's last update. */
 export interface DownstreamModule {
-  modulo: 'manual' | 'analisis' | 'estrategia';
+  modulo: 'manual' | 'estrategia';
   nombre: string;
   generado_at: string;
   desactualizado: boolean;

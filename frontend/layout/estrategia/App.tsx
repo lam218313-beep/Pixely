@@ -115,7 +115,6 @@ const App: React.FC<{ overrideClientId?: string }> = ({ overrideClientId }) => {
         const fetchClientInfo = async () => {
             if (!CLIENT_ID) return;
             try {
-                const status = await api.getClientStatus(CLIENT_ID); // Or getClient if available by ID
                 // Since getClient by ID isn't directly exposed as a single fetch function (only getClients list), 
                 // we might need to rely on what we can get.
                 // Ideally we'd have api.getClient(id). 

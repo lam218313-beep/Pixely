@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { LayoutGrid, Home, Layers, BookOpen, Power, Shield, ClipboardList, Palette, CalendarRange, CheckCircle2, Radar, Images, Send } from 'lucide-react';
+import { LayoutGrid, Home, Power, Shield, ClipboardList, Palette, CalendarRange, CheckCircle2, Radar, Images, Send } from 'lucide-react';
 import pixelyLogo from '../src/assets/logo.png';
 import { useAuth } from '../contexts/AuthContext';
 import * as api from '../services/api';
@@ -55,7 +55,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ isExpanded, setIsExpanded, act
                 <SidebarGroup label="Tu marca">
                     <SidebarItem icon={ClipboardList} label="Ficha" viewId="interview" isActive={activeView === 'interview'} onClick={setActiveView} />
                     <SidebarItem icon={Palette} label="Voz de marca" viewId="brand" isActive={activeView === 'brand'} onClick={setActiveView} />
-                    <SidebarItem icon={Layers} label="Análisis" viewId="lab" isActive={activeView === 'lab'} onClick={setActiveView} />
                     <SidebarItem icon={Radar} label="Mercado" viewId="mercado" isActive={activeView === 'mercado'} onClick={setActiveView} />
                     <SidebarItem icon={LayoutGrid} label="Estrategia" viewId="strategy" isActive={activeView === 'strategy'} onClick={setActiveView} />
                 </SidebarGroup>
@@ -70,13 +69,12 @@ export const Sidebar: React.FC<SidebarProps> = ({ isExpanded, setIsExpanded, act
                     <SidebarItem icon={Images} label="Repositorio" viewId="repositorio" isActive={activeView === 'repositorio'} onClick={setActiveView} />
                 </SidebarGroup>
 
-                <div className="pt-3 mt-2 border-t border-gray-100">
-                    <SidebarItem icon={BookOpen} label="Wiki" viewId="wiki" isActive={activeView === 'wiki'} onClick={setActiveView} />
-                    {/* Admin Panel - Only visible for admin users */}
-                    {user?.isAdmin && (
+                {/* Admin Panel - Only visible for admin users */}
+                {user?.isAdmin && (
+                    <div className="pt-3 mt-2 border-t border-gray-100">
                         <SidebarItem icon={Shield} label="Admin" viewId="admin" isActive={activeView === 'admin'} onClick={setActiveView} />
-                    )}
-                </div>
+                    </div>
+                )}
             </nav>
 
             {/* --- Bottom User Section --- */}
