@@ -288,6 +288,20 @@ class SupabaseService:
             logger.error(f"❌ DB Get Strategy Error: {e}")
             return []
 
+    def get_strategy_review(self, client_id: str) -> Optional[dict]:
+        """The client's approval of their strategy (strategy_reviews), if any."""
+        if not self.client: return None
+        try:
+            response = self.client.table("strategy_reviews").select("*").eq("client_id", client_id).limit(1).execute()
+            return response.data[0] if response.data else None
+        except Exception as e:
+            logger.error(f"❌ DB Get Strategy Review Error: {e}")
+            return None
+
+    def save_strategy_review(self, client_id: str, data: dict) -> None:
+        if not self.client: return
+        self.client.table("strategy_reviews").upsert({"client_id": client_id, **data}, on_conflict="client_id").execute()
+
     def sync_strategy_nodes(self, client_id: str, nodes: list[dict]):
         """
         Full sync: Delete all existing nodes for client and re-insert.

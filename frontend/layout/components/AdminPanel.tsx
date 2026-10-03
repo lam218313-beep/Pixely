@@ -338,7 +338,6 @@ const BrandDetailView: React.FC<{ brandId: string; onBack: () => void; onNavigat
     const [showBrandBook, setShowBrandBook] = useState(false);
     const [showStrategy, setShowStrategy] = useState(false);
     const [phaseView, setPhaseView] = useState<PhaseKey | null>(null);
-    const [showStrategyGenModal, setShowStrategyGenModal] = useState(false);
     const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
     // Auto-dismiss toast
@@ -404,35 +403,7 @@ const BrandDetailView: React.FC<{ brandId: string; onBack: () => void; onNavigat
                             <p className="text-xs text-gray-500">{brand?.nombre}</p>
                         </div>
                     </div>
-                    <button
-                        onClick={async () => {
-                            if (!confirm(`¿Estás seguro de que quieres regenerar la estrategia de ${brand?.nombre} con IA? Esto eliminará la estrategia actual y generará una nueva completa.`)) {
-                                return;
-                            }
-                            try {
-                                setToast({ message: 'Regenerando estrategia con IA...', type: 'success' });
-                                const response = await fetch(`${api.API_BASE_URL}/api/admin/brands/${brandId}/reset-strategy`, {
-                                    method: 'POST',
-                                    headers: { 'Content-Type': 'application/json', ...api.getAuthHeaders() }
-                                });
-                                if (response.ok) {
-                                    const result = await response.json();
-                                    setToast({ message: `Estrategia regenerada: ${result.nodes_created} nodos creados`, type: 'success' });
-                                    // Reload the strategy view
-                                    setTimeout(() => window.location.reload(), 2000);
-                                } else {
-                                    alert('Error al regenerar la estrategia');
-                                }
-                            } catch (error) {
-                                console.error('Error:', error);
-                                alert('Error al regenerar la estrategia');
-                            }
-                        }}
-                        className="px-4 py-2 bg-purple-50 text-purple-600 rounded-xl hover:bg-purple-100 transition-colors flex items-center gap-2 text-sm font-medium"
-                    >
-                        <RefreshCw size={16} />
-                        Regenerar con IA
-                    </button>
+                    <p className="text-xs text-gray-500 max-w-xs text-right">La escribe <code className="font-mono">/01b_definir_estrategia</code> desde Claude Desktop; aquí solo se revisa.</p>
                 </div>
                 <div className="flex-1 overflow-hidden p-4">
                     <div className='h-full rounded-[30px] overflow-hidden border border-gray-200 shadow-sm bg-white'>
@@ -515,12 +486,9 @@ const BrandDetailView: React.FC<{ brandId: string; onBack: () => void; onNavigat
                                 if (mod.id === 'manual' && mod.can_execute) {
                                     setShowBrandBook(true);
                                 }
-                                if (mod.id === 'strategy' && mod.can_execute) {
-                                    if (mod.status === 'completed') {
-                                        setShowStrategy(true);
-                                    } else {
-                                        setShowStrategyGenModal(true);
-                                    }
+                                // The strategy is written by /01b_definir_estrategia (Claude Desktop); here it is only viewed.
+                                if (mod.id === 'strategy' && mod.status === 'completed') {
+                                    setShowStrategy(true);
                                 }
                                 // The month's plan is written by /02_crearcronograma (Claude Desktop); here it is only viewed.
                                 if (mod.id === 'schedule' && mod.can_execute) {
@@ -532,19 +500,6 @@ const BrandDetailView: React.FC<{ brandId: string; onBack: () => void; onNavigat
                 </div>
             </div>
 
-            <AnimatePresence>
-                {showStrategyGenModal && (
-                    <StrategyGenerationModal
-                        brandId={brandId}
-                        onClose={() => setShowStrategyGenModal(false)}
-                        onGenerated={() => {
-                            setShowStrategyGenModal(false);
-                            loadBrandDetail();
-                            setToast({ message: "Estrategia generada con éxito", type: 'success' });
-                        }}
-                    />
-                )}
-            </AnimatePresence>
 
             {/* Users Section */}
             <div className="flex-1">
@@ -758,105 +713,6 @@ const AddUserModal: React.FC<{ brandId: string; onClose: () => void; onCreated: 
                         {loading ? <Loader2 className="animate-spin mx-auto" size={20} /> : 'Crear Usuario'}
                     </button>
                 </form>
-            </motion.div>
-        </div>
-    );
-};
-
-// =============================================================================
-// ANALYSIS MODAL
-// =============================================================================
-
-const StrategyGenerationModal: React.FC<{
-    brandId: string;
-    onClose: () => void;
-    onGenerated: () => void
-}> = ({ brandId, onClose, onGenerated }) => {
-    const [loading, setLoading] = useState(false);
-
-    const handleGenerate = async () => {
-        setLoading(true);
-        try {
-            // Llamada al nuevo endpoint backend
-            const response = await fetch(`${api.API_BASE_URL}/api/admin/brands/${brandId}/strategy/seed`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', ...api.getAuthHeaders() }
-            });
-
-            if (response.ok) {
-                onGenerated();
-            } else {
-                const error = await response.json();
-                alert(error.detail || 'Error al generar estrategia');
-            }
-        } catch (error) {
-            console.error(error);
-            alert('Error de conexión al generar estrategia');
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-            <motion.div
-                initial={{ scale: 0.95, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                exit={{ scale: 0.95, opacity: 0 }}
-                className="bg-white rounded-3xl p-8 w-full max-w-md shadow-2xl"
-            >
-                <div className="flex items-center justify-between mb-6">
-                    <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600">
-                            <Target size={20} />
-                        </div>
-                        <h2 className="text-2xl font-black text-gray-900">Generar Estrategia</h2>
-                    </div>
-                    <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-full">
-                        <X size={20} className="text-gray-400" />
-                    </button>
-                </div>
-
-                <div className="mb-6 space-y-4 text-gray-600">
-                    <p>
-                        El sistema utilizará la <strong>Inteligencia Artificial</strong> para cruzar:
-                    </p>
-                    <ul className="space-y-2 text-sm bg-gray-50 p-4 rounded-xl border border-gray-100">
-                        <li className="flex items-center gap-2">
-                            <Check size={16} className="text-emerald-500" />
-                            <span>Objetivos de la Entrevista</span>
-                        </li>
-                        <li className="flex items-center gap-2">
-                            <Check size={16} className="text-emerald-500" />
-                            <span>Oportunidades del Análisis (Gap Score)</span>
-                        </li>
-                        <li className="flex items-center gap-2">
-                            <Check size={16} className="text-emerald-500" />
-                            <span>Recomendaciones Tácticas (Q9)</span>
-                        </li>
-                    </ul>
-                    <p className="text-sm">
-                        Se creará un árbol de objetivos, estrategias y publicaciones listo para revisión.
-                    </p>
-                </div>
-
-                <button
-                    onClick={handleGenerate}
-                    disabled={loading}
-                    className="w-full py-4 bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-bold rounded-xl shadow-lg shadow-emerald-500/30 hover:shadow-xl transition-all disabled:opacity-50 flex items-center justify-center gap-2"
-                >
-                    {loading ? (
-                        <>
-                            <Loader2 className="animate-spin" size={20} />
-                            <span>Diseñando Estrategia...</span>
-                        </>
-                    ) : (
-                        <>
-                            <Play size={20} fill="currentColor" />
-                            <span>Ejecutar Generación</span>
-                        </>
-                    )}
-                </button>
             </motion.div>
         </div>
     );
