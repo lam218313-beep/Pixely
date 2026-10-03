@@ -64,6 +64,11 @@ export function finalAssets(piece: api.ContentPiece): string[] {
     return (piece.url_piezas_finales ?? []).map(safeUrl).filter((u): u is string => !!u);
 }
 
+/** Reels arrive as an uploaded .mp4 (see /04_ensamblar); everything else is an image. */
+export function isVideoUrl(url: string): boolean {
+    return /\.(mp4|mov|webm)$/i.test(url.split(/[?#]/)[0]);
+}
+
 export function pieceCover(piece: api.ContentPiece): string | null {
     return finalAssets(piece)[0] ?? safeUrl(piece.url_imagen);
 }
@@ -176,6 +181,10 @@ export const PieceCover: React.FC<{ piece: api.ContentPiece; className?: string;
                 {!compact && <span className="text-[11px] font-semibold uppercase tracking-wider text-gray-400">En producción</span>}
             </div>
         );
+    }
+    if (isVideoUrl(src)) {
+        // First frame as the cover; muted + metadata-only so a grid of reels stays light.
+        return <video src={`${src}#t=0.1`} muted playsInline preload="metadata" onError={() => setFailed(true)} className={`object-cover bg-gray-900 ${className}`} aria-label={piece.topico_angulo ?? 'Reel'} />;
     }
     return <img src={src} alt={piece.topico_angulo ?? 'Pieza de contenido'} loading="lazy" onError={() => setFailed(true)} className={`object-cover ${className}`} />;
 };
@@ -303,7 +312,11 @@ export const PieceDetailModal: React.FC<PieceDetailModalProps> = ({ piece, onClo
                 {/* Visual */}
                 <div className="md:w-1/2 bg-gray-50 relative flex items-center justify-center min-h-[280px]">
                     {slides.length > 0 ? (
-                        <img src={slides[slide]} alt={`Lámina ${slide + 1}`} className="w-full h-full max-h-[92vh] object-contain" />
+                        isVideoUrl(slides[slide]) ? (
+                            <video src={slides[slide]} controls playsInline className="w-full h-full max-h-[92vh] object-contain bg-black" />
+                        ) : (
+                            <img src={slides[slide]} alt={`Lámina ${slide + 1}`} className="w-full h-full max-h-[92vh] object-contain" />
+                        )
                     ) : (
                         <PieceCover piece={piece} className="w-full h-full min-h-[280px]" />
                     )}
