@@ -321,7 +321,8 @@ const InputField: React.FC<InputFieldProps> = ({ label, name, value, onChange, p
 
 // --- MAIN FORM COMPONENT ---
 
-export const MultiStepForm: React.FC = () => {
+/** `editMode`: an existing interview opens unlocked at step 1 (updating the Ficha) instead of as a read-only record. */
+export const MultiStepForm: React.FC<{ editMode?: boolean; onSaved?: () => void }> = ({ editMode = false, onSaved }) => {
     const { user } = useAuth();
     const clientId = user?.fichaClienteId;
 
@@ -420,9 +421,11 @@ export const MultiStepForm: React.FC = () => {
                         }
                     }));
 
-                    // Mark as finished if data was already submitted
-                    setIsFinished(true);
-                    setCurrentStep(6); // Go to confirmation step
+                    // Already submitted: read-only record, unless the client chose to update it
+                    if (!editMode) {
+                        setIsFinished(true);
+                        setCurrentStep(6); // Go to confirmation step
+                    }
                 }
             } catch (error) {
                 console.error('Error loading existing interview:', error);
@@ -433,7 +436,7 @@ export const MultiStepForm: React.FC = () => {
         };
 
         loadExistingInterview();
-    }, [clientId]);
+    }, [clientId, editMode]);
 
     const [socialInput, setSocialInput] = useState({ platform: '', link: '', frequency: '' });
 
@@ -597,6 +600,7 @@ export const MultiStepForm: React.FC = () => {
         try {
             await saveInterview(clientId, formData, formData.productFile);
             setIsFinished(true);
+            onSaved?.();
         } catch (error) {
             console.error("Error saving data:", error);
             alert("Hubo un error al guardar los datos.");

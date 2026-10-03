@@ -1,27 +1,15 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import {
-    ClipboardList,
-    Palette,
-    LayoutGrid,
-    Layers,
-    CalendarRange,
-    CheckCircle2,
-    Images,
-    Send
-} from 'lucide-react';
+import { CalendarRange, CheckCircle2, Images, Send } from 'lucide-react';
 
 interface WorkflowStepperProps {
-    currentStep: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
+    currentStep: 1 | 2 | 3 | 4;
     onNavigate: (viewId: string) => void;
 }
 
+// Only "Tu mes": the content production line. Brand pages (Ficha, Manual, Análisis,
+// Mercado, Estrategia) are reference material, not steps, so they carry no stepper.
 const TABS = [
-    { id: 'interview', label: 'Entrevista', icon: ClipboardList, desc: 'Recopilación de datos inicial' },
-    { id: 'brand', label: 'Manual', icon: Palette, desc: 'Definición de identidad visual' },
-    { id: 'lab', label: 'Análisis', icon: Layers, desc: 'Análisis semántico y de mercado' },
-    { id: 'strategy', label: 'Estrategia', icon: LayoutGrid, desc: 'Definición de estrategia' },
-    // 5–8 are one production line over content_pieces: each piece sits in exactly one of them at a time.
     { id: 'work', label: 'Planificación', icon: CalendarRange, desc: 'Plan del mes y piezas en producción' },
     { id: 'validacion', label: 'Validación', icon: CheckCircle2, desc: 'Aprobación del cliente' },
     { id: 'publicacion', label: 'Publicación', icon: Send, desc: 'Aprobadas y programadas' },

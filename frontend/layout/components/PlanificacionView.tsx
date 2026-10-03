@@ -42,8 +42,8 @@ export const PlanificacionView: React.FC<{ onNavigate?: (view: string) => void; 
     return (
         <div className="p-4 md:p-8 h-full overflow-y-auto custom-scrollbar animate-fade-in-up bg-brand-bg">
             <div className="max-w-7xl mx-auto">
-                {onNavigate && <WorkflowStepper currentStep={5} onNavigate={onNavigate} />}
-                <AnimatedHeaderCard supertitle="Fase 5: Producción" title="Planificación" subtitle="El plan del mes y lo que el equipo está produciendo." />
+                {onNavigate && <WorkflowStepper currentStep={1} onNavigate={onNavigate} />}
+                <AnimatedHeaderCard supertitle="Tu mes" title="Planificación" subtitle="El plan del mes y lo que el equipo está produciendo." />
 
                 {!clientId ? <NoClientSelected /> : (
                     <>
