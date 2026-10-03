@@ -1,6 +1,8 @@
 # Pixely Partners — Arquitectura del Sistema
 > Documento técnico de referencia · Última actualización: Marzo 2026
 
+> **Nota (octubre 2026) — partes de este documento ya no aplican.** El plan mensual ahora existe una sola vez: la tabla `content_pieces`, que escribe `/02_crearcronograma_V2` desde Claude Desktop (repo `pixely_automatizaciones`). Los pasos 5–8 del cliente son una sola línea de producción sobre esa tabla: Planificación (`PlanificacionView.tsx`, piezas en producción) → Validación → Publicación → Repositorio (archivo de lo publicado). Se eliminaron `PlanningView.tsx`, `KanbanBoard.tsx`, `TasksView.tsx`, los routers `/planning` y `/tasks` y `services/content_generator.py`. La tabla `tasks` quedó en la base de datos sin uso. Beneficios se eliminó.
+
 ---
 
 ## 1. Visión General

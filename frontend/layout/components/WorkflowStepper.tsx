@@ -21,10 +21,11 @@ const TABS = [
     { id: 'brand', label: 'Manual', icon: Palette, desc: 'Definición de identidad visual' },
     { id: 'lab', label: 'Análisis', icon: Layers, desc: 'Análisis semántico y de mercado' },
     { id: 'strategy', label: 'Estrategia', icon: LayoutGrid, desc: 'Definición de estrategia' },
-    { id: 'work', label: 'Planificación', icon: CalendarRange, desc: 'Calendario del mes' },
-    { id: 'repositorio', label: 'Repositorio', icon: Images, desc: 'Galería de piezas producidas' },
+    // 5–8 are one production line over content_pieces: each piece sits in exactly one of them at a time.
+    { id: 'work', label: 'Planificación', icon: CalendarRange, desc: 'Plan del mes y piezas en producción' },
     { id: 'validacion', label: 'Validación', icon: CheckCircle2, desc: 'Aprobación del cliente' },
-    { id: 'publicacion', label: 'Publicación', icon: Send, desc: 'Calendario de publicación' },
+    { id: 'publicacion', label: 'Publicación', icon: Send, desc: 'Aprobadas y programadas' },
+    { id: 'repositorio', label: 'Repositorio', icon: Images, desc: 'Archivo de lo publicado' },
 ];
 
 export const WorkflowStepper: React.FC<WorkflowStepperProps> = ({ currentStep, onNavigate }) => {
