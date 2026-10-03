@@ -351,23 +351,6 @@ export async function updateBrandColors(clientId: string, colors: NonNullable<Br
   return result.data;
 }
 
-export async function generateManual(clientId: string): Promise<{ status: string; message: string; data: any }> {
-  const response = await fetch(`${API_BASE_URL}/api/admin/brands/${clientId}/manual`, {
-    method: 'POST',
-    headers: {
-      ...getAuthHeaders(),
-      'Content-Type': 'application/json',
-    }
-  });
-
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({}));
-    throw new Error(error.detail || 'Error generating manual');
-  }
-
-  return response.json();
-}
-
 // =============================================================================
 // STRATEGY ENDPOINTS
 // =============================================================================
