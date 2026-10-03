@@ -401,6 +401,31 @@ export async function syncStrategy(clientId: string, nodes: StrategyNode[]): Pro
   return handleResponse(response);
 }
 
+export type EstrategiaEstado = 'Pendiente' | 'Aprobada' | 'Cambios solicitados';
+
+export interface StrategyReview {
+  estado: EstrategiaEstado;
+  comentario: string | null;
+  revisada_at: string | null;
+  revisada_por: string | null;
+}
+
+export async function getStrategyReview(clientId: string): Promise<StrategyReview> {
+  const response = await fetch(`${API_BASE_URL}/strategy/${clientId}/review`, { headers: getAuthHeaders() });
+  const result = await handleResponse<{ status: string; data: StrategyReview }>(response);
+  return result.data;
+}
+
+export async function reviewStrategy(clientId: string, estado: Exclude<EstrategiaEstado, 'Pendiente'>, comentario?: string): Promise<StrategyReview> {
+  const response = await fetch(`${API_BASE_URL}/strategy/${clientId}/review`, {
+    method: 'PATCH',
+    headers: { ...getAuthHeaders(), 'Content-Type': 'application/json' },
+    body: JSON.stringify({ estado, comentario: comentario ?? null }),
+  });
+  const result = await handleResponse<{ status: string; data: StrategyReview }>(response);
+  return result.data;
+}
+
 // =============================================================================
 // MARKET (FASE MERCADO) ENDPOINTS
 // =============================================================================

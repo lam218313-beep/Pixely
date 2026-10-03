@@ -12,9 +12,6 @@ from datetime import datetime
 import logging
 
 from ..services.database import db
-from ..services import gemini_service
-from ..services.strategy_context import build_market_insights, interview_answers
-from ..services.strategy_tree import convert_tree_to_nodes
 from ..services.auth_service import require_admin
 
 
@@ -171,7 +168,7 @@ async def get_module_status(brand_id: str, module_id: str) -> dict:
     # ORDEN DE FLUJO:
     # 1. Interview (Base)
     # 2. Voz de marca (Requiere Interview)
-    # 3. Strategy (Requiere Interview; usa la inteligencia de mercado si existe)
+    # 3. Strategy (la escribe /01b_definir_estrategia desde Claude Desktop)
     # 4. Schedule (lo escribe /02_crearcronograma en content_pieces)
     # ==============================================================================
 
@@ -193,12 +190,9 @@ async def get_module_status(brand_id: str, module_id: str) -> dict:
         return {"status": "pending", "can_execute": False}
 
     elif module_id == "strategy":
-        # Generated from the Ficha + market intelligence (study, surveillance, voice)
-        strategies = db.get_strategy_nodes(brand_id)
-        if strategies:
-            return {"status": "completed", "can_execute": True}
-        elif db.get_interview(brand_id):
-            return {"status": "ready", "can_execute": True}
+        # Written only by /01b_definir_estrategia (Claude Desktop); the panel just shows it
+        if db.get_strategy_nodes(brand_id):
+            return {"status": "completed", "can_execute": True}  # opens the view, generates nothing
         return {"status": "pending", "can_execute": False}
 
     elif module_id == "schedule":
@@ -345,86 +339,5 @@ async def generate_brand_manual(brand_id: str):
         logger.error(f"Failed to generate manual: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-
-@router.post("/brands/{brand_id}/strategy/seed")
-async def seed_strategy_manually(brand_id: str):
-    """
-    Generate the Estrategia (objectives tree) with AI from the Ficha (interview)
-    and the market intelligence (study, surveillance, brand voice).
-    """
-    logger.info(f"♟️ [Admin] Iniciando generación de estrategia para {brand_id}")
-
-    client = db.get_client(brand_id)
-    if not client:
-        raise HTTPException(status_code=404, detail="Cliente no encontrado")
-
-    interview_data = interview_answers(db.get_interview(brand_id))
-    if not interview_data:
-        raise HTTPException(status_code=400, detail="No se puede generar estrategia: falta la Ficha del negocio (entrevista).")
-
-    try:
-        strategy_json = await gemini_service.generate_strategic_plan(
-            interview_data=interview_data,
-            market_insights=build_market_insights(brand_id),
-        )
-        strategy_nodes = convert_tree_to_nodes(brand_id, strategy_json)
-        db.sync_strategy_nodes(brand_id, strategy_nodes)
-
-        return {
-            "status": "success",
-            "message": "Estrategia generada correctamente",
-            "nodes_count": len(strategy_nodes)
-        }
-
-    except Exception as e:
-        logger.error(f"❌ Error en generación manual de estrategia: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
-
-@router.post("/brands/{brand_id}/reset-strategy")
-async def reset_brand_strategy(brand_id: str):
-    """
-    Reset and regenerate the strategy for a brand using AI (Admin only).
-    Deletes all existing nodes and generates a new complete strategy.
-    """
-    try:
-        logger.info(f"🔄 Resetting and regenerating strategy for brand {brand_id}")
-        
-        # 1. Get brand info
-        brand = db.get_client(brand_id)
-        if not brand:
-            raise HTTPException(status_code=404, detail="Brand not found")
-        
-        brand_name = brand.get("nombre", "Marca")
-
-        # 2. Ficha (interview answers) + market intelligence
-        interview_data = interview_answers(db.get_interview(brand_id))
-        if not interview_data:
-            logger.warning(f"⚠️ No interview data found for {brand_name}, using minimal data")
-            interview_data = {"businessName": brand_name}
-
-        # 3. Generate strategy with AI
-        logger.info(f"🤖 Generating AI strategy for {brand_name}")
-        strategy_json = await gemini_service.generate_strategic_plan(
-            interview_data=interview_data,
-            market_insights=build_market_insights(brand_id),
-        )
-
-        # 5. Convert JSON to visual nodes
-        strategy_nodes = convert_tree_to_nodes(brand_id, strategy_json)
-        
-        # 6. Save to database (this will delete old nodes and create new ones)
-        db.sync_strategy_nodes(brand_id, strategy_nodes)
-        
-        logger.info(f"✅ Strategy regenerated for {brand_name}: {len(strategy_nodes)} nodes created")
-        
-        return {
-            "status": "success",
-            "message": f"Strategy regenerated for {brand_name}",
-            "nodes_created": len(strategy_nodes)
-        }
-        
-    except Exception as e:
-        logger.error(f"❌ Error regenerating strategy for brand {brand_id}: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
 
 

@@ -1,7 +1,8 @@
 
 import logging
-from typing import Any, Dict, List, Optional
-from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks
+from datetime import datetime, timezone
+from typing import Any, Dict, List, Literal, Optional
+from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from ..services.database import db
 from ..services.auth_service import get_current_user, verify_client_access
@@ -110,3 +111,34 @@ async def sync_strategy(request: StrategySyncRequest, user: dict = Depends(get_c
     except Exception as e:
         logger.error(f"❌ Strategy Sync Failed for client {request.client_id}: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+
+
+# --- Client approval (the tree itself is written by /01b_definir_estrategia) ---
+
+class StrategyReview(BaseModel):
+    estado: Literal["Aprobada", "Cambios solicitados"]
+    comentario: Optional[str] = None
+
+
+@router.get("/{client_id}/review")
+async def get_strategy_review(client_id: str, _user: dict = Depends(verify_client_access)):
+    review = db.get_strategy_review(client_id) or {"estado": "Pendiente", "comentario": None, "revisada_at": None, "revisada_por": None}
+    return {"status": "success", "data": review}
+
+
+@router.patch("/{client_id}/review")
+async def review_strategy(client_id: str, review: StrategyReview, user: dict = Depends(verify_client_access)):
+    """The client approves their strategy or sends it back with a comment."""
+    comentario = (review.comentario or "").strip() or None
+    if review.estado == "Cambios solicitados" and not comentario:
+        raise HTTPException(status_code=422, detail="Cuéntanos qué cambiarías")
+    if not db.get_strategy_nodes(client_id):
+        raise HTTPException(status_code=404, detail="Esta marca aún no tiene estrategia")
+    data = {
+        "estado": review.estado,
+        "comentario": comentario,
+        "revisada_at": datetime.now(timezone.utc).isoformat(),
+        "revisada_por": user.get("email"),
+    }
+    db.save_strategy_review(client_id, data)
+    return {"status": "success", "data": data}

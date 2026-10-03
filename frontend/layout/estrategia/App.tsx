@@ -94,6 +94,30 @@ const priorityOf = (node: NodeData): 'principal' | 'secundario' | null => {
     return legacy ? (legacy[1].toLowerCase() as 'principal' | 'secundario') : null;
 };
 
+/**
+ * /01b_definir_estrategia writes the tree without positions (all at 0,0): lay it out as columns
+ * (marca → objetivos → estrategias → conceptos), each parent centred on its children.
+ */
+const needsLayout = (nodes: NodeData[]) => nodes.length > 1 && nodes.every((n) => !n.x && !n.y);
+
+const layoutTree = (nodes: NodeData[]): NodeData[] => {
+    const kids = new Map<string | null, NodeData[]>();
+    nodes.forEach((n) => kids.set(n.parentId, [...(kids.get(n.parentId) ?? []), n]));
+    const rank = (n: NodeData) => (n.tags?.includes('principal') ? 0 : 1);
+    const pos = new Map<string, { x: number; y: number }>();
+    let slot = 0;
+    const place = (n: NodeData, depth: number): number => {
+        const children = [...(kids.get(n.id) ?? [])].sort((a, b) => rank(a) - rank(b));
+        let y: number;
+        if (children.length === 0) { y = slot * 110; slot += 1; }
+        else { const ys = children.map((c) => place(c, depth + 1)); y = (ys[0] + ys[ys.length - 1]) / 2; slot += 0.5; }
+        pos.set(n.id, { x: depth * 360, y });
+        return y;
+    };
+    (kids.get(null) ?? []).forEach((root) => place(root, 0));
+    return nodes.map((n) => ({ ...n, ...(pos.get(n.id) ?? {}) }));
+};
+
 const ConceptMeta: React.FC<{ node: NodeData }> = ({ node }) => (
     <div className="flex flex-wrap items-center gap-1.5">
         {node.suggested_format && (
@@ -147,6 +171,7 @@ const App: React.FC<{ overrideClientId?: string }> = ({ overrideClientId }) => {
 
     // Detail panel: the node whose full content is open on the right
     const [detailId, setDetailId] = useState<string | null>(null);
+    const [loaded, setLoaded] = useState(false);
     // Only save after a real edit: loading the page must never rewrite the stored tree
     const dirty = useRef(false);
     const clickStart = useRef<{ id: string; x: number; y: number } | null>(null);
@@ -263,22 +288,10 @@ const App: React.FC<{ overrideClientId?: string }> = ({ overrideClientId }) => {
                 });
 
                 if (strategyData && strategyData.length > 0) {
-                    setNodes(strategyData as any);
-                } else {
-                    console.log('📝 Strategy: Empty data - creating initial root node');
-                    // Empty state - Initialize with Root Node if empty
-                    const viewportCenterX = window.innerWidth / 2;
-                    const viewportCenterY = window.innerHeight / 2;
-                    setNodes([{
-                        id: generateId(),
-                        type: 'main',
-                        label: 'Proyecto Marketing',
-                        description: 'Estrategia General',
-                        parentId: null,
-                        x: 0, // Centered via transform usually, logic below handles viewport center
-                        y: 0
-                    }]);
+                    const loaded = strategyData as any as NodeData[];
+                    setNodes(needsLayout(loaded) ? layoutTree(loaded) : loaded);
                 }
+                setLoaded(true);
             } catch (e) {
                 console.error("❌ Strategy: Error fetching strategy:", e);
             }
@@ -978,18 +991,7 @@ const App: React.FC<{ overrideClientId?: string }> = ({ overrideClientId }) => {
                             </svg>
 
                             {/* Empty State Placeholder */}
-                            {nodes.length === 0 && (
-                                <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
-                                    <div className="text-center">
-                                        <h2 className="text-4xl font-extrabold text-gray-200 tracking-tight mb-3">
-                                            Lienzo Infinito
-                                        </h2>
-                                        <p className="text-gray-300 text-sm">
-                                            Haz clic en "Nuevo Objetivo" para comenzar
-                                        </p>
-                                    </div>
-                                </div>
-                            )}
+
 
                             {nodes.map(node => renderMapNode(node))}
 
@@ -1014,6 +1016,16 @@ const App: React.FC<{ overrideClientId?: string }> = ({ overrideClientId }) => {
                     </div>
                 </div>
 
+                {loaded && nodes.length === 0 && (
+                    <div className="absolute inset-0 z-40 flex items-center justify-center bg-brand-bg px-6">
+                        <div className="text-center max-w-md">
+                            <div className="w-14 h-14 mx-auto mb-4 rounded-2xl bg-primary-50 text-primary-600 flex items-center justify-center"><Target size={26} /></div>
+                            <h2 className="text-xl font-bold text-gray-900">Tu estrategia está en preparación</h2>
+                            <p className="mt-2 text-sm text-gray-500 leading-relaxed">El equipo de Pixely la arma con tu Ficha y el estudio de tu mercado. Cuando esté lista, aparecerá aquí para que la revises y la apruebes.</p>
+                        </div>
+                    </div>
+                )}
+
                 {renderDetailPanel()}
 
                 {viewMode === 'map' && !detailId && (
@@ -1023,7 +1035,7 @@ const App: React.FC<{ overrideClientId?: string }> = ({ overrideClientId }) => {
                 )}
 
                 {/* BOTTOM TOOLBAR */}
-                {viewMode === 'map' && (
+                {viewMode === 'map' && nodes.length > 0 && (
                     <div className="absolute bottom-12 left-1/2 -translate-x-1/2 z-50">
                         <div className="glass-panel rounded-2xl p-2 shadow-float flex items-center gap-3 pr-6">
                             <div className="flex items-center gap-1 bg-gray-100/50 p-1 rounded-xl mr-2">
