@@ -24,7 +24,7 @@ def convert_tree_to_nodes(client_id: str, tree_data: dict) -> list[dict]:
     nodes.append({
         "id": root_id, 
         "type": "main", 
-        "label": tree_data.get("root_label", "Estrategia"), 
+        "label": tree_data.get("root_label") or "Estrategia", 
         "description": "Núcleo Estratégico",
         "x": 0, "y": 0, 
         "parent_id": None, 
@@ -45,8 +45,10 @@ def convert_tree_to_nodes(client_id: str, tree_data: dict) -> list[dict]:
         nodes.append({
             "id": obj_id, 
             "type": "secondary", 
-            "label": obj["title"],
+            "label": obj.get("title") or "Objetivo",
             "description": obj.get("rationale", ""), # Aquí va el cruce (Por qué este objetivo)
+            # The first objective is the main one unless the generator says otherwise
+            "tags": [obj.get("priority") or ("principal" if i == 0 else "secundario")],
             "x": X_GAP, 
             "y": obj_y, 
             "parent_id": root_id, 
@@ -63,8 +65,8 @@ def convert_tree_to_nodes(client_id: str, tree_data: dict) -> list[dict]:
             nodes.append({
                 "id": strat_id, 
                 "type": "secondary", 
-                "label": strat["title"],
-                "description": "Estrategia Táctica",
+                "label": strat.get("title") or "Estrategia",
+                "description": strat.get("rationale", ""),
                 "x": X_GAP * 2, 
                 "y": strat_y, 
                 "parent_id": obj_id, 
@@ -93,6 +95,9 @@ def convert_tree_to_nodes(client_id: str, tree_data: dict) -> list[dict]:
                     "suggested_format": suggested_format,
                     "suggested_frequency": suggested_frequency,
                     "tags": tags,
+                    "strategic_rationale": concept.get("strategic_rationale"),
+                    "creative_hooks": concept.get("creative_hooks") or [],
+                    "execution_guidelines": concept.get("execution_guidelines") or {},
                     "x": X_GAP * 3, 
                     "y": concept_y, 
                     "parent_id": strat_id, 

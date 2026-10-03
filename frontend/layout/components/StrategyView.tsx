@@ -10,7 +10,7 @@ export const StrategyView: React.FC<{ onNavigate: (view: string) => void }> = ({
                 <AnimatedHeaderCard
                     supertitle="Tu marca"
                     title="Estrategia"
-                    subtitle="Definición del mapa estratégico y táctico."
+                    subtitle="Qué quiere lograr tu negocio, cómo lo haremos y con qué contenido."
                 />
 
                 {/* Strategy Map Module */}

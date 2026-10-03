@@ -187,14 +187,14 @@ Tu misión es crear un PLAYBOOK ESTRATÉGICO INNOVADOR que servirá como la "Con
 
 1. **OBJETIVOS ESTRATÉGICOS:**
    - Extrae TODOS los objetivos de negocio de la entrevista
-   - Prioriza el MÁS CRÍTICO como "Objetivo Principal"
-   - Clasifica los demás como "Objetivos Secundarios"
+   - Ponle a cada uno un título concreto en lenguaje del dueño del negocio (ej: "Llenar el local de lunes a jueves"), nunca "Objetivo Principal"
+   - Marca el MÁS CRÍTICO con priority "principal" y los demás con "secundario"
    - Para cada objetivo, explica POR QUÉ es importante (cruce con datos)
 
 2. **ESTRATEGIAS TÁCTICAS (2-3 por objetivo):**
    - Cada estrategia debe ser ACCIONABLE y ESPECÍFICA
    - Debe tener un ángulo DIFERENCIADOR
-   - Incluye el "por qué" estratégico, no solo el "qué"
+   - Incluye el "por qué" estratégico en `rationale` (1-2 frases), no solo el "qué"
 
 3. **ARQUETIPOS DE CONTENIDO (3-4 por estrategia):**
    
@@ -226,14 +226,16 @@ Tu misión es crear un PLAYBOOK ESTRATÉGICO INNOVADOR que servirá como la "Con
 📋 FORMATO JSON ESTRICTO:
 
 {{
-  "root_label": "Proyecto Marketing",
+  "root_label": "{brand_name}",
   "objectives": [
     {{
-      "title": "Objetivo Principal",
+      "title": "Convertir a los visitantes de fin de semana en clientes fijos",
+      "priority": "principal",
       "rationale": "Por qué es crítico según el cruce entrevista + mercado (2-3 frases)",
       "strategies": [
         {{
-          "title": "Estrategia: [Nombre Específico y Accionable]",
+          "title": "[Nombre Específico y Accionable, sin el prefijo 'Estrategia:']",
+          "rationale": "Por qué esta estrategia mueve el objetivo (1-2 frases)",
           "concepts": [
             {{
               "label": "Testimonio Cliente Transformador",
@@ -277,7 +279,8 @@ Tu misión es crear un PLAYBOOK ESTRATÉGICO INNOVADOR que servirá como la "Con
       ]
     }},
     {{
-      "title": "Objetivo Secundario",
+      "title": "[Otro objetivo concreto]",
+      "priority": "secundario",
       "rationale": "Segundo objetivo más importante...",
       "strategies": [...]
     }}
@@ -298,9 +301,9 @@ Tu misión es crear un PLAYBOOK ESTRATÉGICO INNOVADOR que servirá como la "Con
 
 ⚡ REGLAS CRÍTICAS:
 
-- El root_label DEBE ser exactamente: "Proyecto Marketing"
-- El primer objetivo DEBE tener title: "Objetivo Principal"
-- Los demás objetivos DEBEN tener title: "Objetivo Secundario"
+- El root_label DEBE ser el nombre de la marca: "{brand_name}"
+- El primer objetivo es el principal (priority "principal"); los demás, priority "secundario"
+- Los títulos de objetivos y estrategias son concretos y entendibles por el dueño del negocio
 - Los labels de conceptos NO deben incluir el prefijo "Concepto:", solo el nombre
 - Mínimo 3 objetivos (1 principal + 2 secundarios)
 - Mínimo 2 estrategias por objetivo

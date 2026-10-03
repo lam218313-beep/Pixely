@@ -1,6 +1,6 @@
 
 import logging
-from typing import List, Optional
+from typing import Any, Dict, List, Optional
 from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks
 from pydantic import BaseModel
 from ..services.database import db
@@ -23,6 +23,10 @@ class StrategyNode(BaseModel):
     suggested_format: Optional[str] = None
     suggested_frequency: Optional[str] = None
     tags: Optional[List[str]] = []
+    # Concept detail written by the generator; must round-trip or every autosave erases it
+    strategic_rationale: Optional[str] = None
+    creative_hooks: Optional[List[str]] = None
+    execution_guidelines: Optional[Dict[str, Any]] = None
 
 class StrategySyncRequest(BaseModel):
     client_id: str
@@ -52,7 +56,10 @@ async def get_strategy(client_id: str, _user: dict = Depends(verify_client_acces
             "y": n["y"],
             "suggested_format": n.get("suggested_format"),
             "suggested_frequency": n.get("suggested_frequency"),
-            "tags": n.get("tags", [])
+            "tags": n.get("tags", []),
+            "strategic_rationale": n.get("strategic_rationale"),
+            "creative_hooks": n.get("creative_hooks") or [],
+            "execution_guidelines": n.get("execution_guidelines") or {},
         })
     
     logger.info(f"📤 Returning {len(frontend_nodes)} nodes for client {client_id}")
@@ -86,7 +93,10 @@ async def sync_strategy(request: StrategySyncRequest, user: dict = Depends(get_c
             "client_id": request.client_id,
             "suggested_format": n.suggested_format,
             "suggested_frequency": n.suggested_frequency,
-            "tags": n.tags
+            "tags": n.tags,
+            "strategic_rationale": n.strategic_rationale,
+            "creative_hooks": n.creative_hooks or [],
+            "execution_guidelines": n.execution_guidelines or {},
         })
         
     try:
