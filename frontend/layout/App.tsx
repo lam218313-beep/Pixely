@@ -258,7 +258,7 @@ const AppContent: React.FC = () => {
               <div className="mt-12 text-center max-w-md px-6">
                 <h2 className="text-2xl font-bold text-brand-dark mb-3">Estrategia integrada</h2>
                 <p className="text-gray-500 leading-relaxed">
-                  Transforma datos dispersos en estrategias de alto impacto con nuestra plataforma de análisis semántico.
+                  Convierte tu negocio y tu mercado en una estrategia de contenido clara.
                 </p>
               </div>
             </div>
