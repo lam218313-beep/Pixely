@@ -3,7 +3,9 @@ import logging
 import json
 from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks
 from pydantic import BaseModel
-from typing import Optional, List, Any
+from typing import Optional, List, Any, Literal
+from datetime import datetime, timezone
+import re
 
 from ..config import settings
 from ..services.database import db
@@ -103,4 +105,46 @@ async def update_brand(client_id: str, identity: BrandIdentity, _user: dict = De
         logger.error(f"Error updating brand for {client_id}: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
+
+# --- Voz de marca: client approval and real colors ---
+
+class VoiceReview(BaseModel):
+    estado: Literal["Aprobada", "Cambios solicitados"]
+    comentario: Optional[str] = None
+
+
+@router.patch("/{client_id}/voice/review")
+async def review_voice(client_id: str, review: VoiceReview, user: dict = Depends(verify_client_access)):
+    """The client approves their brand voice or sends it back with a comment."""
+    comentario = (review.comentario or "").strip() or None
+    if review.estado == "Cambios solicitados" and not comentario:
+        raise HTTPException(status_code=422, detail="Cuéntanos qué cambiarías")
+    if not db.get_brand_identity(client_id):
+        raise HTTPException(status_code=404, detail="Esta marca aún no tiene voz definida")
+    data = {
+        "voz_estado": review.estado,
+        "voz_comentario": comentario,
+        "voz_revisada_at": datetime.now(timezone.utc).isoformat(),
+        "voz_revisada_por": user.get("email"),
+    }
+    db.update_brand_identity(client_id, data)
+    return {"status": "success", "data": data}
+
+
+HEX = re.compile(r"^#[0-9A-Fa-f]{6}$")
+
+
+class BrandColorsUpdate(BaseModel):
+    colors: dict
+
+
+@router.put("/{client_id}/colors")
+async def update_colors(client_id: str, body: BrandColorsUpdate, _user: dict = Depends(verify_client_access)):
+    """The brand's real colors, set by the client (never invented by the generator)."""
+    allowed = ("primary", "secondary", "accent", "background")
+    colors = {k: v for k, v in body.colors.items() if k in allowed and isinstance(v, str) and HEX.match(v)}
+    if not colors:
+        raise HTTPException(status_code=422, detail="Colores inválidos: usa el formato #RRGGBB")
+    db.update_brand_identity(client_id, {"colors": colors})
+    return {"status": "success", "data": colors}
 

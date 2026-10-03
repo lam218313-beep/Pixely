@@ -383,103 +383,73 @@ def _get_fallback_interpretations() -> dict:
 # BRAND IDENTITY GENERATOR
 # =============================================================================
 
-BRAND_IDENTITY_PROMPT = """
-Actúa como un Director Creativo y Estratega de Marca experto.
-Basado en las respuestas de la entrevista inicial del cliente, define la Identidad de Marca completa.
+BRAND_VOICE_PROMPT = """
+Actúa como un Director Creativo y redactor publicitario senior en Perú.
+Tu tarea es definir la VOZ DE MARCA de este negocio: las reglas con las que se escribirá
+cada publicación de sus redes. No inventes identidad visual, misión ni visión: el negocio
+ya existe y tiene su propia marca.
 
-DATOS DE ENTREVISTA:
+DATOS DE LA ENTREVISTA DEL CLIENTE:
 {interview_json}
 
 INSTRUCCIONES:
-1. Analiza profundamente el negocio, audiencia y objetivos.
-2. Define una Misión y Visión inspiradoras.
-3. Elige 3-5 Valores corporativos sólidos.
-4. Define el Arquetipo de Jung que mejor encaje (ej: El Creador, El Héroe, El Sabio).
-5. Define rasgos de Tonalidad de voz.
-6. Sugiere una paleta de colores (hex codes) y tipografías que transmitan la psicología de la marca.
+1. Basa todo en lo que el cliente respondió (su negocio, su cliente ideal, su mercado, sus objetivos).
+   Nada genérico: cada rasgo y cada ejemplo debe sonar a ESTE negocio y nombrar lo que vende.
+2. Define 3 o 4 rasgos de tono. Para cada uno: una descripción breve, un ejemplo de frase que SÍ
+   suena a la marca y uno que NO (el error típico que hay que evitar).
+3. Lista 6 a 10 palabras o expresiones que la marca SÍ usa y 6 a 10 que NO usa.
+4. Elige el arquetipo de Jung que mejor encaja y explica en una frase por qué, con datos del negocio.
+5. Escribe un ejemplo de publicación de Instagram (máx. 60 palabras) escrita con esta voz.
+Escribe en español neutro peruano.
 
 GENERA UN JSON ESTRICTO CON ESTE ESQUEMA:
 {{
-    "mission": "Texto de la misión",
-    "vision": "Texto de la visión",
-    "values": [{{"title": "Valor", "desc": "Explicación breve"}}],
-    "archetype": "Nombre del Arquetipo",
-    "tone_traits": [{{"trait": "Rasgo (ej: Cercano)", "description": "Cómo se aplica"}}],
-    "colors": {{
-        "primary": "#HEX",
-        "secondary": "#HEX",
-        "accent": "#HEX",
-        "background": "#HEX"
-    }},
-    "typography": {{
-        "heading": "Nombre de Fuente Serif/Sans sugerida",
-        "body": "Nombre de Fuente sugerida"
-    }}
+    "tone_traits": [{{"trait": "Cercano", "description": "Cómo se aplica", "ejemplo_si": "Frase que sí", "ejemplo_no": "Frase que no"}}],
+    "palabras_si": ["..."],
+    "palabras_no": ["..."],
+    "archetype": "Nombre del arquetipo",
+    "arquetipo_razon": "Por qué encaja con este negocio",
+    "ejemplo_post": "Texto del ejemplo de publicación"
 }}
 """
 
+VOICE_FIELDS = ("tone_traits", "palabras_si", "palabras_no", "archetype", "arquetipo_razon", "ejemplo_post")
+
+
 async def generate_brand_identity(interview_data: dict) -> dict:
     """
-    Generate complete Brand Identity from Interview data via REST.
+    Generate the brand VOICE (tone with examples, words to use/avoid, archetype, sample post)
+    from the client's interview. Accepts the stored client_interviews row or its `data`.
     """
-    # Extract nested sections (support both real frontend structure and test flat structure)
-    market = interview_data.get("market", {})
-    brand = interview_data.get("brand", {})
-    audience = interview_data.get("audience", {}) or {}
-    goals = interview_data.get("goals", {})
+    # The stored row nests the answers under "data"; reading the row's top level is what
+    # produced generic manuals with every field empty.
+    if isinstance(interview_data.get("data"), dict):
+        interview_data = interview_data["data"]
 
-    # Helper to merge lists or strings
-    def get_list_or_str(obj, key):
-        val = obj.get(key)
-        if isinstance(val, list):
-            return ", ".join(val)
-        return val
-
-    # Clean interview data to meaningful parts with fallbacks
     clean_data = {
-        "business": interview_data.get("businessName"),
-        "history": interview_data.get("history"),
-        "vision": interview_data.get("vision"),
-        
-        # Audience & Values
-        "audience": audience or interview_data.get("targetAudience"),
-        "values": audience.get("values") or interview_data.get("values"), # Audience values mostly
-        
-        # Market & Competitors
-        "industry": interview_data.get("industry") or "General Commerce",
-        "competitors": market.get("competitors") or interview_data.get("competitors"),
-        "market_position": market.get("priceRange"),
-        
-        # USP / Differentiator
-        "unique_selling_point": get_list_or_str(interview_data, "differentiator") or interview_data.get("uniqueSellingPoint"),
-        
-        # Challenges (Aggregated)
-        "challenges": interview_data.get("challenges") or (
-            f"Pain Points: {audience.get('painPoints', '')}. "
-            f"Bad Exp: {brand.get('badExperiences', '')}. "
-            f"Worst Sellers: {get_list_or_str(market, 'worstSellers')}"
-        ),
-        
-        # Goals
-        "goals": goals if goals else interview_data.get("goals"),
-        
-        "inspiration": interview_data.get("inspiration")
+        "negocio": interview_data.get("businessName"),
+        "historia": interview_data.get("history"),
+        "diferenciadores": interview_data.get("differentiator"),
+        "vision_del_dueno": interview_data.get("vision"),
+        "cliente_ideal": interview_data.get("audience"),
+        "mercado": interview_data.get("market"),
+        "situacion_actual": interview_data.get("brand"),
+        "objetivos": interview_data.get("goals"),
+        "catalogo": (interview_data.get("product_context") or "")[:3000] or None,
     }
-    
-    prompt = BRAND_IDENTITY_PROMPT.format(
-        interview_json=json.dumps(clean_data, indent=2, ensure_ascii=False)
-    )
-    
+    clean_data = {k: v for k, v in clean_data.items() if v}
+    if not clean_data.get("negocio") and len(clean_data) < 2:
+        raise ValueError("La entrevista está vacía: no hay con qué definir la voz de marca.")
+
+    prompt = BRAND_VOICE_PROMPT.format(interview_json=json.dumps(clean_data, indent=2, ensure_ascii=False))
+
     try:
-        logger.info(f"🎨 Generating Brand Identity for {clean_data['business']}...")
-        
-        identity = await _call_gemini(prompt, temperature=0.8, model="gpt-5-mini")
-        
-        logger.info("✅ Brand Identity generated successfully")
-        return identity
-        
+        logger.info(f"🎨 Generating Brand Voice for {clean_data.get('negocio')}...")
+        voice = await _call_gemini(prompt, temperature=0.7, model="gpt-5-mini")
+        logger.info("✅ Brand Voice generated successfully")
+        return {k: voice.get(k) for k in VOICE_FIELDS if voice.get(k) is not None}
     except Exception as e:
-        logger.error(f"❌ Error generating brand identity: {e}")
+        logger.error(f"❌ Error generating brand voice: {e}")
         raise
 
 # =============================================================================

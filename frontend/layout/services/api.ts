@@ -593,6 +593,43 @@ export async function updateBrand(clientId: string, data: any): Promise<{ status
   return handleResponse(response);
 }
 
+export type VozEstado = 'Pendiente' | 'Aprobada' | 'Cambios solicitados';
+
+export interface BrandVoice {
+  tone_traits?: { trait: string; description?: string; desc?: string; ejemplo_si?: string; ejemplo_no?: string }[] | null;
+  palabras_si?: string[] | null;
+  palabras_no?: string[] | null;
+  archetype?: string | null;
+  arquetipo_razon?: string | null;
+  ejemplo_post?: string | null;
+  colors?: { primary?: string; secondary?: string; accent?: string; background?: string } | null;
+  logo_url?: string | null;
+  voz_estado?: VozEstado;
+  voz_comentario?: string | null;
+  voz_revisada_at?: string | null;
+  updated_at?: string | null;
+}
+
+export async function reviewBrandVoice(clientId: string, estado: Exclude<VozEstado, 'Pendiente'>, comentario?: string): Promise<Partial<BrandVoice>> {
+  const response = await fetch(`${API_BASE_URL}/brand/${clientId}/voice/review`, {
+    method: 'PATCH',
+    headers: { ...getAuthHeaders(), 'Content-Type': 'application/json' },
+    body: JSON.stringify({ estado, comentario: comentario ?? null }),
+  });
+  const result = await handleResponse<{ status: string; data: Partial<BrandVoice> }>(response);
+  return result.data;
+}
+
+export async function updateBrandColors(clientId: string, colors: NonNullable<BrandVoice['colors']>): Promise<NonNullable<BrandVoice['colors']>> {
+  const response = await fetch(`${API_BASE_URL}/brand/${clientId}/colors`, {
+    method: 'PUT',
+    headers: { ...getAuthHeaders(), 'Content-Type': 'application/json' },
+    body: JSON.stringify({ colors }),
+  });
+  const result = await handleResponse<{ status: string; data: NonNullable<BrandVoice['colors']> }>(response);
+  return result.data;
+}
+
 export async function generateManual(clientId: string): Promise<{ status: string; message: string; data: any }> {
   const response = await fetch(`${API_BASE_URL}/api/admin/brands/${clientId}/manual`, {
     method: 'POST',

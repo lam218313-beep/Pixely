@@ -9,8 +9,8 @@ export const BrandView: React.FC<{ onNavigate: (view: string) => void }> = ({ on
 
                 <AnimatedHeaderCard
                     supertitle="Tu marca"
-                    title="Manual"
-                    subtitle="Guía de identidad visual de la marca."
+                    title="Voz de marca"
+                    subtitle="Cómo habla tu marca en cada publicación. Apruébala y la usamos al escribir tu contenido."
                 />
 
                 <BrandBookApp />
