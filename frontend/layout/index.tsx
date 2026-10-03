@@ -2,8 +2,15 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
 import { installSessionGuard } from './services/api';
+import { reloadForNewBuild } from './utils/staleBuild';
 
 installSessionGuard();
+
+// After a deploy, an open tab still points at the previous build's files, which no
+// longer exist. Reload once to pick up the new build instead of showing an error.
+window.addEventListener('vite:preloadError', (event) => {
+  if (reloadForNewBuild()) event.preventDefault();
+});
 
 const rootElement = document.getElementById('root');
 if (!rootElement) {
