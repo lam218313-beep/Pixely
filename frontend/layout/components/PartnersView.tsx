@@ -41,7 +41,7 @@ const TUTORIAL_SLIDES = [
   },
   {
     title: "De la Idea a la Acción",
-    description: "Tu tablero Kanban convierte planes en tareas ejecutables. Aprueba contenido con un click y olvídate del caos.",
+    description: "Sigue cada pieza del mes en una sola línea: en producción, en tu revisión, programada y publicada. Apruebas con un click y sin caos.",
     icon: ListChecks,
     audioUrl: "/assets/audio/tutorial_step6_planning.mp3"
   },

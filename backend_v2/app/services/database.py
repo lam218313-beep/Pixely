@@ -285,45 +285,6 @@ class SupabaseService:
         return None
 
     # ============================================================================
-    # Tasks
-    # ============================================================================
-
-    def create_tasks_batch(self, tasks_list: list[dict]):
-        if not self.client:
-            logger.error("DB Batch Insert Error (Tasks): No DB client")
-            raise Exception("Database client not initialized")
-        if not tasks_list:
-            logger.warning("DB Batch Insert: Empty tasks list, skipping")
-            return
-        try:
-            logger.info(f"DB Batch Insert: Inserting {len(tasks_list)} tasks")
-            result = self.client.table("tasks").insert(tasks_list).execute()
-            logger.info(f"DB Batch Insert Success: {len(result.data) if result.data else 0} tasks inserted")
-            return result
-        except Exception as e:
-            logger.error(f"DB Batch Insert Error (Tasks): {e}", exc_info=True)
-            raise  # Re-raise so pipeline can log it
-
-    def get_tasks(self, client_id: str) -> list[dict]:
-        if not self.client: return []
-        try:
-            response = self.client.table("tasks").select("*").eq("client_id", client_id).execute()
-            return response.data if response.data else []
-        except Exception as e:
-            logger.error(f"DB Get Tasks Error: {e}")
-            return []
-    
-    def get_task(self, task_id: str) -> Optional[dict]:
-        """Get a single task by ID."""
-        if not self.client: return None
-        try:
-            response = self.client.table("tasks").select("*").eq("id", task_id).execute()
-            return response.data[0] if response.data else None
-        except Exception as e:
-            logger.error(f"❌ DB Get Task Error: {e}")
-            return None
-
-    # ============================================================================
     # Interview / Context
     # ============================================================================
 
@@ -483,6 +444,17 @@ class SupabaseService:
         except Exception as e:
             logger.error(f"DB Get Market Findings Error: {e}")
             return []
+
+    def has_content_pieces(self, client_id: str) -> bool:
+        """True once /02_crearcronograma has written at least one piece for this client."""
+        if not self.client:
+            return False
+        try:
+            response = self.client.table("content_pieces").select("id").eq("client_id", client_id).limit(1).execute()
+            return bool(response.data)
+        except Exception as e:
+            logger.error(f"DB has_content_pieces Error: {e}")
+            return False
 
     def get_content_pieces(self, client_id: str, month: Optional[str] = None) -> List[dict]:
         """Pieces written by the Claude Desktop pipeline (02 crea, 03 copy, 04 render, 05 publica). month = 'YYYY-MM'."""

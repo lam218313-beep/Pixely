@@ -1,13 +1,14 @@
 /**
- * Shared building blocks for Repositorio, Validación and Publicación — the three
- * views over content_pieces. One place for stage logic, badges and the piece detail.
+ * Shared building blocks for the content production line over content_pieces:
+ * Planificación (5) → Validación (6) → Publicación (7) → Repositorio (8).
+ * Each piece sits in exactly one station at a time; `pieceStage` decides which.
  */
 
 import React, { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import {
     Image as ImageIcon, Images, Smartphone, Clapperboard, Clock, Eye, MessageSquareWarning,
-    Check, Send, X, ChevronLeft, ChevronRight, Loader2, Building2,
+    Check, CheckCheck, Send, X, ChevronLeft, ChevronRight, Loader2, Building2, ExternalLink,
 } from 'lucide-react';
 import * as api from '../../services/api';
 
@@ -25,7 +26,7 @@ export const FORMATO_ICON: Record<api.ContentFormato, React.ElementType> = {
     Reel: Clapperboard,
 };
 
-export type PieceStage = 'produccion' | 'revision' | 'cambios' | 'aprobada' | 'programada';
+export type PieceStage = 'produccion' | 'revision' | 'cambios' | 'aprobada' | 'programada' | 'publicada';
 
 export const STAGE_META: Record<PieceStage, { label: string; color: string; icon: React.ElementType }> = {
     produccion: { label: 'En producción', color: '#898781', icon: Clock },
@@ -33,6 +34,17 @@ export const STAGE_META: Record<PieceStage, { label: string; color: string; icon
     cambios: { label: 'Cambios pedidos', color: '#ec835a', icon: MessageSquareWarning },
     aprobada: { label: 'Aprobada', color: '#0ca30c', icon: Check },
     programada: { label: 'Programada', color: '#0ca30c', icon: Send },
+    publicada: { label: 'Publicada', color: '#0ca30c', icon: CheckCheck },
+};
+
+/** The station (view) that owns each stage — the one place a piece is shown as a card. */
+export const STAGE_STATION: Record<PieceStage, 'work' | 'validacion' | 'publicacion' | 'repositorio'> = {
+    produccion: 'work',
+    revision: 'validacion',
+    cambios: 'validacion',
+    aprobada: 'publicacion',
+    programada: 'publicacion',
+    publicada: 'repositorio',
 };
 
 const COPY_FIELDS: { key: keyof api.ContentPiece; label: string }[] = [
@@ -56,12 +68,24 @@ export function pieceCover(piece: api.ContentPiece): string | null {
     return finalAssets(piece)[0] ?? safeUrl(piece.url_imagen);
 }
 
-export function pieceStage(piece: api.ContentPiece): PieceStage {
-    if (piece.estado_publicado && piece.estado_publicado !== 'Pendiente') return 'programada';
+export function pieceStage(piece: api.ContentPiece, today: string = todayISO()): PieceStage {
+    // Scheduled in Metricool: once its date has passed it counts as published.
+    if (piece.estado_publicado && piece.estado_publicado !== 'Pendiente') {
+        return piece.fecha && piece.fecha.slice(0, 10) < today ? 'publicada' : 'programada';
+    }
     if (finalAssets(piece).length === 0) return 'produccion';
     if (piece.estado_aprobacion === 'Aprobado') return 'aprobada';
     if (piece.estado_aprobacion === 'Cambios solicitados') return 'cambios';
     return 'revision';
+}
+
+export type ProductionStep = 'copy' | 'diseno' | 'externa';
+
+/** Where an in-production piece is stuck: copy not written yet, design pending, or a Reel produced outside the pipeline. */
+export function productionStep(piece: api.ContentPiece): ProductionStep {
+    if (piece.estado_copy !== 'Listo') return 'copy';
+    if (piece.formato === 'Reel' || piece.estado_render === 'Producción externa') return 'externa';
+    return 'diseno';
 }
 
 export function pieceNetworks(piece: api.ContentPiece): string[] {
@@ -69,6 +93,11 @@ export function pieceNetworks(piece: api.ContentPiece): string[] {
 }
 
 // --- Month & date helpers ('YYYY-MM' / 'YYYY-MM-DD', parsed as local dates so Lima never shifts a day back) ---
+
+export function todayISO(): string {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
 
 export function currentMonth(): string {
     const d = new Date();
@@ -173,13 +202,49 @@ export const NoClientSelected: React.FC = () => (
     </div>
 );
 
+const STATION_LABEL: Record<(typeof STAGE_STATION)[PieceStage], string> = {
+    work: 'Planificación',
+    validacion: 'Validación',
+    publicacion: 'Publicación',
+    repositorio: 'Repositorio',
+};
+
+/** One line pointing to the other stations (counts only, never their cards), so no piece is listed twice. */
+export const OtherStations: React.FC<{
+    pieces: api.ContentPiece[];
+    current: (typeof STAGE_STATION)[PieceStage];
+    onNavigate?: (view: string) => void;
+}> = ({ pieces, current, onNavigate }) => {
+    const counts = new Map<string, number>();
+    pieces.forEach((p) => {
+        const station = STAGE_STATION[pieceStage(p)];
+        if (station !== current) counts.set(station, (counts.get(station) ?? 0) + 1);
+    });
+    const order = (['work', 'validacion', 'publicacion', 'repositorio'] as const).filter((s) => counts.get(s));
+    if (order.length === 0) return null;
+    return (
+        <p className="mt-6 text-sm text-gray-500">
+            En otras etapas:{' '}
+            {order.map((station, i) => (
+                <React.Fragment key={station}>
+                    {i > 0 && ' · '}
+                    {counts.get(station)} en{' '}
+                    {onNavigate ? (
+                        <button onClick={() => onNavigate(station)} className="font-bold text-gray-900 underline underline-offset-2">{STATION_LABEL[station]}</button>
+                    ) : STATION_LABEL[station]}
+                </React.Fragment>
+            ))}
+        </p>
+    );
+};
+
 export const LoadingBlock: React.FC = () => (
     <div className="flex items-center justify-center h-64">
         <Loader2 className="animate-spin text-gray-300" size={36} />
     </div>
 );
 
-// --- Piece detail (read-only, or with review actions in Validación) ---
+// --- Piece detail (read-only, or with review actions in Validación / Publicación) ---
 
 interface PieceDetailModalProps {
     piece: api.ContentPiece;
@@ -254,6 +319,16 @@ export const PieceDetailModal: React.FC<PieceDetailModalProps> = ({ piece, onClo
                                 {slide + 1} / {slides.length}
                             </span>
                         </>
+                    )}
+                    {slides.length > 0 && (
+                        <a
+                            href={slides[slide]}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="absolute top-3 right-3 flex items-center gap-1.5 text-xs font-bold bg-white/90 rounded-lg px-2.5 py-1.5 text-gray-700 hover:bg-white shadow-sm"
+                        >
+                            <ExternalLink size={13} /> Abrir original
+                        </a>
                     )}
                 </div>
 

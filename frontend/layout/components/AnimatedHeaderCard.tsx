@@ -178,7 +178,7 @@ export const AnimatedHeaderCard: React.FC<AnimatedHeaderCardProps> = ({
                 <span className="block text-primary-500 font-bold tracking-[0.2em] uppercase text-sm mb-4">
                     {supertitle}
                 </span>
-                <h1 className="text-6xl md:text-7xl font-extrabold text-brand-dark tracking-tighter mb-4">
+                <h1 className="text-5xl sm:text-6xl md:text-7xl font-extrabold text-brand-dark tracking-tighter mb-4 break-words">
                     {title}
                 </h1>
                 <p className="text-lg text-gray-500 font-light">

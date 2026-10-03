@@ -1,9 +1,9 @@
 /**
- * PublicacionView - Fase 8
+ * PublicacionView - Fase 7
  *
- * Calendario de publicación del mes. Solo lectura: la programación en Metricool
- * la hace el equipo de Pixely desde Claude Desktop (05_publicar), únicamente
- * con piezas que el cliente aprobó en Validación.
+ * La cola de salida: solo piezas aprobadas (por programar) y programadas que aún
+ * no salen. La programación en Metricool la hace el equipo de Pixely desde Claude
+ * Desktop (05_publicar). Lo ya publicado pasa al Repositorio.
  */
 
 import React, { useMemo, useState } from 'react';
@@ -13,8 +13,8 @@ import { useAuth } from '../contexts/AuthContext';
 import { useContentPieces } from '../hooks/useContentPieces';
 import * as api from '../services/api';
 import {
-    STAGE_META, StageChip, MonthSwitcher, NoClientSelected, LoadingBlock, PieceDetailModal,
-    FORMATO_ICON, pieceStage, pieceNetworks, currentMonth, parseFecha, formatFecha,
+    STAGE_META, StageChip, MonthSwitcher, NoClientSelected, LoadingBlock, PieceDetailModal, OtherStations,
+    FORMATO_ICON, STAGE_STATION, pieceStage, pieceNetworks, currentMonth, parseFecha, formatFecha,
 } from './content/ContentPieceUI';
 
 const WEEKDAYS = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
@@ -24,28 +24,30 @@ export const PublicacionView: React.FC<{ onNavigate?: (view: string) => void; cl
     const clientId = clientIdProp || user?.fichaClienteId;
     const [month, setMonth] = useState(currentMonth);
     const [selected, setSelected] = useState<api.ContentPiece | null>(null);
-    const { pieces, loading, error } = useContentPieces(clientId, month);
+    const { pieces, loading, error, replacePiece } = useContentPieces(clientId, month);
 
-    const stats = useMemo(() => {
-        const count = (stage: string) => pieces.filter((p) => pieceStage(p) === stage).length;
-        const programadas = count('programada');
-        return {
-            total: pieces.length,
-            programadas,
-            aprobadas: count('aprobada'),
-            pendientes: pieces.length - programadas - count('aprobada'),
-            progress: pieces.length ? programadas / pieces.length : 0,
-        };
-    }, [pieces]);
+    // This station's pieces only: approved and scheduled-but-not-yet-out.
+    const queue = useMemo(
+        () => pieces.filter((p) => STAGE_STATION[pieceStage(p)] === 'publicacion').sort((a, b) => a.fecha.localeCompare(b.fecha)),
+        [pieces],
+    );
+    const programadas = queue.filter((p) => pieceStage(p) === 'programada');
+    const porProgramar = queue.length - programadas.length;
+    const next = programadas[0];
+
+    const handleReview = async (estado: 'Aprobado' | 'Cambios solicitados', comentario?: string) => {
+        if (!clientId || !selected) return;
+        replacePiece(await api.reviewContentPiece(clientId, selected.id, estado, comentario));
+    };
 
     const byDay = useMemo(() => {
         const map = new Map<number, api.ContentPiece[]>();
-        pieces.forEach((p) => {
+        queue.forEach((p) => {
             const day = parseFecha(p.fecha).getDate();
             map.set(day, [...(map.get(day) ?? []), p]);
         });
         return map;
-    }, [pieces]);
+    }, [queue]);
 
     const [year, monthIndex] = month.split('-').map(Number);
     const daysInMonth = new Date(year, monthIndex, 0).getDate();
@@ -56,8 +58,8 @@ export const PublicacionView: React.FC<{ onNavigate?: (view: string) => void; cl
     return (
         <div className="p-4 md:p-8 h-full overflow-y-auto custom-scrollbar animate-fade-in-up bg-brand-bg">
             <div className="max-w-7xl mx-auto">
-                {onNavigate && <WorkflowStepper currentStep={8} onNavigate={onNavigate} />}
-                <AnimatedHeaderCard supertitle="Fase 8: Distribución" title="Publicación" subtitle="Qué sale, cuándo y en qué redes." />
+                {onNavigate && <WorkflowStepper currentStep={7} onNavigate={onNavigate} />}
+                <AnimatedHeaderCard supertitle="Fase 7: Distribución" title="Publicación" subtitle="Lo aprobado: qué sale y cuándo." />
 
                 {!clientId ? <NoClientSelected /> : (
                     <>
@@ -69,34 +71,24 @@ export const PublicacionView: React.FC<{ onNavigate?: (view: string) => void; cl
 
                         {loading && pieces.length === 0 ? <LoadingBlock /> : (
                             <div className={`transition-opacity ${loading ? 'opacity-50' : ''}`}>
-                                {/* KPI row + progress meter */}
-                                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
-                                    <StatTile label="Piezas del mes" value={stats.total} />
-                                    <StatTile label="Programadas" value={stats.programadas} />
-                                    <StatTile label="Aprobadas, por programar" value={stats.aprobadas} />
-                                    <StatTile label="En producción o revisión" value={stats.pendientes} />
-                                </div>
-                                <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-5 mb-6">
-                                    <div className="flex items-baseline justify-between mb-2">
-                                        <p className="text-sm font-semibold text-gray-700">Avance de publicación del mes</p>
-                                        <p className="text-sm font-bold text-gray-900">{Math.round(stats.progress * 100)}%</p>
+                                {/* This station's numbers only */}
+                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+                                    <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-5">
+                                        <p className="text-sm text-gray-500 mb-1">Próxima publicación</p>
+                                        {next ? (
+                                            <button onClick={() => setSelected(next)} className="text-left">
+                                                <p className="text-xl font-bold text-gray-900 capitalize">{formatFecha(next.fecha, { weekday: 'long', day: 'numeric', month: 'short' })}</p>
+                                                <p className="text-xs text-gray-500 line-clamp-1 mt-0.5">{next.topico_angulo}</p>
+                                            </button>
+                                        ) : <p className="text-xl font-bold text-gray-300">—</p>}
                                     </div>
-                                    <div
-                                        className="h-2.5 rounded-full overflow-hidden bg-[#FFE0F0]"
-                                        role="progressbar"
-                                        aria-valuemin={0}
-                                        aria-valuemax={stats.total}
-                                        aria-valuenow={stats.programadas}
-                                        aria-label="Piezas programadas del mes"
-                                    >
-                                        <div className="h-full rounded-full bg-[#D90B66] transition-all" style={{ width: `${stats.progress * 100}%` }} />
-                                    </div>
-                                    <p className="mt-2 text-xs text-gray-500">{stats.programadas} de {stats.total} piezas ya están programadas en Metricool.</p>
+                                    <StatTile label="Programadas en Metricool" value={programadas.length} />
+                                    <StatTile label="Aprobadas, por programar" value={porProgramar} />
                                 </div>
 
                                 {/* Legend for the calendar chips */}
                                 <div className="flex flex-wrap items-center gap-x-4 gap-y-2 mb-3">
-                                    {(['produccion', 'revision', 'cambios', 'aprobada', 'programada'] as const).map((stage) => (
+                                    {(['aprobada', 'programada'] as const).map((stage) => (
                                         <StageChip key={stage} stage={stage} />
                                     ))}
                                 </div>
@@ -131,19 +123,21 @@ export const PublicacionView: React.FC<{ onNavigate?: (view: string) => void; cl
                                             </div>
                                         </div>
                                     ))}
-                                    {pieces.length === 0 && <p className="text-sm text-gray-500 text-center py-8">No hay piezas este mes.</p>}
+                                    {queue.length === 0 && <p className="text-sm text-gray-500 text-center py-8">Aún no hay piezas aprobadas para este mes.</p>}
                                 </div>
 
                                 <p className="mt-4 text-xs text-gray-500">
-                                    El equipo de Pixely programa en Metricool solo las piezas aprobadas en Validación (Instagram, LinkedIn, Pinterest y Google Business). X se publica a mano.
+                                    El equipo de Pixely programa en Metricool solo las piezas aprobadas en Validación (Instagram, LinkedIn, Pinterest y Google Business). X se publica a mano. Si aprobaste algo por error, ábrelo y pide cambios mientras siga "por programar".
                                 </p>
+
+                                <OtherStations pieces={pieces} current="publicacion" onNavigate={onNavigate} />
                             </div>
                         )}
                     </>
                 )}
             </div>
 
-            {selected && <PieceDetailModal piece={selected} onClose={() => setSelected(null)} />}
+            {selected && <PieceDetailModal piece={selected} onClose={() => setSelected(null)} onReview={handleReview} />}
         </div>
     );
 };

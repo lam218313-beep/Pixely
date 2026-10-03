@@ -9,15 +9,15 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
     Plus, Building2, Users, ChevronRight, X, Loader2,
     ClipboardList, BookOpen, BarChart2, Target, Calendar,
-    Check, Clock, Play, ArrowLeft, Edit2, Trash2, RefreshCw, Radar, Images, CheckCircle2, Send
+    Check, Clock, Play, ArrowLeft, Edit2, Trash2, RefreshCw, Radar, Images, CheckCircle2, Send, CalendarRange
 } from 'lucide-react';
 import * as api from '../services/api';
 
 // Import BrandBook for preview
 import BrandBookApp from '../brand-book/App';
 import StrategyApp from '../estrategia/App';
-import PlanningView from './PlanningView';
 import { MercadoView } from './MercadoView';
+import { PlanificacionView } from './PlanificacionView';
 import { RepositorioView } from './RepositorioView';
 import { ValidacionView } from './ValidacionView';
 import { PublicacionView } from './PublicacionView';
@@ -29,9 +29,10 @@ import { PublicacionView } from './PublicacionView';
 // Admin logins carry no client_id, so these views get the brand passed in explicitly.
 const PHASE_VIEWS = {
     mercado: { label: 'Mercado', icon: Radar, Component: MercadoView },
-    repositorio: { label: 'Repositorio', icon: Images, Component: RepositorioView },
+    planificacion: { label: 'Planificación', icon: CalendarRange, Component: PlanificacionView },
     validacion: { label: 'Validación', icon: CheckCircle2, Component: ValidacionView },
     publicacion: { label: 'Publicación', icon: Send, Component: PublicacionView },
+    repositorio: { label: 'Repositorio', icon: Images, Component: RepositorioView },
 } satisfies Record<string, { label: string; icon: React.ElementType; Component: React.FC<{ clientId?: string }> }>;
 
 type PhaseKey = keyof typeof PHASE_VIEWS;
@@ -338,7 +339,6 @@ const BrandDetailView: React.FC<{ brandId: string; onBack: () => void; onNavigat
     const [showAnalysisModal, setShowAnalysisModal] = useState(false);
     const [showBrandBook, setShowBrandBook] = useState(false);
     const [showStrategy, setShowStrategy] = useState(false);
-    const [showSchedule, setShowSchedule] = useState(false);
     const [phaseView, setPhaseView] = useState<PhaseKey | null>(null);
     const [showStrategyGenModal, setShowStrategyGenModal] = useState(false);
     const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
@@ -445,32 +445,6 @@ const BrandDetailView: React.FC<{ brandId: string; onBack: () => void; onNavigat
         );
     }
 
-    if (showSchedule) {
-        return (
-            <div className="h-full flex flex-col bg-gray-50 relative animate-in fade-in zoom-in duration-300">
-                <div className="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between shadow-sm z-10 shrink-0">
-                    <div className="flex items-center gap-4">
-                        <button onClick={() => setShowSchedule(false)} className="p-2 hover:bg-gray-100 rounded-xl transition-colors">
-                            <ArrowLeft size={20} className="text-gray-600" />
-                        </button>
-                        <div>
-                            <h2 className="text-lg font-bold text-gray-900">Cronograma de Contenido</h2>
-                            <p className="text-xs text-gray-500">{brand?.nombre}</p>
-                        </div>
-                    </div>
-                </div>
-                <div className="flex-1 overflow-hidden p-4">
-                    <div className='h-full rounded-[30px] overflow-hidden border border-gray-200 shadow-sm bg-white'>
-                        <PlanningView
-                            clientId={brandId || ''}
-                            onNavigate={onNavigate}
-                        />
-                    </div>
-                </div>
-            </div>
-        );
-    }
-
     if (phaseView) {
         const { label, Component } = PHASE_VIEWS[phaseView];
         return (
@@ -553,8 +527,9 @@ const BrandDetailView: React.FC<{ brandId: string; onBack: () => void; onNavigat
                                         setShowStrategyGenModal(true);
                                     }
                                 }
+                                // The month's plan is written by /02_crearcronograma (Claude Desktop); here it is only viewed.
                                 if (mod.id === 'schedule' && mod.can_execute) {
-                                    setShowSchedule(true);
+                                    setPhaseView('planificacion');
                                 }
                             }}
                         />

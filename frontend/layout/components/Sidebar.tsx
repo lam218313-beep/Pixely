@@ -91,7 +91,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isExpanded, setIsExpanded, act
                     onClick={setActiveView}
                 />
 
-                {/* 6. Planificación */}
+                {/* 5–8: the content production line, in the order a piece travels */}
                 <SidebarItem
                     icon={CalendarRange}
                     label="Planificación"
@@ -100,16 +100,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ isExpanded, setIsExpanded, act
                     onClick={setActiveView}
                 />
 
-                {/* 7. Repositorio */}
-                <SidebarItem
-                    icon={Images}
-                    label="Repositorio"
-                    viewId="repositorio"
-                    isActive={activeView === 'repositorio'}
-                    onClick={setActiveView}
-                />
-
-                {/* 8. Validación */}
                 <SidebarItem
                     icon={CheckCircle2}
                     label="Validación"
@@ -118,12 +108,19 @@ export const Sidebar: React.FC<SidebarProps> = ({ isExpanded, setIsExpanded, act
                     onClick={setActiveView}
                 />
 
-                {/* 9. Publicación */}
                 <SidebarItem
                     icon={Send}
                     label="Publicación"
                     viewId="publicacion"
                     isActive={activeView === 'publicacion'}
+                    onClick={setActiveView}
+                />
+
+                <SidebarItem
+                    icon={Images}
+                    label="Repositorio"
+                    viewId="repositorio"
+                    isActive={activeView === 'repositorio'}
                     onClick={setActiveView}
                 />
 

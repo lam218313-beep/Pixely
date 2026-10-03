@@ -230,10 +230,10 @@ async def get_module_status(brand_id: str, module_id: str) -> dict:
         return {"status": "pending", "can_execute": False}
     
     elif module_id == "schedule":
-        # Depende de Strategy
-        strategies = db.get_strategy_nodes(brand_id) if hasattr(db, 'get_strategy_nodes') else []
-        if strategies and len(strategies) > 0:
-             return {"status": "ready", "can_execute": True}
+        # The monthly plan is written only by /02_crearcronograma (Claude Desktop) into
+        # content_pieces; the panel just opens it in Planificación once it exists.
+        if db.has_content_pieces(brand_id):
+            return {"status": "completed", "can_execute": True}
         return {"status": "pending", "can_execute": False}
 
     return {"status": "not_available", "can_execute": False}
@@ -392,13 +392,6 @@ async def get_brand_strategies(brand_id: str):
     """Get strategies for a brand."""
     strategies = db.get_strategy_nodes(brand_id) if hasattr(db, 'get_strategy_nodes') else []
     return {"strategies": strategies}
-
-
-@router.get("/brands/{brand_id}/tasks")
-async def get_brand_tasks(brand_id: str):
-    """Get tasks/schedule for a brand."""
-    tasks = db.get_tasks(brand_id) if hasattr(db, 'get_tasks') else []
-    return {"tasks": tasks}
 
 
 @router.post("/brands/{brand_id}/manual")

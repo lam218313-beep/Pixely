@@ -5,14 +5,13 @@ import { Sidebar } from './components/Sidebar.tsx';
 import { AlertCircle, Calendar } from 'lucide-react';
 import { AuthProvider, useAuth } from './contexts/AuthContext.tsx';
 import { AnalysisProvider } from './hooks/useAnalysis.tsx';
-import { TasksProvider } from './hooks/useTasks.tsx';
 // StudioProvider/ImageStudioPage/ImageGeneratorPage moved to _sandbox_ai_studio/ —
 // "Estudio IA" is retired, AI image generation now happens in the local Magnific workflow.
 
 // Lazy-loaded views for better performance
 const LabView = lazy(() => import('./components/LabView.tsx').then(m => ({ default: m.LabView })));
 const MercadoView = lazy(() => import('./components/MercadoView.tsx').then(m => ({ default: m.MercadoView })));
-const TasksView = lazy(() => import('./components/TasksView.tsx').then(m => ({ default: m.TasksView })));
+const PlanificacionView = lazy(() => import('./components/PlanificacionView.tsx').then(m => ({ default: m.PlanificacionView })));
 const WikiView = lazy(() => import('./components/WikiView.tsx'));
 const PartnersView = lazy(() => import('./components/PartnersView.tsx'));
 const AdminPanel = lazy(() => import('./components/AdminPanel.tsx').then(m => ({ default: m.AdminPanel })));
@@ -216,13 +215,7 @@ const AppContent: React.FC = () => {
       case 'work':
         return (
           <ErrorBoundary key={viewKey}>
-            <TasksView onNavigate={handleNavigate} />
-          </ErrorBoundary>
-        );
-      case 'repositorio':
-        return (
-          <ErrorBoundary key={viewKey}>
-            <RepositorioView onNavigate={handleNavigate} />
+            <PlanificacionView onNavigate={handleNavigate} />
           </ErrorBoundary>
         );
       case 'validacion':
@@ -235,6 +228,12 @@ const AppContent: React.FC = () => {
         return (
           <ErrorBoundary key={viewKey}>
             <PublicacionView onNavigate={handleNavigate} />
+          </ErrorBoundary>
+        );
+      case 'repositorio':
+        return (
+          <ErrorBoundary key={viewKey}>
+            <RepositorioView onNavigate={handleNavigate} />
           </ErrorBoundary>
         );
       case 'wiki':
@@ -389,9 +388,7 @@ const App: React.FC = () => {
   return (
     <AuthProvider>
       <AnalysisProvider>
-        <TasksProvider>
-          <AppContent />
-        </TasksProvider>
+        <AppContent />
       </AnalysisProvider>
     </AuthProvider>
   );
