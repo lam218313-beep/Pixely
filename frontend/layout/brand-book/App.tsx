@@ -3,12 +3,12 @@
  *
  * Only what the content pipeline actually uses: how the brand speaks (tone with
  * examples, words to use and avoid, archetype, a sample post) plus its REAL colors
- * and logo. The client approves it — /01, /02 and /03 write with the approved voice.
- * Nothing visual is invented by AI anymore.
+ * and logo. Written by /00b_definir_voz (Claude Desktop); the client approves it here —
+ * /01, /02 and /03 write with the approved voice. Nothing visual is invented by AI.
  */
 
 import React, { useCallback, useEffect, useState } from 'react';
-import { Check, X, Loader2, Wand2, MessageSquareWarning, Sparkles, Quote, Palette, Save, Megaphone } from 'lucide-react';
+import { Check, X, Loader2, MessageSquareWarning, Sparkles, Quote, Palette, Save, Megaphone } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import * as api from '../services/api';
 
@@ -31,7 +31,6 @@ const App: React.FC<{ overrideClientId?: string }> = ({ overrideClientId }) => {
     const [voice, setVoice] = useState<api.BrandVoice | null>(null);
     const [brandName, setBrandName] = useState('');
     const [loading, setLoading] = useState(true);
-    const [generating, setGenerating] = useState(false);
 
     const load = useCallback(async () => {
         if (!clientId) { setLoading(false); return; }
@@ -48,19 +47,6 @@ const App: React.FC<{ overrideClientId?: string }> = ({ overrideClientId }) => {
 
     useEffect(() => { load(); }, [load]);
 
-    const generate = async () => {
-        if (!clientId) return;
-        setGenerating(true);
-        try {
-            await api.generateManual(clientId);
-            await load();
-        } catch (e) {
-            alert(e instanceof Error ? e.message : 'No se pudo generar la voz de marca');
-        } finally {
-            setGenerating(false);
-        }
-    };
-
     if (loading) return <div className="flex h-64 items-center justify-center"><Loader2 className="animate-spin text-gray-300" size={32} /></div>;
 
     const hasVoice = !!voice && ((voice.tone_traits?.length ?? 0) > 0 || !!voice.archetype);
@@ -71,9 +57,7 @@ const App: React.FC<{ overrideClientId?: string }> = ({ overrideClientId }) => {
                 <h3 className="text-xl font-bold text-gray-900 mb-2">Tu voz de marca aún no está lista</h3>
                 <p className="text-sm text-gray-500 max-w-md">El equipo de Pixely la prepara a partir de tu Ficha. Aparecerá aquí para que la revises y apruebes.</p>
                 {user?.isAdmin && (
-                    <button onClick={generate} disabled={generating} className="mt-6 flex items-center gap-2 px-6 py-3 bg-gray-900 text-white font-bold rounded-xl hover:bg-gray-800 disabled:opacity-60">
-                        {generating ? <Loader2 size={18} className="animate-spin" /> : <Wand2 size={18} />} Generar voz desde la Ficha
-                    </button>
+                    <p className="mt-4 text-xs text-gray-400">Se define con <code className="font-mono">/00b_definir_voz</code> desde Claude Desktop.</p>
                 )}
             </div>
         );
@@ -84,7 +68,7 @@ const App: React.FC<{ overrideClientId?: string }> = ({ overrideClientId }) => {
 
     return (
         <div className="space-y-6">
-            <ReviewBar clientId={clientId!} voice={v} onChange={(patch) => setVoice({ ...v, ...patch })} isAdmin={!!user?.isAdmin} onRegenerate={generate} regenerating={generating} />
+            <ReviewBar clientId={clientId!} voice={v} onChange={(patch) => setVoice({ ...v, ...patch })} />
 
             {/* Tone */}
             {(v.tone_traits?.length ?? 0) > 0 && (
@@ -145,9 +129,8 @@ const App: React.FC<{ overrideClientId?: string }> = ({ overrideClientId }) => {
 // --- Approval, like Validación but for the voice itself ---
 
 const ReviewBar: React.FC<{
-    clientId: string; voice: api.BrandVoice; isAdmin: boolean; regenerating: boolean;
-    onChange: (patch: Partial<api.BrandVoice>) => void; onRegenerate: () => void;
-}> = ({ clientId, voice, isAdmin, regenerating, onChange, onRegenerate }) => {
+    clientId: string; voice: api.BrandVoice; onChange: (patch: Partial<api.BrandVoice>) => void;
+}> = ({ clientId, voice, onChange }) => {
     const estado = voice.voz_estado ?? 'Pendiente';
     const meta = ESTADO_META[estado];
     const [asking, setAsking] = useState(false);
@@ -184,11 +167,6 @@ const ReviewBar: React.FC<{
                     </p>
                 </div>
                 <div className="flex gap-2">
-                    {isAdmin && (
-                        <button onClick={onRegenerate} disabled={regenerating} className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-gray-200 text-sm font-bold text-gray-600 hover:bg-gray-50 disabled:opacity-60">
-                            {regenerating ? <Loader2 size={15} className="animate-spin" /> : <Wand2 size={15} />} Regenerar
-                        </button>
-                    )}
                     {!asking && (
                         <button onClick={() => setAsking(true)} className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-gray-200 text-sm font-bold text-gray-700 hover:bg-gray-50">
                             <MessageSquareWarning size={15} /> Pedir cambios

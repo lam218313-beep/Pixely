@@ -167,7 +167,7 @@ async def get_module_status(brand_id: str, module_id: str) -> dict:
     # ==============================================================================
     # ORDEN DE FLUJO:
     # 1. Interview (Base)
-    # 2. Voz de marca (Requiere Interview)
+    # 2. Voz de marca (la escribe /00b_definir_voz desde Claude Desktop)
     # 3. Strategy (la escribe /01b_definir_estrategia desde Claude Desktop)
     # 4. Schedule (lo escribe /02_crearcronograma en content_pieces)
     # ==============================================================================
@@ -179,14 +179,10 @@ async def get_module_status(brand_id: str, module_id: str) -> dict:
         return {"status": "pending", "can_execute": False}
     
     elif module_id == "manual":
-        # Voz de marca: generated from the Ficha (interview)
-        interview = db.get_interview(brand_id)
+        # Voz de marca: written only by /00b_definir_voz (Claude Desktop); the panel just shows it
         voice = db.get_brand_identity(brand_id)
-
         if voice and (voice.get("tone_traits") or voice.get("archetype")):
-            return {"status": "completed", "can_execute": True}
-        elif interview:
-            return {"status": "ready", "can_execute": True}
+            return {"status": "completed", "can_execute": True}  # opens the view, generates nothing
         return {"status": "pending", "can_execute": False}
 
     elif module_id == "strategy":
@@ -309,35 +305,6 @@ async def get_brand_strategies(brand_id: str):
     strategies = db.get_strategy_nodes(brand_id) if hasattr(db, 'get_strategy_nodes') else []
     return {"strategies": strategies}
 
-
-@router.post("/brands/{brand_id}/manual")
-async def generate_brand_manual(brand_id: str):
-    """Generate the Brand Voice (Voz de marca) from the Interview."""
-    # Verify brand exists
-    brand = db.get_client(brand_id)
-    if not brand:
-        raise HTTPException(status_code=404, detail="Brand not found")
-    
-    # Verify interview
-    interview = db.get_interview(brand_id)
-    if not interview:
-        raise HTTPException(status_code=400, detail="Entrevista requerida para generar el manual")
-        
-    try:
-        from ..services.gemini_service import generate_brand_identity
-        logger.info(f"Generating manual for brand {brand_id}")
-        
-        voice = await generate_brand_identity(interview)
-
-        # A regenerated voice goes back to the client for approval.
-        voice.update({"voz_estado": "Pendiente", "voz_comentario": None, "voz_revisada_at": None, "voz_revisada_por": None})
-        db.update_brand_identity(brand_id, voice)
-
-        return {"status": "success", "message": "Voz de marca generada", "data": voice}
-        
-    except Exception as e:
-        logger.error(f"Failed to generate manual: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
 
 
 
