@@ -3,7 +3,7 @@
  *
  * Only what the content pipeline actually uses: how the brand speaks (tone with
  * examples, words to use and avoid, archetype, a sample post) plus its REAL colors
- * and logo. Written by /00b_definir_voz (Claude Desktop); the client approves it here —
+ * and logo. Written by /02_voz_de_marca (Claude Desktop); the client approves it here —
  * /01, /02 and /03 write with the approved voice. Nothing visual is invented by AI.
  */
 
@@ -57,7 +57,7 @@ const App: React.FC<{ overrideClientId?: string }> = ({ overrideClientId }) => {
                 <h3 className="text-xl font-bold text-gray-900 mb-2">Tu voz de marca aún no está lista</h3>
                 <p className="text-sm text-gray-500 max-w-md">El equipo de Pixely la prepara a partir de tu Ficha. Aparecerá aquí para que la revises y apruebes.</p>
                 {user?.isAdmin && (
-                    <p className="mt-4 text-xs text-gray-400">Se define con <code className="font-mono">/00b_definir_voz</code> desde Claude Desktop.</p>
+                    <p className="mt-4 text-xs text-gray-400">Se define con <code className="font-mono">/02_voz_de_marca</code> desde Claude Desktop.</p>
                 )}
             </div>
         );

@@ -1,8 +1,8 @@
 /**
  * MercadoView - Mercado (Tu marca)
  *
- * The intelligence board: the foundational study (00_genesis_cliente) and the
- * competitive surveillance (01_escanearmercado), both run by hand from Claude
+ * The intelligence board: the foundational study (01_mercado_estudio) and the
+ * competitive surveillance (03_mercado_vigilancia), both run by hand from Claude
  * Desktop. It replaced the old social-media Análisis: it keeps that page's visual
  * language (question-titled cards, rings, a magenta hero, gauges, rankings) but
  * every chart is fed only by real market data — a card with no data is not shown.
@@ -30,7 +30,7 @@ const BASELINE = '#c3c2b7';
 const TRACK = '#f1f0ec';
 // Validated with the dataviz validator (--ordinal: monotone lightness, single hue, light end clears the surface).
 const CONF_RAMP: Record<api.MarketFindingConfianza, string> = { Alta: '#6E0535', Media: '#D90B66', Baja: '#FF85C3' };
-// Same rules /01_escanearmercado uses to assign confidence.
+// Same rules /03_mercado_vigilancia uses to assign confidence.
 const CONF_DESC: Record<api.MarketFindingConfianza, string> = {
     Alta: '3 fuentes coinciden o hay un anuncio pagado detrás',
     Media: '2 fuentes coinciden',

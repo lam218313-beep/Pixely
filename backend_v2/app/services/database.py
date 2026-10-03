@@ -374,7 +374,7 @@ class SupabaseService:
             raise e
 
     def get_market_study(self, client_id: str) -> Optional[dict]:
-        """Génesis study (00_genesis_cliente), written by hand from Claude Desktop. None if not run yet."""
+        """Génesis study (01_mercado_estudio), written by hand from Claude Desktop. None if not run yet."""
         if not self.client: return None
         try:
             response = self.client.table("market_studies").select("*").eq("client_id", client_id).order("created_at", desc=True).limit(1).execute()
@@ -384,7 +384,7 @@ class SupabaseService:
             return None
 
     def get_market_findings(self, client_id: str, limit: int = 50) -> List[dict]:
-        """Recurring competitive findings (01_escanearmercado), newest first."""
+        """Recurring competitive findings (03_mercado_vigilancia), newest first."""
         if not self.client: return []
         try:
             response = self.client.table("market_findings").select("*").eq("client_id", client_id).order("fecha", desc=True).limit(limit).execute()

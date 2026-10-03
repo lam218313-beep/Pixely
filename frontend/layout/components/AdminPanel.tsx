@@ -403,7 +403,7 @@ const BrandDetailView: React.FC<{ brandId: string; onBack: () => void; onNavigat
                             <p className="text-xs text-gray-500">{brand?.nombre}</p>
                         </div>
                     </div>
-                    <p className="text-xs text-gray-500 max-w-xs text-right">La escribe <code className="font-mono">/01b_definir_estrategia</code> desde Claude Desktop; aquí solo se revisa.</p>
+                    <p className="text-xs text-gray-500 max-w-xs text-right">La escribe <code className="font-mono">/04_estrategia</code> desde Claude Desktop; aquí solo se revisa.</p>
                 </div>
                 <div className="flex-1 overflow-hidden p-4">
                     <div className='h-full rounded-[30px] overflow-hidden border border-gray-200 shadow-sm bg-white'>
@@ -486,7 +486,7 @@ const BrandDetailView: React.FC<{ brandId: string; onBack: () => void; onNavigat
                                 if (mod.id === 'manual' && mod.can_execute) {
                                     setShowBrandBook(true);
                                 }
-                                // The strategy is written by /01b_definir_estrategia (Claude Desktop); here it is only viewed.
+                                // The strategy is written by /04_estrategia (Claude Desktop); here it is only viewed.
                                 if (mod.id === 'strategy' && mod.status === 'completed') {
                                     setShowStrategy(true);
                                 }

@@ -167,8 +167,8 @@ async def get_module_status(brand_id: str, module_id: str) -> dict:
     # ==============================================================================
     # ORDEN DE FLUJO:
     # 1. Interview (Base)
-    # 2. Voz de marca (la escribe /00b_definir_voz desde Claude Desktop)
-    # 3. Strategy (la escribe /01b_definir_estrategia desde Claude Desktop)
+    # 2. Voz de marca (la escribe /02_voz_de_marca desde Claude Desktop)
+    # 3. Strategy (la escribe /04_estrategia desde Claude Desktop)
     # 4. Schedule (lo escribe /02_crearcronograma en content_pieces)
     # ==============================================================================
 
@@ -179,14 +179,14 @@ async def get_module_status(brand_id: str, module_id: str) -> dict:
         return {"status": "pending", "can_execute": False}
     
     elif module_id == "manual":
-        # Voz de marca: written only by /00b_definir_voz (Claude Desktop); the panel just shows it
+        # Voz de marca: written only by /02_voz_de_marca (Claude Desktop); the panel just shows it
         voice = db.get_brand_identity(brand_id)
         if voice and (voice.get("tone_traits") or voice.get("archetype")):
             return {"status": "completed", "can_execute": True}  # opens the view, generates nothing
         return {"status": "pending", "can_execute": False}
 
     elif module_id == "strategy":
-        # Written only by /01b_definir_estrategia (Claude Desktop); the panel just shows it
+        # Written only by /04_estrategia (Claude Desktop); the panel just shows it
         if db.get_strategy_nodes(brand_id):
             return {"status": "completed", "can_execute": True}  # opens the view, generates nothing
         return {"status": "pending", "can_execute": False}

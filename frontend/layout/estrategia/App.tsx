@@ -95,7 +95,7 @@ const priorityOf = (node: NodeData): 'principal' | 'secundario' | null => {
 };
 
 /**
- * /01b_definir_estrategia writes the tree without positions (all at 0,0): lay it out as columns
+ * /04_estrategia writes the tree without positions (all at 0,0): lay it out as columns
  * (marca → objetivos → estrategias → conceptos), each parent centred on its children.
  */
 const needsLayout = (nodes: NodeData[]) => nodes.length > 1 && nodes.every((n) => !n.x && !n.y);

@@ -113,7 +113,7 @@ async def sync_strategy(request: StrategySyncRequest, user: dict = Depends(get_c
         raise HTTPException(status_code=500, detail=str(e))
 
 
-# --- Client approval (the tree itself is written by /01b_definir_estrategia) ---
+# --- Client approval (the tree itself is written by /04_estrategia) ---
 
 class StrategyReview(BaseModel):
     estado: Literal["Aprobada", "Cambios solicitados"]
