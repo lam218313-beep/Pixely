@@ -9,7 +9,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
     Plus, Building2, Users, ChevronRight, X, Loader2,
     ClipboardList, BookOpen, BarChart2, Target, Calendar,
-    Check, Clock, Play, ArrowLeft, Edit2, Trash2, RefreshCw, Radar
+    Check, Clock, Play, ArrowLeft, Edit2, Trash2, RefreshCw, Radar, Images, CheckCircle2, Send
 } from 'lucide-react';
 import * as api from '../services/api';
 
@@ -18,10 +18,23 @@ import BrandBookApp from '../brand-book/App';
 import StrategyApp from '../estrategia/App';
 import PlanningView from './PlanningView';
 import { MercadoView } from './MercadoView';
+import { RepositorioView } from './RepositorioView';
+import { ValidacionView } from './ValidacionView';
+import { PublicacionView } from './PublicacionView';
 
 // =============================================================================
 // MODULE CONFIG
 // =============================================================================
+
+// Admin logins carry no client_id, so these views get the brand passed in explicitly.
+const PHASE_VIEWS = {
+    mercado: { label: 'Mercado', icon: Radar, Component: MercadoView },
+    repositorio: { label: 'Repositorio', icon: Images, Component: RepositorioView },
+    validacion: { label: 'Validación', icon: CheckCircle2, Component: ValidacionView },
+    publicacion: { label: 'Publicación', icon: Send, Component: PublicacionView },
+} satisfies Record<string, { label: string; icon: React.ElementType; Component: React.FC<{ clientId?: string }> }>;
+
+type PhaseKey = keyof typeof PHASE_VIEWS;
 
 const MODULE_CONFIG: Record<string, { name: string; icon: React.ElementType; color: string }> = {
     interview: { name: 'Entrevista', icon: ClipboardList, color: 'blue' },
@@ -326,7 +339,7 @@ const BrandDetailView: React.FC<{ brandId: string; onBack: () => void; onNavigat
     const [showBrandBook, setShowBrandBook] = useState(false);
     const [showStrategy, setShowStrategy] = useState(false);
     const [showSchedule, setShowSchedule] = useState(false);
-    const [showMercado, setShowMercado] = useState(false);
+    const [phaseView, setPhaseView] = useState<PhaseKey | null>(null);
     const [showStrategyGenModal, setShowStrategyGenModal] = useState(false);
     const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
@@ -458,22 +471,23 @@ const BrandDetailView: React.FC<{ brandId: string; onBack: () => void; onNavigat
         );
     }
 
-    if (showMercado) {
+    if (phaseView) {
+        const { label, Component } = PHASE_VIEWS[phaseView];
         return (
             <div className="h-full flex flex-col bg-gray-50 relative animate-in fade-in zoom-in duration-300">
                 <div className="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between shadow-sm z-10 shrink-0">
                     <div className="flex items-center gap-4">
-                        <button onClick={() => setShowMercado(false)} className="p-2 hover:bg-gray-100 rounded-xl transition-colors">
+                        <button onClick={() => setPhaseView(null)} className="p-2 hover:bg-gray-100 rounded-xl transition-colors">
                             <ArrowLeft size={20} className="text-gray-600" />
                         </button>
                         <div>
-                            <h2 className="text-lg font-bold text-gray-900">Mercado</h2>
+                            <h2 className="text-lg font-bold text-gray-900">{label}</h2>
                             <p className="text-xs text-gray-500">{brand?.nombre}</p>
                         </div>
                     </div>
                 </div>
                 <div className="flex-1 overflow-hidden">
-                    <MercadoView clientId={brandId} />
+                    <Component clientId={brandId} />
                 </div>
             </div>
         );
@@ -498,15 +512,21 @@ const BrandDetailView: React.FC<{ brandId: string; onBack: () => void; onNavigat
                     <ArrowLeft size={24} className="text-gray-600" />
                 </button>
                 <div className="flex-1">
-                    <div className="flex items-center gap-3">
+                    <div className="flex flex-wrap items-center gap-3">
                         <h1 className="text-3xl font-black text-gray-900">{brand?.nombre}</h1>
-                        <button
-                            onClick={() => setShowMercado(true)}
-                            className="flex items-center gap-2 px-4 py-2 bg-gray-900 text-white font-bold rounded-xl hover:bg-gray-800 transition-colors text-sm"
-                        >
-                            <Radar size={16} />
-                            Mercado
-                        </button>
+                        {(Object.keys(PHASE_VIEWS) as PhaseKey[]).map((key) => {
+                            const { label, icon: Icon } = PHASE_VIEWS[key];
+                            return (
+                                <button
+                                    key={key}
+                                    onClick={() => setPhaseView(key)}
+                                    className="flex items-center gap-2 px-4 py-2 bg-gray-900 text-white font-bold rounded-xl hover:bg-gray-800 transition-colors text-sm"
+                                >
+                                    <Icon size={16} />
+                                    {label}
+                                </button>
+                            );
+                        })}
                     </div>
                 </div>
             </div>

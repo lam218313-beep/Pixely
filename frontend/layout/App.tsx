@@ -19,7 +19,9 @@ const AdminPanel = lazy(() => import('./components/AdminPanel.tsx').then(m => ({
 const InterviewView = lazy(() => import('./components/InterviewView.tsx').then(m => ({ default: m.InterviewView })));
 const BrandView = lazy(() => import('./components/BrandView.tsx').then(m => ({ default: m.BrandView })));
 const StrategyView = lazy(() => import('./components/StrategyView.tsx').then(m => ({ default: m.StrategyView })));
-const BenefitsView = lazy(() => import('./components/BenefitsView.tsx').then(m => ({ default: m.BenefitsView })));
+const RepositorioView = lazy(() => import('./components/RepositorioView.tsx').then(m => ({ default: m.RepositorioView })));
+const ValidacionView = lazy(() => import('./components/ValidacionView.tsx').then(m => ({ default: m.ValidacionView })));
+const PublicacionView = lazy(() => import('./components/PublicacionView.tsx').then(m => ({ default: m.PublicacionView })));
 
 // =============================================================================
 // ERROR BOUNDARY
@@ -70,7 +72,7 @@ class ErrorBoundary extends Component<{ children: ReactNode }, ErrorBoundaryStat
 
 // Transition States
 type FlowState = 'LOGIN_ACTIVE' | 'LOGIN_EXITING' | 'ANIMATION_ENTRY' | 'ANIMATION_EXITING' | 'DASHBOARD_ACTIVE';
-type ViewType = 'dashboard' | 'partners' | 'lab' | 'work' | 'wiki' | 'interview' | 'brand' | 'strategy' | 'benefits';
+type ViewType = 'dashboard' | 'partners' | 'lab' | 'mercado' | 'work' | 'repositorio' | 'validacion' | 'publicacion' | 'wiki' | 'interview' | 'brand' | 'strategy';
 
 // ... imports
 
@@ -211,16 +213,28 @@ const AppContent: React.FC = () => {
             <StrategyView onNavigate={handleNavigate} />
           </ErrorBoundary>
         );
-      case 'benefits':
-        return (
-          <ErrorBoundary key={viewKey}>
-            <BenefitsView onNavigate={handleNavigate} />
-          </ErrorBoundary>
-        );
       case 'work':
         return (
           <ErrorBoundary key={viewKey}>
             <TasksView onNavigate={handleNavigate} />
+          </ErrorBoundary>
+        );
+      case 'repositorio':
+        return (
+          <ErrorBoundary key={viewKey}>
+            <RepositorioView onNavigate={handleNavigate} />
+          </ErrorBoundary>
+        );
+      case 'validacion':
+        return (
+          <ErrorBoundary key={viewKey}>
+            <ValidacionView onNavigate={handleNavigate} />
+          </ErrorBoundary>
+        );
+      case 'publicacion':
+        return (
+          <ErrorBoundary key={viewKey}>
+            <PublicacionView onNavigate={handleNavigate} />
           </ErrorBoundary>
         );
       case 'wiki':

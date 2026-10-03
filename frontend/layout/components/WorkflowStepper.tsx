@@ -7,11 +7,12 @@ import {
     Layers,
     CalendarRange,
     CheckCircle2,
-    Heart // Added Heart icon for potential use
+    Images,
+    Send
 } from 'lucide-react';
 
 interface WorkflowStepperProps {
-    currentStep: 1 | 2 | 3 | 4 | 5 | 6;
+    currentStep: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
     onNavigate: (viewId: string) => void;
 }
 
@@ -20,8 +21,10 @@ const TABS = [
     { id: 'brand', label: 'Manual', icon: Palette, desc: 'Definición de identidad visual' },
     { id: 'lab', label: 'Análisis', icon: Layers, desc: 'Análisis semántico y de mercado' },
     { id: 'strategy', label: 'Estrategia', icon: LayoutGrid, desc: 'Definición de estrategia' },
-    { id: 'work', label: 'Planificación', icon: CalendarRange, desc: 'Calendario y aprobaciones' },
-    { id: 'benefits', label: 'Beneficios', icon: CheckCircle2, desc: 'Beneficios y valor' },
+    { id: 'work', label: 'Planificación', icon: CalendarRange, desc: 'Calendario del mes' },
+    { id: 'repositorio', label: 'Repositorio', icon: Images, desc: 'Galería de piezas producidas' },
+    { id: 'validacion', label: 'Validación', icon: CheckCircle2, desc: 'Aprobación del cliente' },
+    { id: 'publicacion', label: 'Publicación', icon: Send, desc: 'Calendario de publicación' },
 ];
 
 export const WorkflowStepper: React.FC<WorkflowStepperProps> = ({ currentStep, onNavigate }) => {
@@ -32,10 +35,11 @@ export const WorkflowStepper: React.FC<WorkflowStepperProps> = ({ currentStep, o
         <div className="w-full mb-8">
 
             {/* --- TAB NAVIGATION BAR --- */}
-            <div className="relative px-8 py-6 w-full">
+            <div className="relative px-2 md:px-8 py-6 w-full">
 
                 {/* Progress Line Background */}
-                <div className="absolute top-[45px] left-[60px] right-[60px] h-1.5 bg-gray-300 rounded-full z-0 overflow-hidden">
+                {/* Line runs through the circle centers: py-6 + half a circle, minus half the line height */}
+                <div className="absolute top-[39px] md:top-[45px] left-[26px] right-[26px] md:left-[60px] md:right-[60px] h-1.5 bg-gray-300 rounded-full z-0 overflow-hidden">
                     {/* Animated Progress Line Foreground */}
                     <motion.div
                         className="h-full bg-primary-500 rounded-full"
@@ -59,7 +63,7 @@ export const WorkflowStepper: React.FC<WorkflowStepperProps> = ({ currentStep, o
                             >
                                 {/* Icon Circle */}
                                 <motion.div
-                                    className={`w-12 h-12 rounded-full flex items-center justify-center border-4 transition-colors duration-300 relative ${isActive
+                                    className={`w-9 h-9 md:w-12 md:h-12 rounded-full flex items-center justify-center border-4 transition-colors duration-300 relative ${isActive
                                         ? 'bg-primary-500 border-primary-100 text-white shadow-[0_0_20px_rgba(242,15,121,0.4)]'
                                         : isCompleted
                                             ? 'bg-primary-500 border-primary-500 text-white'
@@ -69,7 +73,7 @@ export const WorkflowStepper: React.FC<WorkflowStepperProps> = ({ currentStep, o
                                     whileTap={{ scale: 0.95 }}
                                     animate={{ scale: isActive ? 1.15 : 1 }}
                                 >
-                                    <tab.icon size={20} strokeWidth={isActive ? 2.5 : 2} />
+                                    <tab.icon size={20} className="w-4 h-4 md:w-5 md:h-5" strokeWidth={isActive ? 2.5 : 2} />
 
                                     {/* Ripple effect for active */}
                                     {isActive && (
@@ -82,8 +86,8 @@ export const WorkflowStepper: React.FC<WorkflowStepperProps> = ({ currentStep, o
                                     )}
                                 </motion.div>
 
-                                {/* Label */}
-                                <div className="text-center">
+                                {/* Label (desktop only: 8 labels don't fit side by side on a phone) */}
+                                <div className="text-center hidden md:block">
                                     <p className={`text-sm font-bold transition-colors duration-300 ${isActive ? 'text-primary-600' : isCompleted ? 'text-brand-dark' : 'text-gray-400'
                                         }`}>
                                         {tab.label}
@@ -94,6 +98,11 @@ export const WorkflowStepper: React.FC<WorkflowStepperProps> = ({ currentStep, o
                         );
                     })}
                 </div>
+
+                {/* Phone: name only the current step */}
+                <p className="md:hidden mt-3 text-center text-sm font-bold text-primary-600">
+                    Paso {currentStep} de {TABS.length} · {TABS[activeTab].label}
+                </p>
             </div>
         </div>
     );

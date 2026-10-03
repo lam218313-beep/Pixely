@@ -484,4 +484,30 @@ class SupabaseService:
             logger.error(f"DB Get Market Findings Error: {e}")
             return []
 
+    def get_content_pieces(self, client_id: str, month: Optional[str] = None) -> List[dict]:
+        """Pieces written by the Claude Desktop pipeline (02 crea, 03 copy, 04 render, 05 publica). month = 'YYYY-MM'."""
+        if not self.client: return []
+        try:
+            query = self.client.table("content_pieces").select("*").eq("client_id", client_id)
+            if month:
+                year, mon = (int(part) for part in month.split("-"))
+                next_month = f"{year + mon // 12}-{mon % 12 + 1:02d}-01"
+                query = query.gte("fecha", f"{month}-01").lt("fecha", next_month)
+            response = query.order("fecha").execute()
+            return response.data or []
+        except Exception as e:
+            logger.error(f"DB Get Content Pieces Error: {e}")
+            return []
+
+    def review_content_piece(self, client_id: str, piece_id: str, estado: str, comentario: Optional[str], reviewer: str) -> Optional[dict]:
+        """The client's approval decision. Filtered by client_id too, so a piece id from another client never matches."""
+        if not self.client: return None
+        response = self.client.table("content_pieces").update({
+            "estado_aprobacion": estado,
+            "comentario_cliente": comentario,
+            "revisado_at": datetime.now(timezone.utc).isoformat(),
+            "revisado_por": reviewer,
+        }).eq("id", piece_id).eq("client_id", client_id).execute()
+        return response.data[0] if response.data else None
+
 db = SupabaseService()
