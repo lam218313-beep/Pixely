@@ -7,7 +7,7 @@ interface WorkflowStepperProps {
     onNavigate: (viewId: string) => void;
 }
 
-// Only "Tu mes": the content production line. Brand pages (Ficha, Manual, Análisis,
+// Only "Contenido": the content production line. Brand pages (Ficha, Manual, Análisis,
 // Mercado, Estrategia) are reference material, not steps, so they carry no stepper.
 const TABS = [
     { id: 'work', label: 'Planificación', icon: CalendarRange, desc: 'Plan del mes y piezas en producción' },

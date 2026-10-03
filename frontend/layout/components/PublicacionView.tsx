@@ -59,7 +59,7 @@ export const PublicacionView: React.FC<{ onNavigate?: (view: string) => void; cl
         <div className="p-4 md:p-8 h-full overflow-y-auto custom-scrollbar animate-fade-in-up bg-brand-bg">
             <div className="max-w-7xl mx-auto">
                 {onNavigate && <WorkflowStepper currentStep={3} onNavigate={onNavigate} />}
-                <AnimatedHeaderCard supertitle="Tu mes" title="Publicación" subtitle="Lo aprobado: qué sale y cuándo." />
+                <AnimatedHeaderCard supertitle="Contenido" title="Publicación" subtitle="Lo aprobado: qué sale y cuándo." />
 
                 {!clientId ? <NoClientSelected /> : (
                     <>

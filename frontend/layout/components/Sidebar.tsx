@@ -60,7 +60,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isExpanded, setIsExpanded, act
                     <SidebarItem icon={LayoutGrid} label="Estrategia" viewId="strategy" isActive={activeView === 'strategy'} onClick={setActiveView} />
                 </SidebarGroup>
 
-                <SidebarGroup label="Tu mes">
+                <SidebarGroup label="Contenido">
                     <SidebarItem icon={CalendarRange} label="Planificación" viewId="work" isActive={activeView === 'work'} onClick={setActiveView} />
                     <SidebarItem icon={CheckCircle2} label="Validación" viewId="validacion" isActive={activeView === 'validacion'} onClick={setActiveView} badge={toReview} />
                     <SidebarItem icon={Send} label="Publicación" viewId="publicacion" isActive={activeView === 'publicacion'} onClick={setActiveView} />

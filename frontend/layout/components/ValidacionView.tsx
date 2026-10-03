@@ -46,7 +46,7 @@ export const ValidacionView: React.FC<{ onNavigate?: (view: string) => void; cli
         <div className="p-4 md:p-8 h-full overflow-y-auto custom-scrollbar animate-fade-in-up bg-brand-bg">
             <div className="max-w-7xl mx-auto">
                 {onNavigate && <WorkflowStepper currentStep={2} onNavigate={onNavigate} />}
-                <AnimatedHeaderCard supertitle="Tu mes" title="Validación" subtitle="Solo lo que necesita tu decisión." />
+                <AnimatedHeaderCard supertitle="Contenido" title="Validación" subtitle="Solo lo que necesita tu decisión." />
 
                 {!clientId ? <NoClientSelected /> : loading && pieces.length === 0 ? <LoadingBlock /> : (
                     <>
