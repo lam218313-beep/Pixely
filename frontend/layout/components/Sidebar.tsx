@@ -54,7 +54,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isExpanded, setIsExpanded, act
 
                 <SidebarGroup label="Tu marca">
                     <SidebarItem icon={ClipboardList} label="Ficha" viewId="interview" isActive={activeView === 'interview'} onClick={setActiveView} />
-                    <SidebarItem icon={Palette} label="Manual" viewId="brand" isActive={activeView === 'brand'} onClick={setActiveView} />
+                    <SidebarItem icon={Palette} label="Voz de marca" viewId="brand" isActive={activeView === 'brand'} onClick={setActiveView} />
                     <SidebarItem icon={Layers} label="Análisis" viewId="lab" isActive={activeView === 'lab'} onClick={setActiveView} />
                     <SidebarItem icon={Radar} label="Mercado" viewId="mercado" isActive={activeView === 'mercado'} onClick={setActiveView} />
                     <SidebarItem icon={LayoutGrid} label="Estrategia" viewId="strategy" isActive={activeView === 'strategy'} onClick={setActiveView} />

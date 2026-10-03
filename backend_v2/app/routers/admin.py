@@ -396,7 +396,7 @@ async def get_brand_strategies(brand_id: str):
 
 @router.post("/brands/{brand_id}/manual")
 async def generate_brand_manual(brand_id: str):
-    """Generate Brand Identity (Manual) from Interview."""
+    """Generate the Brand Voice (Voz de marca) from the Interview."""
     # Verify brand exists
     brand = db.get_client(brand_id)
     if not brand:
@@ -411,12 +411,13 @@ async def generate_brand_manual(brand_id: str):
         from ..services.gemini_service import generate_brand_identity
         logger.info(f"Generating manual for brand {brand_id}")
         
-        identity = await generate_brand_identity(interview)
-        
-        # Save to DB
-        db.update_brand_identity(brand_id, identity)
-        
-        return {"status": "success", "message": "Manual de marca generado", "data": identity}
+        voice = await generate_brand_identity(interview)
+
+        # A regenerated voice goes back to the client for approval.
+        voice.update({"voz_estado": "Pendiente", "voz_comentario": None, "voz_revisada_at": None, "voz_revisada_por": None})
+        db.update_brand_identity(brand_id, voice)
+
+        return {"status": "success", "message": "Voz de marca generada", "data": voice}
         
     except Exception as e:
         logger.error(f"Failed to generate manual: {e}")
