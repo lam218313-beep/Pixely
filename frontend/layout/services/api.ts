@@ -530,10 +530,18 @@ export interface ContentPiece {
   plan_comentario: string | null;
   plan_revisado_at: string | null;
   plan_revisado_por: string | null;
+  // Validación and post-production
+  cambio_tipo: CambioTipo | null;    // what the client asked to change: image (designer), text (/03_generar) or both
+  guia_produccion: string | null;    // the designer's brief, written by /04_ensamblar
+  canva_url: string | null;          // editable Canva draft left by /04_ensamblar
+  generada_con_ia: boolean | null;   // set by whoever uploads the finals
+  entregada_at: string | null;
+  entregada_por: string | null;
   created_at: string;
 }
 
 export type PlanEstado = 'Pendiente' | 'Aprobada' | 'Cambios solicitados';
+export type CambioTipo = 'imagen' | 'texto' | 'ambos';
 
 /** The client approves (or sends back) one idea of the plan, before it is produced. */
 export async function reviewPlanPiece(clientId: string, pieceId: string, estado: Exclude<PlanEstado, 'Pendiente'>, comentario?: string): Promise<ContentPiece> {
@@ -569,12 +577,27 @@ export async function reviewContentPiece(
   clientId: string,
   pieceId: string,
   estado: Exclude<ContentAprobacion, 'Pendiente'>,
-  comentario?: string
+  comentario?: string,
+  cambioTipo?: CambioTipo,
 ): Promise<ContentPiece> {
   const response = await fetch(`${API_BASE_URL}/content/${clientId}/pieces/${pieceId}/review`, {
     method: 'PATCH',
     headers: { ...getAuthHeaders(), 'Content-Type': 'application/json' },
-    body: JSON.stringify({ estado, comentario }),
+    body: JSON.stringify({ estado, comentario, cambio_tipo: cambioTipo ?? null }),
+  });
+  const result = await handleResponse<{ status: string; data: ContentPiece }>(response);
+  return result.data;
+}
+
+/** Team only: uploads the finished files of a piece (after post-production); it then appears in Validación. */
+export async function uploadPieceFinals(clientId: string, pieceId: string, files: File[], generadaConIa: boolean): Promise<ContentPiece> {
+  const form = new FormData();
+  files.forEach((f) => form.append('files', f));
+  form.append('generada_con_ia', String(generadaConIa));
+  const response = await fetch(`${API_BASE_URL}/content/${clientId}/pieces/${pieceId}/finals`, {
+    method: 'POST',
+    headers: getAuthHeaders(),
+    body: form,
   });
   const result = await handleResponse<{ status: string; data: ContentPiece }>(response);
   return result.data;

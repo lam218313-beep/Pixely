@@ -1,8 +1,9 @@
 import logging
-from typing import Literal, Optional
+import time
+from typing import List, Literal, Optional
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, UploadFile
 from pydantic import BaseModel
 
 from ..services.database import db
@@ -21,6 +22,8 @@ router = APIRouter(prefix="/content", tags=["Content"])
 class PieceReview(BaseModel):
     estado: Literal["Aprobado", "Cambios solicitados"]
     comentario: Optional[str] = None
+    # What the client wants changed: the image goes back to the designer, the text to /03_generar
+    cambio_tipo: Optional[Literal["imagen", "texto", "ambos"]] = None
 
 
 @router.get("/{client_id}/pieces")
@@ -42,9 +45,12 @@ async def review_piece(
     comentario = (review.comentario or "").strip() or None
     if review.estado == "Cambios solicitados" and not comentario:
         raise HTTPException(status_code=422, detail="Explica qué cambios necesitas en la pieza")
+    if review.estado == "Cambios solicitados" and not review.cambio_tipo:
+        raise HTTPException(status_code=422, detail="Dinos si quieres cambiar la imagen, el texto o ambos")
+    cambio_tipo = review.cambio_tipo if review.estado == "Cambios solicitados" else None
 
     try:
-        piece = db.review_content_piece(client_id, str(piece_id), review.estado, comentario, user.get("email") or user["id"])
+        piece = db.review_content_piece(client_id, str(piece_id), review.estado, comentario, user.get("email") or user["id"], cambio_tipo)
     except Exception as e:
         logger.error(f"Failed to review piece {piece_id} for {client_id}: {e}")
         raise HTTPException(status_code=500, detail="No se pudo guardar la revisión")
@@ -106,3 +112,71 @@ async def approve_pending_plan(
         logger.error(f"Failed to approve plan for {client_id} {month}: {e}")
         raise HTTPException(status_code=500, detail="No se pudo aprobar el plan")
     return {"status": "success", "data": updated}
+
+
+# --- Final files, uploaded by the team after post-production (Canva, CapCut…) ---
+# /04_ensamblar only leaves a guide; a person finishes each piece and uploads it here.
+# Uploading is what moves a piece into Validación.
+
+BUCKET = "content-pieces"
+MAX_BYTES = 50 * 1024 * 1024  # Supabase Storage's per-file limit on this plan
+IMAGE_TYPES = {"image/png": "png", "image/jpeg": "jpg", "image/webp": "webp"}
+VIDEO_TYPES = {"video/mp4": "mp4", "video/quicktime": "mov", "video/webm": "webm"}
+
+
+def _check_finals(formato: Optional[str], files: List[UploadFile]) -> None:
+    kinds = {"video" if f.content_type in VIDEO_TYPES else "image" if f.content_type in IMAGE_TYPES else "other" for f in files}
+    if "other" in kinds:
+        raise HTTPException(status_code=422, detail="Solo se aceptan imágenes PNG, JPG o WEBP y videos MP4, MOV o WEBM")
+    if formato == "Reel":
+        if len(files) != 1 or kinds != {"video"}:
+            raise HTTPException(status_code=422, detail="Un Reel lleva un solo video")
+    elif formato == "Carrusel":
+        if not 2 <= len(files) <= 10 or kinds != {"image"}:
+            raise HTTPException(status_code=422, detail="Un carrusel lleva de 2 a 10 imágenes, en orden")
+    elif len(files) != 1 or kinds != {"image"}:
+        raise HTTPException(status_code=422, detail="Esta pieza lleva una sola imagen")
+
+
+@router.post("/{client_id}/pieces/{piece_id}/finals")
+async def upload_finals(
+    client_id: str,
+    piece_id: UUID,
+    files: List[UploadFile] = File(...),
+    generada_con_ia: bool = Form(...),
+    user: dict = Depends(verify_client_access),
+):
+    """The team uploads the finished files of a piece; it then appears in Validación for the client."""
+    if user.get("role") != "admin":
+        raise HTTPException(status_code=403, detail="Solo el equipo de Pixely sube las piezas finales")
+    piece = db.get_content_piece(client_id, str(piece_id))
+    if not piece:
+        raise HTTPException(status_code=404, detail="Pieza no encontrada")
+    if piece.get("plan_estado") != "Aprobada":
+        raise HTTPException(status_code=409, detail="El cliente aún no aprueba esta idea en Planificación")
+    if piece.get("estado_copy") != "Listo":
+        raise HTTPException(status_code=409, detail="Falta el copy de esta pieza: corre /03_generar antes de subirla")
+    if piece.get("estado_publicado") not in (None, "Pendiente"):
+        raise HTTPException(status_code=409, detail="Esta pieza ya está programada o publicada")
+    _check_finals(piece.get("formato"), files)
+
+    stamp = int(time.time())
+    urls: List[str] = []
+    try:
+        for n, f in enumerate(files, start=1):
+            data = await f.read()
+            if len(data) > MAX_BYTES:
+                raise HTTPException(status_code=413, detail=f"{f.filename} pesa más de 50 MB; comprímelo y vuelve a subirlo")
+            ext = IMAGE_TYPES.get(f.content_type) or VIDEO_TYPES[f.content_type]
+            # A new name on every delivery, so browsers never show the previous version
+            path = f"{client_id}/{piece_id}/final-{stamp}-{n}.{ext}"
+            urls.append(db.upload_public_file(BUCKET, path, data, f.content_type))
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Failed to upload finals for piece {piece_id} ({client_id}): {e}")
+        raise HTTPException(status_code=500, detail="No se pudieron subir los archivos")
+
+    updated = db.save_piece_finals(client_id, str(piece_id), urls, generada_con_ia, user.get("email") or user.get("id"),
+                                   back_to_review=piece.get("estado_aprobacion") == "Cambios solicitados")
+    return {"status": "success", "data": updated or piece}

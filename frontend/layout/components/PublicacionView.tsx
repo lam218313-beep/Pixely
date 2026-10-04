@@ -35,9 +35,9 @@ export const PublicacionView: React.FC<{ onNavigate?: (view: string) => void; cl
     const porProgramar = queue.length - programadas.length;
     const next = programadas[0];
 
-    const handleReview = async (estado: 'Aprobado' | 'Cambios solicitados', comentario?: string) => {
+    const handleReview = async (estado: 'Aprobado' | 'Cambios solicitados', comentario?: string, cambioTipo?: api.CambioTipo) => {
         if (!clientId || !selected) return;
-        replacePiece(await api.reviewContentPiece(clientId, selected.id, estado, comentario));
+        replacePiece(await api.reviewContentPiece(clientId, selected.id, estado, comentario, cambioTipo));
     };
 
     const byDay = useMemo(() => {

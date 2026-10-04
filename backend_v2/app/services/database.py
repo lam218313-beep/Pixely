@@ -419,12 +419,13 @@ class SupabaseService:
             logger.error(f"DB Get Content Pieces Error: {e}")
             return []
 
-    def review_content_piece(self, client_id: str, piece_id: str, estado: str, comentario: Optional[str], reviewer: str) -> Optional[dict]:
+    def review_content_piece(self, client_id: str, piece_id: str, estado: str, comentario: Optional[str], reviewer: str, cambio_tipo: Optional[str] = None) -> Optional[dict]:
         """The client's approval decision. Filtered by client_id too, so a piece id from another client never matches."""
         if not self.client: return None
         response = self.client.table("content_pieces").update({
             "estado_aprobacion": estado,
             "comentario_cliente": comentario,
+            "cambio_tipo": cambio_tipo,
             "revisado_at": datetime.now(timezone.utc).isoformat(),
             "revisado_por": reviewer,
         }).eq("id", piece_id).eq("client_id", client_id).execute()
@@ -445,5 +446,27 @@ class SupabaseService:
             "plan_revisado_por": reviewer,
         }).in_("id", piece_ids).eq("client_id", client_id).eq("estado_copy", "Pendiente").execute()
         return response.data or []
+
+    def upload_public_file(self, bucket: str, path: str, data: bytes, content_type: str) -> str:
+        """Uploads to a public Storage bucket and returns its permanent public URL."""
+        storage = self.client.storage.from_(bucket)
+        storage.upload(path, data, {"content-type": content_type, "upsert": "true"})
+        return storage.get_public_url(path).rstrip("?")
+
+    def save_piece_finals(self, client_id: str, piece_id: str, urls: List[str], generada_con_ia: bool, uploader: str, back_to_review: bool) -> Optional[dict]:
+        """Final files uploaded by the team: the piece moves to Validación (or back to it after a visual correction)."""
+        if not self.client: return None
+        data = {
+            "url_piezas_finales": urls,
+            "url_imagen": urls[0],
+            "estado_render": "✅ Postproducción",
+            "generada_con_ia": generada_con_ia,
+            "entregada_at": datetime.now(timezone.utc).isoformat(),
+            "entregada_por": uploader,
+        }
+        if back_to_review:
+            data["estado_aprobacion"] = "Pendiente"
+        response = self.client.table("content_pieces").update(data).eq("id", piece_id).eq("client_id", client_id).execute()
+        return response.data[0] if response.data else None
 
 db = SupabaseService()
