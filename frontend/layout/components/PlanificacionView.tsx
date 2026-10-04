@@ -16,12 +16,11 @@ import { useAuth } from '../contexts/AuthContext';
 import { useContentPieces } from '../hooks/useContentPieces';
 import * as api from '../services/api';
 import {
-    PILAR_META, FORMATO_ICON, PilarBadge, FormatoBadge, MonthSwitcher, NoClientSelected, LoadingBlock,
+    FORMATO_ICON, PilarBadge, FormatoBadge, MonthSwitcher, NoClientSelected, LoadingBlock,
     PieceDetailModal, OtherStations, PieceWhyLine, pieceStage, productionStep, currentMonth, monthLabel, formatFecha,
 } from './content/ContentPieceUI';
-
-const PILARES: api.ContentPilar[] = ['Problema', 'Identidad', 'Prueba'];
-const FORMATOS: api.ContentFormato[] = ['Imagen', 'Carrusel', 'Estado', 'Reel'];
+import { PlanOverview } from './content/PlanCharts';
+import { OTHER_COLOR, pieceLinks, useStrategyIndex, type StrategyIndex } from './content/strategyLinks';
 const DONE = '#0ca30c';
 const PENDING = '#898781';
 
@@ -32,7 +31,7 @@ export const PlanificacionView: React.FC<{ onNavigate?: (view: string) => void; 
     const [selected, setSelected] = useState<api.ContentPiece | null>(null);
     const { pieces, loading, error } = useContentPieces(clientId, month);
     const [review, setReview] = useState<api.PlanReview | null>(null);
-    const [strategy, setStrategy] = useState<api.StrategyNode[]>([]);
+    const strategy = useStrategyIndex(clientId);
 
     useEffect(() => {
         if (!clientId) return;
@@ -42,21 +41,10 @@ export const PlanificacionView: React.FC<{ onNavigate?: (view: string) => void; 
         return () => { cancelled = true; };
     }, [clientId, month]);
 
-    useEffect(() => {
-        if (!clientId) return;
-        api.getStrategy(clientId).then(setStrategy).catch(() => setStrategy([]));
-    }, [clientId]);
-
-    const byObjective = useMemo(() => objectiveMix(pieces, strategy), [pieces, strategy]);
-
     const inProduction = useMemo(
         () => pieces.filter((p) => pieceStage(p) === 'produccion').sort((a, b) => a.fecha.localeCompare(b.fecha)),
         [pieces],
     );
-    const mix = useMemo(() => ({
-        pilar: PILARES.map((k) => ({ key: k, n: pieces.filter((p) => p.pilar === k).length })),
-        formato: FORMATOS.map((k) => ({ key: k, n: pieces.filter((p) => p.formato === k).length })).filter((f) => f.n > 0),
-    }), [pieces]);
 
     return (
         <div className="p-4 md:p-8 h-full overflow-y-auto custom-scrollbar animate-fade-in-up bg-brand-bg">
@@ -92,46 +80,9 @@ export const PlanificacionView: React.FC<{ onNavigate?: (view: string) => void; 
                                     </div>
                                 )}
 
-                                {/* The plan itself: how the month is built */}
-                                <section className="bg-white rounded-3xl border border-gray-100 shadow-sm p-6 mb-6 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6" aria-label="Plan del mes">
-                                    <div>
-                                        <p className="text-sm text-gray-500 mb-1">Plan de {monthLabel(month).toLowerCase()}</p>
-                                        <p className="text-4xl font-bold text-gray-900">
-                                            {pieces.length} <span className="text-lg font-semibold text-gray-400">{pieces.length === 1 ? 'pieza' : 'piezas'}</span>
-                                        </p>
-                                    </div>
-                                    <ObjectiveMix rows={byObjective} total={pieces.length} />
-                                    <div>
-                                        <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-2">Por pilar</p>
-                                        <ul className="space-y-1.5 max-w-[240px]">
-                                            {mix.pilar.map(({ key, n }) => (
-                                                <li key={key} className="flex items-center justify-between text-sm">
-                                                    <span className="flex items-center gap-2 text-gray-700">
-                                                        <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: PILAR_META[key].color }} />
-                                                        {key}
-                                                    </span>
-                                                    <span className="font-bold text-gray-900 tabular-nums">{n}</span>
-                                                </li>
-                                            ))}
-                                        </ul>
-                                    </div>
-                                    <div>
-                                        <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-2">Por formato</p>
-                                        <ul className="space-y-1.5 max-w-[240px]">
-                                            {mix.formato.map(({ key, n }) => {
-                                                const Icon = FORMATO_ICON[key];
-                                                return (
-                                                    <li key={key} className="flex items-center justify-between text-sm">
-                                                        <span className="flex items-center gap-2 text-gray-700"><Icon size={14} className="text-gray-400" />{key}</span>
-                                                        <span className="font-bold text-gray-900 tabular-nums">{n}</span>
-                                                    </li>
-                                                );
-                                            })}
-                                        </ul>
-                                    </div>
-                                </section>
+                                <PlanOverview pieces={pieces} index={strategy} month={month} monthName={monthLabel(month).toLowerCase()} />
 
-                                <MonthCalendar month={month} pieces={pieces} onOpen={setSelected} />
+                                <MonthCalendar month={month} pieces={pieces} index={strategy} onOpen={setSelected} />
 
                                 {/* This station: what is still being produced */}
                                 <section aria-label="En producción">
@@ -167,7 +118,7 @@ export const PlanificacionView: React.FC<{ onNavigate?: (view: string) => void; 
                                                             <FormatoBadge formato={piece.formato} />
                                                             <PilarBadge pilar={piece.pilar} />
                                                         </span>
-                                                        <PieceWhyLine piece={piece} />
+                                                        <PieceWhyLine piece={piece} index={strategy} />
                                                     </span>
                                                     <ProductionTracker piece={piece} />
                                                 </button>
@@ -224,59 +175,14 @@ const EmptyPlan: React.FC<{ month: string }> = ({ month }) => (
     </div>
 );
 
-// --- Which objectives the month serves ---
-
-interface ObjectiveRow { key: string; label: string; n: number; principal: boolean }
-
-/** Groups pieces by the objective they serve; the strategy (if still matching) says which one is the main one. */
-function objectiveMix(pieces: api.ContentPiece[], strategy: api.StrategyNode[]): ObjectiveRow[] {
-    const byId = new Map(strategy.map((n) => [n.id, n] as [string, api.StrategyNode]));
-    const objectiveOf = (conceptId: string | null) => {
-        const concept = conceptId ? byId.get(conceptId) : undefined;
-        const strat = concept?.parentId ? byId.get(concept.parentId) : undefined;
-        return strat?.parentId ? byId.get(strat.parentId) : undefined;
-    };
-    const rows = new Map<string, ObjectiveRow>();
-    pieces.forEach((p) => {
-        const obj = objectiveOf(p.concepto_id);
-        const label = p.objetivo || 'Sin objetivo asignado';
-        const key = obj?.id ?? label;
-        const principal = !!obj && (obj.tags?.includes('principal') || /^objetivo principal$/i.test(obj.label.trim()));
-        const row = rows.get(key) ?? { key, label, n: 0, principal };
-        row.n += 1;
-        rows.set(key, row);
-    });
-    return [...rows.values()].sort((a, b) => Number(b.principal) - Number(a.principal) || b.n - a.n);
-}
-
-const ObjectiveMix: React.FC<{ rows: ObjectiveRow[]; total: number }> = ({ rows, total }) => {
-    const main = rows.find((r) => r.principal);
-    return (
-        <div className="md:col-span-1">
-            <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-2">Por objetivo</p>
-            {main && <p className="text-sm text-gray-700 mb-2"><strong className="text-gray-900">{main.n} de {total}</strong> piezas van al objetivo principal</p>}
-            <ul className="space-y-2">
-                {rows.map((r) => (
-                    <li key={r.key} title={`${r.label}: ${r.n} ${r.n === 1 ? 'pieza' : 'piezas'}`}>
-                        <div className="flex items-baseline justify-between gap-3 text-sm">
-                            <span className="text-gray-700 line-clamp-1">{r.principal && <span className="text-[10px] font-bold uppercase tracking-wider text-primary-600 mr-1">Principal</span>}{r.label}</span>
-                            <span className="font-bold text-gray-900 tabular-nums">{r.n}</span>
-                        </div>
-                        <div className="h-1.5 rounded-full bg-gray-100 overflow-hidden mt-1">
-                            <div className="h-full rounded-full" style={{ width: `${(r.n / Math.max(total, 1)) * 100}%`, backgroundColor: r.principal ? '#D90B66' : '#c3c2b7' }} />
-                        </div>
-                    </li>
-                ))}
-            </ul>
-        </div>
-    );
-};
-
 // --- The month at a glance ---
 
 const WEEKDAYS = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
 
-const MonthCalendar: React.FC<{ month: string; pieces: api.ContentPiece[]; onOpen: (p: api.ContentPiece) => void }> = ({ month, pieces, onOpen }) => {
+/** Each piece wears the color of the objective it serves first. */
+const objectiveColor = (p: api.ContentPiece, index: StrategyIndex | null) => pieceLinks(p, index)[0]?.objective.color ?? OTHER_COLOR;
+
+const MonthCalendar: React.FC<{ month: string; pieces: api.ContentPiece[]; index: StrategyIndex | null; onOpen: (p: api.ContentPiece) => void }> = ({ month, pieces, index, onOpen }) => {
     const [year, mon] = month.split('-').map(Number);
     const days = new Date(year, mon, 0).getDate();
     const lead = (new Date(year, mon - 1, 1).getDay() + 6) % 7; // Monday first
@@ -294,9 +200,9 @@ const MonthCalendar: React.FC<{ month: string; pieces: api.ContentPiece[]; onOpe
                     <h2 className="text-lg font-bold text-gray-900">Calendario de {monthLabel(month).toLowerCase()}</h2>
                     <p className="text-sm text-gray-500">Qué sale cada día. Haz clic en una pieza para ver por qué existe.</p>
                 </div>
-                <div className="flex flex-wrap gap-3 text-xs text-gray-600">
-                    {PILARES.map((k) => (
-                        <span key={k} className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: PILAR_META[k].color }} />{k}</span>
+                <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-600 max-w-xl">
+                    {(index?.objectives ?? []).map((o) => (
+                        <span key={o.id} className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: o.color }} />{o.principal ? 'Principal: ' : ''}{o.label}</span>
                     ))}
                 </div>
             </div>
@@ -313,7 +219,7 @@ const MonthCalendar: React.FC<{ month: string; pieces: api.ContentPiece[]; onOpe
                                 return (
                                     <button key={p.id} onClick={() => onOpen(p)} title={p.topico_angulo ?? ''}
                                         className="w-full text-left flex items-start gap-1 rounded-md bg-gray-50 hover:bg-gray-100 px-1.5 py-1 border-l-[3px]"
-                                        style={{ borderLeftColor: p.pilar ? PILAR_META[p.pilar].color : '#c3c2b7' }}>
+                                        style={{ borderLeftColor: objectiveColor(p, index) }}>
                                         <Icon size={11} className="text-gray-400 shrink-0 mt-0.5" />
                                         <span className="text-[11px] leading-tight text-gray-800 line-clamp-2">{p.topico_angulo || 'Pieza'}</span>
                                     </button>
@@ -333,7 +239,7 @@ const MonthCalendar: React.FC<{ month: string; pieces: api.ContentPiece[]; onOpe
                                 <span className="block text-lg font-bold text-gray-900 leading-none">{Number(p.fecha.slice(8, 10))}</span>
                                 <span className="block text-[10px] font-semibold uppercase text-gray-400 mt-0.5">{formatFecha(p.fecha, { weekday: 'short' })}</span>
                             </span>
-                            <span className="min-w-0 border-l-[3px] pl-3" style={{ borderLeftColor: p.pilar ? PILAR_META[p.pilar].color : '#c3c2b7' }}>
+                            <span className="min-w-0 border-l-[3px] pl-3" style={{ borderLeftColor: objectiveColor(p, index) }}>
                                 <span className="block text-sm font-semibold text-gray-900 leading-snug line-clamp-2">{p.topico_angulo || 'Pieza sin tópico'}</span>
                                 <span className="block text-xs text-gray-500 mt-0.5">{p.formato}{p.objetivo ? ` · ${p.objetivo}` : ''}</span>
                             </span>
