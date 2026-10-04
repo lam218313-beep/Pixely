@@ -6,8 +6,8 @@ Brands contain users and have plans that define accessible modules.
 """
 
 from fastapi import APIRouter, Depends, HTTPException
-from pydantic import BaseModel
-from typing import Optional, List
+from pydantic import BaseModel, Field
+from typing import Literal, Optional, List
 from datetime import date, datetime, timedelta
 import logging
 
@@ -201,6 +201,51 @@ async def get_module_status(brand_id: str, module_id: str) -> dict:
         return {"status": "pending", "can_execute": False}
 
     return {"status": "not_available", "can_execute": False}
+
+
+# --- Brand settings: the single source the recipes read (volume, networks, Metricool) ---
+
+Red = Literal["instagram", "facebook", "linkedin", "tiktok", "pinterest", "gbp", "x"]
+
+
+class BrandSettings(BaseModel):
+    plan: Optional[Literal["Lite", "Basic", "Pro", "Personalizado"]] = None
+    fotos_mes: Optional[int] = Field(None, ge=0, le=200)
+    reels_mes: Optional[int] = Field(None, ge=0, le=100)
+    redes: List[Red] = []
+    metricool_brand_id: Optional[str] = Field(None, max_length=40)
+    ciudad: Optional[str] = Field(None, max_length=80)
+    rubro: Optional[str] = Field(None, max_length=120)
+    contacto_nombre: Optional[str] = Field(None, max_length=120)
+    contacto_email: Optional[str] = Field(None, max_length=160)
+    contacto_telefono: Optional[str] = Field(None, max_length=40)
+
+
+EMPTY_SETTINGS = BrandSettings().model_dump()
+
+
+@router.get("/brands/{brand_id}/settings")
+async def get_brand_settings(brand_id: str):
+    if not db.get_client(brand_id):
+        raise HTTPException(status_code=404, detail="Marca no encontrada")
+    return {"status": "success", "data": db.get_brand_settings(brand_id) or {"client_id": brand_id, **EMPTY_SETTINGS}}
+
+
+@router.put("/brands/{brand_id}/settings")
+async def save_brand_settings(brand_id: str, settings: BrandSettings, user: dict = Depends(require_admin)):
+    if not db.get_client(brand_id):
+        raise HTTPException(status_code=404, detail="Marca no encontrada")
+    data = settings.model_dump()
+    # Blank text means "not set"; keep the networks in a stable order without duplicates
+    for k in ("metricool_brand_id", "ciudad", "rubro", "contacto_nombre", "contacto_email", "contacto_telefono"):
+        data[k] = (data[k] or "").strip() or None
+    data["redes"] = [r for r in ["instagram", "facebook", "linkedin", "tiktok", "pinterest", "gbp", "x"] if r in data["redes"]]
+    try:
+        saved = db.save_brand_settings(brand_id, data, user.get("email") or user.get("id"))
+    except Exception as e:
+        logger.error(f"Failed to save settings for {brand_id}: {e}")
+        raise HTTPException(status_code=500, detail="No se pudo guardar la configuración")
+    return {"status": "success", "data": saved}
 
 
 @router.post("/brands/{brand_id}/users")

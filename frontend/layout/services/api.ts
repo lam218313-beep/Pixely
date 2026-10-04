@@ -607,7 +607,7 @@ export async function getResults(clientId: string, month: string): Promise<{ met
 // --- Admin "Hoy" board ---
 
 export type PasoEstado = 'falta' | 'cliente' | 'cambios' | 'listo';
-export type AdminDestino = 'ficha' | 'voz' | 'mercado' | 'estrategia' | 'planificacion' | 'validacion' | 'publicaciones';
+export type AdminDestino = 'configuracion' | 'ficha' | 'voz' | 'mercado' | 'estrategia' | 'planificacion' | 'validacion' | 'publicaciones';
 
 export interface AdminAccion {
   quien: 'equipo' | 'cliente';
@@ -621,11 +621,47 @@ export interface AdminMarca {
   id: string;
   nombre: string;
   usuarios: number;
+  config: { plan: string | null; fotos_mes: number | null; reels_mes: number | null; redes: BrandRed[]; metricool: boolean; completa: boolean };
   pasos: { ficha: PasoEstado; mercado: PasoEstado; voz: PasoEstado; estrategia: PasoEstado };
   contenido: { mes: string; plan_mes: number; plan_siguiente: number; ideas_pendientes: number; ideas_cambios: number; en_produccion: number; por_revisar: number; por_programar: number };
   ultima_vigilancia: string | null;
   ultimos_resultados: string | null;
   acciones: AdminAccion[];
+}
+
+export type BrandRed = 'instagram' | 'facebook' | 'linkedin' | 'tiktok' | 'pinterest' | 'gbp' | 'x';
+export type BrandPlan = 'Lite' | 'Basic' | 'Pro' | 'Personalizado';
+
+/** The brand's setup, edited by the team; the recipes read volume, networks and Metricool from here. */
+export interface BrandSettings {
+  plan: BrandPlan | null;
+  fotos_mes: number | null;
+  reels_mes: number | null;
+  redes: BrandRed[];
+  metricool_brand_id: string | null;
+  ciudad: string | null;
+  rubro: string | null;
+  contacto_nombre: string | null;
+  contacto_email: string | null;
+  contacto_telefono: string | null;
+  actualizado_at?: string;
+  actualizado_por?: string | null;
+}
+
+export async function getBrandSettings(clientId: string): Promise<BrandSettings> {
+  const response = await fetch(`${API_BASE_URL}/api/admin/brands/${clientId}/settings`, { headers: getAuthHeaders() });
+  const result = await handleResponse<{ status: string; data: BrandSettings }>(response);
+  return result.data;
+}
+
+export async function saveBrandSettings(clientId: string, settings: BrandSettings): Promise<BrandSettings> {
+  const response = await fetch(`${API_BASE_URL}/api/admin/brands/${clientId}/settings`, {
+    method: 'PUT',
+    headers: { ...getAuthHeaders(), 'Content-Type': 'application/json' },
+    body: JSON.stringify(settings),
+  });
+  const result = await handleResponse<{ status: string; data: BrandSettings }>(response);
+  return result.data;
 }
 
 export async function getAdminOverview(): Promise<{ hoy: string; marcas: AdminMarca[] }> {

@@ -12,7 +12,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import {
     Plus, Users, ChevronRight, X, Loader2, ArrowLeft, Check, Copy, Eye, MessageSquareWarning, Circle,
-    ClipboardList, Palette, Radar, LayoutGrid, CalendarRange, CheckCircle2, Send, LayoutDashboard, RefreshCw, UserRound,
+    ClipboardList, Palette, Radar, LayoutGrid, CalendarRange, CheckCircle2, Send, LayoutDashboard, RefreshCw, UserRound, Settings,
 } from 'lucide-react';
 import * as api from '../services/api';
 import { InterviewView } from './InterviewView';
@@ -23,6 +23,7 @@ import { PlanificacionView } from './PlanificacionView';
 import { ValidacionView } from './ValidacionView';
 import { PublicacionesView } from './PublicacionesView';
 import { monthLabel } from './content/ContentPieceUI';
+import { BrandSettingsForm, RED_LABEL } from './admin/BrandSettingsForm';
 
 // --- Brand pages, in the client's menu order ---
 
@@ -94,7 +95,7 @@ export const AdminPanel: React.FC<{ onNavigate?: (view: string) => void }> = () 
 
     const marca = open && data?.marcas.find((m) => m.id === open.id);
     if (open && marca) {
-        return <BrandDetail marca={marca} tab={open.tab} onTab={(tab) => setOpen({ id: marca.id, tab })} onBack={() => { setOpen(null); load(); }} />;
+        return <BrandDetail marca={marca} tab={open.tab} onTab={(tab) => setOpen({ id: marca.id, tab })} onBack={() => { setOpen(null); load(); }} onChanged={load} />;
     }
 
     const marcas = data?.marcas ?? [];
@@ -190,7 +191,9 @@ const BrandRow: React.FC<{ marca: api.AdminMarca; onOpen: (tab: Tab) => void }> 
                 </div>
             </div>
 
-            <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-500">
+            <ConfigLine config={marca.config} onClick={() => onOpen('configuracion')} />
+
+            <div className="mt-1.5 flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-500">
                 <span>Plan de {monthLabel(c.mes).split(' ')[0].toLowerCase()}: <strong className="text-gray-800">{c.plan_mes}</strong></span>
                 <span>Próximo mes: <strong className="text-gray-800">{c.plan_siguiente}</strong></span>
                 <span>En producción: <strong className="text-gray-800">{c.en_produccion}</strong></span>
@@ -218,6 +221,19 @@ const BrandRow: React.FC<{ marca: api.AdminMarca; onOpen: (tab: Tab) => void }> 
         </article>
     );
 };
+
+const ConfigLine: React.FC<{ config: api.AdminMarca['config']; onClick: () => void }> = ({ config, onClick }) => (
+    <button onClick={onClick} className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-gray-600 hover:text-gray-900 text-left">
+        <Settings size={12} className="text-gray-400" />
+        {config.completa ? (
+            <>
+                <span><strong className="text-gray-800">{config.plan ?? 'Plan sin nombre'}</strong> · {(config.fotos_mes ?? 0) + (config.reels_mes ?? 0)} piezas al mes ({config.fotos_mes} fotos, {config.reels_mes} reels)</span>
+                <span>· {config.redes.map((r) => RED_LABEL[r]).join(', ')}</span>
+                <span>· Metricool {config.metricool ? '✓' : 'sin conectar'}</span>
+            </>
+        ) : <span className="font-semibold text-gray-800 underline underline-offset-2">Sin configurar: plan, volumen y redes</span>}
+    </button>
+);
 
 const ActionRow: React.FC<{ accion: api.AdminAccion; onGo: () => void }> = ({ accion, onGo }) => {
     const [copied, setCopied] = useState(false);
@@ -251,7 +267,7 @@ const ActionRow: React.FC<{ accion: api.AdminAccion; onGo: () => void }> = ({ ac
 
 interface BrandUser { id: string; email: string; full_name?: string }
 
-const BrandDetail: React.FC<{ marca: api.AdminMarca; tab: Tab; onTab: (t: Tab) => void; onBack: () => void }> = ({ marca, tab, onTab, onBack }) => {
+const BrandDetail: React.FC<{ marca: api.AdminMarca; tab: Tab; onTab: (t: Tab) => void; onBack: () => void; onChanged: () => void }> = ({ marca, tab, onTab, onBack, onChanged }) => {
     const page = PAGES.find((p) => p.key === tab);
     const navigate = (view: string) => { const t = VIEW_TO_TAB[view]; if (t) onTab(t); };
 
@@ -267,6 +283,7 @@ const BrandDetail: React.FC<{ marca: api.AdminMarca; tab: Tab; onTab: (t: Tab) =
                 </div>
                 <nav className="flex gap-1 overflow-x-auto -mb-px" aria-label="Páginas de la marca">
                     <TabButton active={tab === 'resumen'} onClick={() => onTab('resumen')} icon={LayoutDashboard} label="Resumen" />
+                    <TabButton active={tab === 'configuracion'} onClick={() => onTab('configuracion')} icon={Settings} label="Configuración" />
                     <span className="w-px bg-gray-200 my-2 mx-1 shrink-0" />
                     {PAGES.map((p, i) => (
                         <React.Fragment key={p.key}>
@@ -277,7 +294,14 @@ const BrandDetail: React.FC<{ marca: api.AdminMarca; tab: Tab; onTab: (t: Tab) =
                 </nav>
             </header>
 
-            {page ? (
+            {tab === 'configuracion' ? (
+                <div className="flex-1 overflow-y-auto custom-scrollbar p-4 md:p-8">
+                    <div className="max-w-4xl mx-auto">
+                        <p className="text-sm text-gray-500 mb-4">Solo la ve el equipo. Es lo que leen las recetas de Claude Desktop para esta marca.</p>
+                        <BrandSettingsForm clientId={marca.id} onSaved={onChanged} />
+                    </div>
+                </div>
+            ) : page ? (
                 <div className="flex-1 min-h-0 flex flex-col">
                     <p className="shrink-0 px-4 md:px-6 py-2 text-xs text-gray-600 bg-amber-50 border-b border-amber-100">
                         Ves lo mismo que ve el cliente en <strong>{page.label}</strong>. Si apruebas o pides cambios aquí, cuenta como si lo hiciera el cliente.
@@ -319,6 +343,14 @@ const BrandSummary: React.FC<{ marca: api.AdminMarca; onTab: (t: Tab) => void }>
     return (
         <div className="flex-1 overflow-y-auto custom-scrollbar p-4 md:p-8">
             <div className="max-w-5xl mx-auto space-y-6">
+                <section className="bg-white rounded-3xl border border-gray-100 shadow-sm p-6">
+                    <div className="flex items-center justify-between gap-3">
+                        <h2 className="text-lg font-bold text-gray-900">Configuración</h2>
+                        <button onClick={() => onTab('configuracion')} className="text-sm font-bold text-gray-600 hover:text-gray-900 inline-flex items-center gap-1">Editar <ChevronRight size={14} /></button>
+                    </div>
+                    <ConfigLine config={marca.config} onClick={() => onTab('configuracion')} />
+                </section>
+
                 <section className="bg-white rounded-3xl border border-gray-100 shadow-sm p-6">
                     <h2 className="text-lg font-bold text-gray-900 mb-3">Dónde está</h2>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-3">

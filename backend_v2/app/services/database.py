@@ -509,6 +509,7 @@ class SupabaseService:
             "pieces": lambda: q("content_pieces", piece_cols).eq("estado_publicado", "Pendiente").execute(),
             "published": lambda: q("content_pieces", "id,client_id,fecha").neq("estado_publicado", "Pendiente").gte("fecha", since).execute(),
             "piece_metrics": lambda: q("piece_metrics", "piece_id,client_id,actualizado_at").execute(),
+            "brand_settings": lambda: q("brand_settings", "client_id,plan,fotos_mes,reels_mes,redes,metricool_brand_id").execute(),
         }
         rows: Dict[str, list] = {}
         for key, run in plan.items():
@@ -519,5 +520,15 @@ class SupabaseService:
                 logger.error(f"DB admin overview ({key}) Error: {e}")
                 rows[key] = []
         return rows
+
+    def get_brand_settings(self, client_id: str) -> Optional[dict]:
+        if not self.client: return None
+        response = self.client.table("brand_settings").select("*").eq("client_id", client_id).limit(1).execute()
+        return response.data[0] if response.data else None
+
+    def save_brand_settings(self, client_id: str, data: dict, editor: str) -> dict:
+        row = {"client_id": client_id, **data, "actualizado_at": datetime.now(timezone.utc).isoformat(), "actualizado_por": editor}
+        response = self.client.table("brand_settings").upsert(row, on_conflict="client_id").execute()
+        return response.data[0] if response.data else row
 
 db = SupabaseService()
