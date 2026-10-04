@@ -53,6 +53,7 @@ def build_brand_status(
     pieces: List[dict],
     published_without_results: int,
     last_results: Optional[str],
+    settings: Optional[dict] = None,
 ) -> dict:
     """Status of one brand. `pieces` are its content_pieces still in the pipeline (not yet published)."""
     nombre = brand.get("nombre") or "Sin nombre"
@@ -84,6 +85,14 @@ def build_brand_status(
     acciones: List[dict] = []
     team = lambda *a, **k: acciones.append(_action("equipo", *a, **k))
     client = lambda *a, **k: acciones.append(_action("cliente", *a, **k))
+
+    # The brand's own setup comes first: the recipes read volume, networks and Metricool from it
+    cfg = settings or {}
+    config_ok = cfg.get("fotos_mes") is not None and cfg.get("reels_mes") is not None and bool(cfg.get("redes"))
+    if not config_ok:
+        team("Completar la configuración (plan, volumen y redes)", destino="configuracion")
+    elif not cfg.get("metricool_brand_id"):
+        team("Agregar su marca de Metricool en la configuración", destino="configuracion")
 
     # Foundations, in the order the client goes through them
     if not has_interview:
@@ -137,6 +146,14 @@ def build_brand_status(
         "id": brand["id"],
         "nombre": nombre,
         "usuarios": users,
+        "config": {
+            "plan": cfg.get("plan"),
+            "fotos_mes": cfg.get("fotos_mes"),
+            "reels_mes": cfg.get("reels_mes"),
+            "redes": cfg.get("redes") or [],
+            "metricool": bool(cfg.get("metricool_brand_id")),
+            "completa": config_ok,
+        },
         "pasos": {
             "ficha": "listo" if has_interview else "falta",
             "mercado": "falta" if not has_study else ("cambios" if stale_market else "listo"),
@@ -165,6 +182,7 @@ def build_overview(rows: Dict[str, list], today: date) -> List[dict]:
     users, interviews, studies = by_client("users"), by_client("client_interviews"), by_client("market_studies")
     findings, voices, nodes = by_client("market_findings"), by_client("brand_identities"), by_client("strategy_nodes")
     reviews, pieces, published, metrics = by_client("strategy_reviews"), by_client("pieces"), by_client("published"), by_client("piece_metrics")
+    settings = by_client("brand_settings")
     cutoff = (today - timedelta(days=3)).isoformat()
 
     out = []
@@ -187,6 +205,7 @@ def build_overview(rows: Dict[str, list], today: date) -> List[dict]:
             pieces=pieces.get(cid, []),
             published_without_results=without,
             last_results=last_res,
+            settings=(settings.get(cid) or [None])[0],
         ))
     # Brands where the team has the most to do come first
     out.sort(key=lambda b: (-sum(1 for a in b["acciones"] if a["quien"] == "equipo"), b["nombre"].lower()))
