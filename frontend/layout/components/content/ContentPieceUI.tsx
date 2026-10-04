@@ -11,6 +11,7 @@ import {
     Check, CheckCheck, Send, X, ChevronLeft, ChevronRight, Loader2, Building2, ExternalLink,
 } from 'lucide-react';
 import * as api from '../../services/api';
+import { pieceLinks, useStrategyIndex, type PieceLink, type StrategyIndex } from './strategyLinks';
 
 // Validated with the dataviz palette validator (all-pairs CVD + 3:1 on white). Always shown beside a text label.
 export const PILAR_META: Record<api.ContentPilar, { label: string; color: string }> = {
@@ -261,35 +262,113 @@ interface PieceDetailModalProps {
     onReview?: (estado: 'Aprobado' | 'Cambios solicitados', comentario?: string) => Promise<void>;
 }
 
-/** Why a piece exists: the strategy concept it serves and the evidence behind it (from /05_planificacion). */
-export const PieceWhy: React.FC<{ piece: api.ContentPiece }> = ({ piece }) => {
-    if (!piece.objetivo && !piece.concepto && !piece.marcador) return null;
+const SectionTitle: React.FC<{ children: React.ReactNode }> = ({ children }) => (
+    <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-3">{children}</p>
+);
+
+/** Where a piece comes from in the Estrategia: objetivo → estrategia → concepto(s), one branch per strategy it touches. */
+export const PieceStrategy: React.FC<{ links: PieceLink[] }> = ({ links }) => {
+    if (links.length === 0) return null;
+    const conceptCount = links.reduce((n, l) => n + l.concepts.length, 0);
     return (
-        <div className="p-6 border-b border-gray-100 space-y-2">
-            <p className="text-xs font-bold uppercase tracking-wider text-gray-400">Por qué esta pieza</p>
-            {piece.objetivo && <p className="text-sm text-gray-700"><span className="font-semibold text-gray-900">Objetivo: </span>{piece.objetivo}</p>}
-            {piece.concepto && <p className="text-sm text-gray-700"><span className="font-semibold text-gray-900">Concepto: </span>{piece.concepto}</p>}
-            {piece.marcador === 'I' && (
-                <p className="text-sm text-gray-700"><span className="font-semibold text-gray-900">Dato de mercado: </span>{piece.evidencia || 'respaldada por la vigilancia del mercado'}</p>
+        <div className="p-6 border-b border-gray-100">
+            <SectionTitle>De dónde sale en tu estrategia</SectionTitle>
+            {conceptCount > 1 && (
+                <p className="text-sm text-gray-600 mb-3">
+                    Esta pieza combina <strong className="text-gray-900">{conceptCount} conceptos</strong>
+                    {links.length > 1 ? ` de ${new Set(links.map((l) => l.objective.label)).size > 1 ? 'distintos objetivos' : 'distintas estrategias'}` : ''}.
+                </p>
             )}
-            {piece.marcador === 'C' && <p className="text-sm text-gray-500">Idea creativa del equipo, sin un dato de mercado detrás.</p>}
+            <ol className="space-y-3">
+                {links.map((link, i) => (
+                    <li key={i} className="rounded-2xl border border-gray-100 bg-gray-50/60 p-4 border-l-4" style={{ borderLeftColor: link.objective.color }}>
+                        <p className="text-[11px] font-bold uppercase tracking-wider text-gray-400 flex items-center gap-2">
+                            <span className="w-2 h-2 rounded-full" style={{ backgroundColor: link.objective.color }} />
+                            Objetivo
+                            {link.objective.principal && <span className="text-primary-600">· Principal</span>}
+                        </p>
+                        <p className="text-sm font-bold text-gray-900 mt-0.5">{link.objective.label}</p>
+                        {link.strategy && (
+                            <div className="mt-3 ml-1 pl-3 border-l-2 border-gray-200">
+                                <p className="text-[11px] font-bold uppercase tracking-wider text-gray-400">Estrategia</p>
+                                <p className="text-sm font-semibold text-gray-800 mt-0.5">{link.strategy}</p>
+                                {link.concepts.length > 0 && (
+                                    <div className="mt-3 ml-1 pl-3 border-l-2 border-gray-200">
+                                        <p className="text-[11px] font-bold uppercase tracking-wider text-gray-400">{link.concepts.length > 1 ? 'Conceptos' : 'Concepto'}</p>
+                                        <div className="flex flex-wrap gap-1.5 mt-1">
+                                            {link.concepts.map((c) => (
+                                                <span key={c} className="text-xs font-semibold text-gray-800 bg-white border border-gray-200 rounded-lg px-2 py-1">{c}</span>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        )}
+                        {!link.strategy && link.concepts.length > 0 && (
+                            <p className="text-sm text-gray-700 mt-2"><span className="font-semibold text-gray-900">Concepto: </span>{link.concepts.join(', ')}</p>
+                        )}
+                    </li>
+                ))}
+            </ol>
         </div>
     );
 };
 
-/** One quiet line for lists: which objective and concept a piece serves. */
-export const PieceWhyLine: React.FC<{ piece: api.ContentPiece }> = ({ piece }) =>
-    piece.objetivo || piece.concepto ? (
-        <span className="block text-xs text-gray-500 mt-1 line-clamp-1">
-            Sirve a: {[piece.objetivo, piece.concepto].filter(Boolean).join(' · ')}
+/** How the strategy became this piece: the planner's reasoning, the market fact behind it, and what the image shows. */
+export const PieceReasoning: React.FC<{ piece: api.ContentPiece }> = ({ piece }) => {
+    const hasWhy = piece.razon || piece.marcador || piece.evidencia;
+    const visualTitle = piece.formato === 'Reel' ? 'Qué muestra el video' : 'Qué muestra la imagen';
+    if (!hasWhy && !piece.descripcion_visual) return null;
+    return (
+        <>
+            {hasWhy && (
+                <div className="p-6 border-b border-gray-100 space-y-3">
+                    <SectionTitle>Cómo llegamos a esta pieza</SectionTitle>
+                    {piece.razon && <p className="text-sm text-gray-700 leading-relaxed">{piece.razon}</p>}
+                    {piece.marcador === 'I' || piece.evidencia ? (
+                        <div className="rounded-xl bg-gray-50 border border-gray-100 p-3">
+                            <p className="text-[11px] font-bold uppercase tracking-wider text-gray-400 mb-1">Dato de mercado que la respalda</p>
+                            <p className="text-sm text-gray-800">{piece.evidencia || 'Respaldada por la vigilancia del mercado.'}</p>
+                        </div>
+                    ) : piece.marcador === 'C' ? (
+                        <p className="text-sm text-gray-500">Idea creativa del equipo, sin un dato de mercado detrás.</p>
+                    ) : null}
+                </div>
+            )}
+            {piece.descripcion_visual && (
+                <div className="p-6 border-b border-gray-100">
+                    <SectionTitle>{visualTitle}</SectionTitle>
+                    <p className="text-sm text-gray-700 leading-relaxed">{piece.descripcion_visual}</p>
+                </div>
+            )}
+        </>
+    );
+};
+
+/** One quiet line for lists: the main branch a piece serves (objetivo → estrategia → concepto). */
+export const PieceWhyLine: React.FC<{ piece: api.ContentPiece; index?: StrategyIndex | null }> = ({ piece, index = null }) => {
+    const links = pieceLinks(piece, index);
+    if (links.length === 0) return null;
+    const main = links[0];
+    const extra = links.reduce((n, l) => n + l.concepts.length, 0) - Math.min(main.concepts.length, 1);
+    return (
+        <span className="flex items-center gap-1.5 text-xs text-gray-500 mt-1 min-w-0">
+            <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: main.objective.color }} />
+            <span className="line-clamp-1">
+                {[main.objective.label, main.strategy, main.concepts[0]].filter(Boolean).join(' → ')}
+                {extra > 0 && <strong className="text-gray-700"> +{extra} {extra === 1 ? 'concepto' : 'conceptos'}</strong>}
+            </span>
         </span>
-    ) : null;
+    );
+};
 
 export const PieceDetailModal: React.FC<PieceDetailModalProps> = ({ piece, onClose, onReview }) => {
     const assets = finalAssets(piece);
     const slides = assets.length > 0 ? assets : [safeUrl(piece.url_imagen)].filter((u): u is string => !!u);
     const copies = COPY_FIELDS.filter(({ key }) => !!piece[key]);
     const stage = pieceStage(piece);
+    const strategy = useStrategyIndex(piece.client_id);
+    const links = pieceLinks(piece, strategy);
     const canReview = !!onReview && (stage === 'revision' || stage === 'cambios' || stage === 'aprobada');
 
     const [slide, setSlide] = useState(0);
@@ -334,12 +413,12 @@ export const PieceDetailModal: React.FC<PieceDetailModalProps> = ({ piece, onClo
                 aria-label={piece.topico_angulo ?? 'Detalle de la pieza'}
             >
                 {/* Visual */}
-                <div className="md:w-1/2 bg-gray-50 relative flex items-center justify-center min-h-[280px]">
+                <div className="md:w-1/2 bg-gray-50 relative flex items-center justify-center min-h-[280px] shrink-0 overflow-hidden">
                     {slides.length > 0 ? (
                         isVideoUrl(slides[slide]) ? (
-                            <video src={slides[slide]} controls playsInline className="w-full h-full max-h-[92vh] object-contain bg-black" />
+                            <video src={slides[slide]} controls playsInline className="w-full h-full max-h-[45vh] md:max-h-[92vh] object-contain bg-black" />
                         ) : (
-                            <img src={slides[slide]} alt={`Lámina ${slide + 1}`} className="w-full h-full max-h-[92vh] object-contain" />
+                            <img src={slides[slide]} alt={`Lámina ${slide + 1}`} className="w-full h-full max-h-[45vh] md:max-h-[92vh] object-contain" />
                         )
                     ) : (
                         <PieceCover piece={piece} className="w-full h-full min-h-[280px]" />
@@ -377,6 +456,9 @@ export const PieceDetailModal: React.FC<PieceDetailModalProps> = ({ piece, onClo
                                 <StageChip stage={stage} />
                                 <FormatoBadge formato={piece.formato} />
                                 <PilarBadge pilar={piece.pilar} />
+                                {piece.marcador && (
+                                    <span className="text-xs font-semibold text-gray-500">{piece.marcador === 'I' ? 'Con dato de mercado' : 'Idea creativa'}</span>
+                                )}
                             </div>
                             <button onClick={onClose} className="p-2 -m-2 rounded-full hover:bg-gray-100 text-gray-400" aria-label="Cerrar">
                                 <X size={20} />
@@ -388,7 +470,8 @@ export const PieceDetailModal: React.FC<PieceDetailModalProps> = ({ piece, onClo
                         <h3 className="text-xl font-bold text-gray-900 leading-snug">{piece.topico_angulo || 'Pieza sin tópico'}</h3>
                     </div>
 
-                    <PieceWhy piece={piece} />
+                    <PieceStrategy links={links} />
+                    <PieceReasoning piece={piece} />
 
                     {piece.formato === 'Reel' && piece.prompt_visual && (
                         <div className="p-6 border-b border-gray-100">

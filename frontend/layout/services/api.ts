@@ -518,10 +518,13 @@ export interface ContentPiece {
   url_imagen: string | null;
   url_piezas_finales: string[] | null;
   // Written by /05_planificacion: what the piece is for, copied when the plan was made
-  concepto_id: string | null;   // strategy_nodes id of the concept it serves
+  concepto_id: string | null;   // strategy_nodes id of the main concept it serves (= concepto_ids[0])
+  concepto_ids: string[] | null; // every concept the piece combines, main one first
   concepto: string | null;
   objetivo: string | null;
   evidencia: string | null;     // market fact behind an [I] piece, with its source
+  razon: string | null;         // why the piece exists: how objective, strategy, concept and evidence became this piece
+  descripcion_visual: string | null; // what the image shows and why, in Spanish (written by /03_generar)
   created_at: string;
 }
 
