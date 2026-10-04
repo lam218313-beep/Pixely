@@ -404,20 +404,6 @@ class SupabaseService:
             logger.error(f"DB has_content_pieces Error: {e}")
             return False
 
-    def get_plan_review(self, client_id: str, month: str) -> Optional[dict]:
-        """The client's approval of one month's plan (plan_reviews), if any."""
-        if not self.client: return None
-        try:
-            response = self.client.table("plan_reviews").select("*").eq("client_id", client_id).eq("mes", month).limit(1).execute()
-            return response.data[0] if response.data else None
-        except Exception as e:
-            logger.error(f"DB Get Plan Review Error: {e}")
-            return None
-
-    def save_plan_review(self, client_id: str, month: str, data: dict) -> None:
-        if not self.client: return
-        self.client.table("plan_reviews").upsert({"client_id": client_id, "mes": month, **data}, on_conflict="client_id,mes").execute()
-
     def get_content_pieces(self, client_id: str, month: Optional[str] = None) -> List[dict]:
         """Pieces written by the Claude Desktop pipeline (05_planificacion creates them, then copy, render and publishing). month = 'YYYY-MM'."""
         if not self.client: return []
@@ -443,5 +429,21 @@ class SupabaseService:
             "revisado_por": reviewer,
         }).eq("id", piece_id).eq("client_id", client_id).execute()
         return response.data[0] if response.data else None
+
+    def get_content_piece(self, client_id: str, piece_id: str) -> Optional[dict]:
+        if not self.client: return None
+        response = self.client.table("content_pieces").select("*").eq("id", piece_id).eq("client_id", client_id).limit(1).execute()
+        return response.data[0] if response.data else None
+
+    def review_plan_pieces(self, client_id: str, piece_ids: List[str], estado: str, comentario: Optional[str], reviewer: str) -> List[dict]:
+        """The client's decision on ideas of the plan (plan_estado). Only pieces not yet in production can change."""
+        if not self.client or not piece_ids: return []
+        response = self.client.table("content_pieces").update({
+            "plan_estado": estado,
+            "plan_comentario": comentario,
+            "plan_revisado_at": datetime.now(timezone.utc).isoformat(),
+            "plan_revisado_por": reviewer,
+        }).in_("id", piece_ids).eq("client_id", client_id).eq("estado_copy", "Pendiente").execute()
+        return response.data or []
 
 db = SupabaseService()

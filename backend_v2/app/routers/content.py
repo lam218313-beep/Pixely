@@ -1,5 +1,4 @@
 import logging
-from datetime import datetime, timezone
 from typing import Literal, Optional
 from uuid import UUID
 
@@ -16,7 +15,7 @@ router = APIRouter(prefix="/content", tags=["Content"])
 # a mano el pipeline de Claude Desktop (lam218313-beep/Pixely_Automatizaciones:
 # 05_planificacion crea las filas, 03_generar el copy, 04_ensamblar el render y
 # 05_publicar la publicación). Las únicas escrituras desde la app son decisiones del
-# cliente: aprobar el plan del mes y revisar cada pieza; nunca automáticas.
+# cliente: aprobar cada idea del plan y luego cada pieza final; nunca automáticas.
 
 
 class PieceReview(BaseModel):
@@ -55,48 +54,55 @@ async def review_piece(
     return {"status": "success", "data": piece}
 
 
-# --- Approval of the month's plan (written by /05_planificacion), before production ---
+# --- Approval of the plan, piece by piece (ideas written by /05_planificacion), before production ---
 
 MONTH = r"^\d{4}-(0[1-9]|1[0-2])$"
+IN_PRODUCTION = "Esta pieza ya está en producción: los cambios se piden en Validación, sobre la pieza final"
 
 
-class PlanReview(BaseModel):
-    estado: Literal["Aprobado", "Cambios solicitados"]
+class PlanPieceReview(BaseModel):
+    estado: Literal["Aprobada", "Cambios solicitados"]
     comentario: Optional[str] = None
 
 
-@router.get("/{client_id}/plan-review")
-async def get_plan_review(
+@router.patch("/{client_id}/pieces/{piece_id}/plan-review")
+async def review_plan_piece(
     client_id: str,
-    month: str = Query(..., pattern=MONTH),
-    _user: dict = Depends(verify_client_access),
+    piece_id: UUID,
+    review: PlanPieceReview,
+    user: dict = Depends(verify_client_access),
 ):
-    review = db.get_plan_review(client_id, month) or {"estado": "Pendiente", "comentario": None, "revisada_at": None, "revisada_por": None}
-    return {"status": "success", "data": review}
+    """The client approves one idea of the plan, or sends it back with a comment."""
+    comentario = (review.comentario or "").strip() or None
+    if review.estado == "Cambios solicitados" and not comentario:
+        raise HTTPException(status_code=422, detail="Cuéntanos qué cambiarías de esta pieza")
+    piece = db.get_content_piece(client_id, str(piece_id))
+    if not piece:
+        raise HTTPException(status_code=404, detail="Pieza no encontrada")
+    if piece.get("estado_copy") != "Pendiente":
+        raise HTTPException(status_code=409, detail=IN_PRODUCTION)
+    try:
+        updated = db.review_plan_pieces(client_id, [str(piece_id)], review.estado, comentario, user.get("email") or user.get("id"))
+    except Exception as e:
+        logger.error(f"Failed to review plan piece {piece_id} for {client_id}: {e}")
+        raise HTTPException(status_code=500, detail="No se pudo guardar tu revisión")
+    return {"status": "success", "data": updated[0] if updated else piece}
 
 
-@router.patch("/{client_id}/plan-review")
-async def review_plan(
+@router.post("/{client_id}/plan-review/approve-pending")
+async def approve_pending_plan(
     client_id: str,
-    review: PlanReview,
     month: str = Query(..., pattern=MONTH),
     user: dict = Depends(verify_client_access),
 ):
-    """The client approves the month's plan or sends it back with a comment."""
-    comentario = (review.comentario or "").strip() or None
-    if review.estado == "Cambios solicitados" and not comentario:
-        raise HTTPException(status_code=422, detail="Cuéntanos qué cambiarías del plan")
-    if not db.get_content_pieces(client_id, month):
-        raise HTTPException(status_code=404, detail="Este mes aún no tiene plan")
-    data = {
-        "estado": review.estado,
-        "comentario": comentario,
-        "revisada_at": datetime.now(timezone.utc).isoformat(),
-        "revisada_por": user.get("email") or user.get("id"),
-    }
+    """Approves at once every idea of the month still waiting for the client (never the ones sent back for changes)."""
+    pending = [p["id"] for p in db.get_content_pieces(client_id, month)
+               if p.get("plan_estado", "Pendiente") == "Pendiente" and p.get("estado_copy") == "Pendiente"]
+    if not pending:
+        return {"status": "success", "data": []}
     try:
-        db.save_plan_review(client_id, month, data)
+        updated = db.review_plan_pieces(client_id, pending, "Aprobada", None, user.get("email") or user.get("id"))
     except Exception as e:
-        logger.error(f"Failed to save plan review for {client_id} {month}: {e}")
-        raise HTTPException(status_code=500, detail="No se pudo guardar la revisión del plan")
-    return {"status": "success", "data": data}
+        logger.error(f"Failed to approve plan for {client_id} {month}: {e}")
+        raise HTTPException(status_code=500, detail="No se pudo aprobar el plan")
+    return {"status": "success", "data": updated}

@@ -2,55 +2,46 @@
  * PlanificacionView
  *
  * El plan del mes (content_pieces, creado por /05_planificacion desde Claude Desktop):
- * a qué objetivo de la Estrategia sirve cada pieza, su calendario, la aprobación del
- * cliente antes de producir, y su primera estación: las piezas que siguen en
- * producción. Cuando una pieza tiene su diseño final pasa sola a Validación.
+ * cómo se reparte en la Estrategia y, sobre todo, la aprobación del cliente idea por
+ * idea antes de producir nada. Solo texto y estrategia: la imagen y los textos finales
+ * se revisan después en Validación.
  */
 
-import React, { useEffect, useMemo, useState } from 'react';
-import { Check, Clock, Clapperboard, CalendarRange } from 'lucide-react';
+import React, { useState } from 'react';
+import { CalendarRange } from 'lucide-react';
 import { WorkflowStepper } from './WorkflowStepper';
 import { AnimatedHeaderCard } from './AnimatedHeaderCard';
-import { ApprovalBar } from './ApprovalBar';
 import { useAuth } from '../contexts/AuthContext';
 import { useContentPieces } from '../hooks/useContentPieces';
 import * as api from '../services/api';
-import {
-    FORMATO_ICON, PilarBadge, FormatoBadge, MonthSwitcher, NoClientSelected, LoadingBlock,
-    PieceDetailModal, OtherStations, PieceWhyLine, pieceStage, productionStep, currentMonth, monthLabel, formatFecha,
-} from './content/ContentPieceUI';
+import { FORMATO_ICON, MonthSwitcher, NoClientSelected, LoadingBlock, OtherStations, currentMonth, monthLabel, formatFecha } from './content/ContentPieceUI';
 import { PlanOverview } from './content/PlanCharts';
+import { PLAN_META, PlanSummaryBar, PlanPieceList, PlanPieceModal, planEstado } from './content/PlanReviewUI';
 import { OTHER_COLOR, pieceLinks, useStrategyIndex, type StrategyIndex } from './content/strategyLinks';
-const DONE = '#0ca30c';
-const PENDING = '#898781';
 
 export const PlanificacionView: React.FC<{ onNavigate?: (view: string) => void; clientId?: string }> = ({ onNavigate, clientId: clientIdProp }) => {
     const { user } = useAuth();
     const clientId = clientIdProp || user?.fichaClienteId;
     const [month, setMonth] = useState(currentMonth);
-    const [selected, setSelected] = useState<api.ContentPiece | null>(null);
-    const { pieces, loading, error } = useContentPieces(clientId, month);
-    const [review, setReview] = useState<api.PlanReview | null>(null);
+    const [selectedId, setSelectedId] = useState<string | null>(null);
+    const { pieces, loading, error, replacePiece } = useContentPieces(clientId, month);
     const strategy = useStrategyIndex(clientId);
+    const selected = pieces.find((p) => p.id === selectedId) ?? null;
 
-    useEffect(() => {
+    const review = async (piece: api.ContentPiece, estado: 'Aprobada' | 'Cambios solicitados', comentario?: string) => {
         if (!clientId) return;
-        let cancelled = false;
-        setReview(null);
-        api.getPlanReview(clientId, month).then((r) => { if (!cancelled) setReview(r); }).catch((e) => console.error('Error loading plan review:', e));
-        return () => { cancelled = true; };
-    }, [clientId, month]);
-
-    const inProduction = useMemo(
-        () => pieces.filter((p) => pieceStage(p) === 'produccion').sort((a, b) => a.fecha.localeCompare(b.fecha)),
-        [pieces],
-    );
+        replacePiece(await api.reviewPlanPiece(clientId, piece.id, estado, comentario));
+    };
+    const approvePending = async () => {
+        if (!clientId) return;
+        (await api.approvePendingPlan(clientId, month)).forEach(replacePiece);
+    };
 
     return (
         <div className="p-4 md:p-8 h-full overflow-y-auto custom-scrollbar animate-fade-in-up bg-brand-bg">
             <div className="max-w-7xl mx-auto">
                 {onNavigate && <WorkflowStepper currentStep={1} onNavigate={onNavigate} />}
-                <AnimatedHeaderCard supertitle="Contenido" title="Planificación" subtitle="Qué sale este mes, cuándo y a qué objetivo sirve." />
+                <AnimatedHeaderCard supertitle="Contenido" title="Planificación" subtitle="Las ideas del mes, a qué objetivo sirve cada una y tu aprobación antes de producirlas." />
 
                 {!clientId ? <NoClientSelected /> : (
                     <>
@@ -64,69 +55,10 @@ export const PlanificacionView: React.FC<{ onNavigate?: (view: string) => void; 
                             <EmptyPlan month={month} />
                         ) : (
                             <div className={`transition-opacity ${loading ? 'opacity-50' : ''}`}>
-                                {review && (
-                                    <div className="mb-6">
-                                        <ApprovalBar
-                                            review={review}
-                                            approvedValue="Aprobado"
-                                            texts={{
-                                                pending: '¿Este es el contenido que quieres este mes? Apruébalo y empezamos a producirlo.',
-                                                changes: 'El equipo está ajustando el plan con tus comentarios.',
-                                                approved: 'Ya estamos produciendo estas piezas.',
-                                                placeholder: 'Ej. Cambia el tema del día 12; queremos más piezas de delivery…',
-                                            }}
-                                            onSubmit={async (estado, comentario) => setReview(await api.reviewPlan(clientId, month, estado as 'Aprobado' | 'Cambios solicitados', comentario))}
-                                        />
-                                    </div>
-                                )}
-
+                                <PlanSummaryBar pieces={pieces} onApprovePending={approvePending} />
                                 <PlanOverview pieces={pieces} index={strategy} month={month} monthName={monthLabel(month).toLowerCase()} />
-
-                                <MonthCalendar month={month} pieces={pieces} index={strategy} onOpen={setSelected} />
-
-                                {/* This station: what is still being produced */}
-                                <section aria-label="En producción">
-                                    <div className="flex items-end justify-between gap-4 mb-4">
-                                        <div>
-                                            <h2 className="text-lg font-bold text-gray-900">En producción</h2>
-                                            <p className="text-sm text-gray-500">Cuando una pieza tiene su diseño final, pasa sola a Validación para que la revises.</p>
-                                        </div>
-                                        <span className="text-sm text-gray-500 whitespace-nowrap"><strong className="text-gray-900">{inProduction.length}</strong> de {pieces.length}</span>
-                                    </div>
-
-                                    {inProduction.length === 0 ? (
-                                        <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-10 text-center">
-                                            <Check className="mx-auto mb-3" size={32} style={{ color: DONE }} />
-                                            <p className="text-lg font-bold text-gray-900">Todo el plan ya salió de producción</p>
-                                            <p className="text-sm text-gray-500 mt-1">Revisa las piezas en Validación.</p>
-                                        </div>
-                                    ) : (
-                                        <div className="bg-white rounded-3xl border border-gray-100 shadow-sm divide-y divide-gray-100 overflow-hidden">
-                                            {inProduction.map((piece) => (
-                                                <button
-                                                    key={piece.id}
-                                                    onClick={() => setSelected(piece)}
-                                                    className="w-full text-left px-5 py-4 hover:bg-gray-50 transition-colors grid grid-cols-[56px_1fr] md:grid-cols-[72px_1fr_auto] items-center gap-x-4 gap-y-2"
-                                                >
-                                                    <span className="text-center">
-                                                        <span className="block text-2xl font-bold text-gray-900 leading-none">{Number(piece.fecha.slice(8, 10))}</span>
-                                                        <span className="block text-[11px] font-semibold uppercase tracking-wider text-gray-400 mt-1">{formatFecha(piece.fecha, { weekday: 'short' })}</span>
-                                                    </span>
-                                                    <span className="min-w-0">
-                                                        <span className="block text-sm font-bold text-gray-900 leading-snug line-clamp-2">{piece.topico_angulo || 'Pieza sin tópico'}</span>
-                                                        <span className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1.5">
-                                                            <FormatoBadge formato={piece.formato} />
-                                                            <PilarBadge pilar={piece.pilar} />
-                                                        </span>
-                                                        <PieceWhyLine piece={piece} index={strategy} />
-                                                    </span>
-                                                    <ProductionTracker piece={piece} />
-                                                </button>
-                                            ))}
-                                        </div>
-                                    )}
-                                </section>
-
+                                <MonthCalendar month={month} pieces={pieces} index={strategy} onOpen={(p) => setSelectedId(p.id)} />
+                                <PlanPieceList pieces={pieces} index={strategy} onOpen={(p) => setSelectedId(p.id)} onApprove={(p) => review(p, 'Aprobada')} />
                                 <OtherStations pieces={pieces} current="work" onNavigate={onNavigate} />
                             </div>
                         )}
@@ -134,36 +66,12 @@ export const PlanificacionView: React.FC<{ onNavigate?: (view: string) => void; 
                 )}
             </div>
 
-            {selected && <PieceDetailModal piece={selected} onClose={() => setSelected(null)} />}
+            {selected && (
+                <PlanPieceModal piece={selected} index={strategy} onClose={() => setSelectedId(null)} onReview={(estado, comentario) => review(selected, estado, comentario)} />
+            )}
         </div>
     );
 };
-
-/** Copy → Diseño, each with an icon + word so the state never rests on color alone. Reels are produced outside the pipeline. */
-const ProductionTracker: React.FC<{ piece: api.ContentPiece }> = ({ piece }) => {
-    const step = productionStep(piece);
-    const copyDone = step !== 'copy';
-    return (
-        <span className="col-start-2 md:col-start-auto flex items-center gap-2">
-            <Step done={copyDone} label="Copy" />
-            <span className="w-4 h-px bg-gray-200" />
-            {step === 'externa' ? (
-                <span className="inline-flex items-center gap-1.5 rounded-lg px-2 py-1 text-xs font-semibold text-gray-700 bg-gray-50 border border-gray-100">
-                    <Clapperboard size={13} style={{ color: PENDING }} /> Video en producción
-                </span>
-            ) : (
-                <Step done={false} label={copyDone ? 'En diseño' : 'Diseño'} active={copyDone} />
-            )}
-        </span>
-    );
-};
-
-const Step: React.FC<{ done: boolean; label: string; active?: boolean }> = ({ done, label, active }) => (
-    <span className={`inline-flex items-center gap-1.5 rounded-lg px-2 py-1 text-xs font-semibold border ${active ? 'text-gray-900 bg-white border-gray-200' : 'text-gray-600 bg-gray-50 border-gray-100'}`}>
-        {done ? <Check size={13} style={{ color: DONE }} strokeWidth={3} /> : <Clock size={13} style={{ color: PENDING }} />}
-        {label}
-    </span>
-);
 
 const EmptyPlan: React.FC<{ month: string }> = ({ month }) => (
     <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-12 flex flex-col items-center text-center">
@@ -178,6 +86,12 @@ const EmptyPlan: React.FC<{ month: string }> = ({ month }) => (
 // --- The month at a glance ---
 
 const WEEKDAYS = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
+
+/** The client's decision on each idea, as an icon (the word is in its tooltip and in the list below). */
+const StatusIcon: React.FC<{ piece: api.ContentPiece }> = ({ piece }) => {
+    const meta = PLAN_META[planEstado(piece)];
+    return <meta.icon size={11} strokeWidth={3} className="shrink-0 mt-0.5" style={{ color: meta.color }} aria-label={meta.label} />;
+};
 
 /** Each piece wears the color of the objective it serves first. */
 const objectiveColor = (p: api.ContentPiece, index: StrategyIndex | null) => pieceLinks(p, index)[0]?.objective.color ?? OTHER_COLOR;
@@ -198,7 +112,7 @@ const MonthCalendar: React.FC<{ month: string; pieces: api.ContentPiece[]; index
             <div className="flex flex-wrap items-end justify-between gap-3 mb-4">
                 <div>
                     <h2 className="text-lg font-bold text-gray-900">Calendario de {monthLabel(month).toLowerCase()}</h2>
-                    <p className="text-sm text-gray-500">Qué sale cada día. Haz clic en una pieza para ver por qué existe.</p>
+                    <p className="text-sm text-gray-500">Qué sale cada día. Haz clic en una idea para verla y aprobarla.</p>
                 </div>
                 <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-600 max-w-xl">
                     {(index?.objectives ?? []).map((o) => (
@@ -217,11 +131,12 @@ const MonthCalendar: React.FC<{ month: string; pieces: api.ContentPiece[]; index
                             {(day ? byDay.get(day) ?? [] : []).map((p) => {
                                 const Icon = p.formato ? FORMATO_ICON[p.formato] : CalendarRange;
                                 return (
-                                    <button key={p.id} onClick={() => onOpen(p)} title={p.topico_angulo ?? ''}
+                                    <button key={p.id} onClick={() => onOpen(p)} title={`${p.topico_angulo ?? ''} · ${PLAN_META[planEstado(p)].label}`}
                                         className="w-full text-left flex items-start gap-1 rounded-md bg-gray-50 hover:bg-gray-100 px-1.5 py-1 border-l-[3px]"
                                         style={{ borderLeftColor: objectiveColor(p, index) }}>
                                         <Icon size={11} className="text-gray-400 shrink-0 mt-0.5" />
-                                        <span className="text-[11px] leading-tight text-gray-800 line-clamp-2">{p.topico_angulo || 'Pieza'}</span>
+                                        <span className="text-[11px] leading-tight text-gray-800 line-clamp-2 flex-1">{p.topico_angulo || 'Pieza'}</span>
+                                        <StatusIcon piece={p} />
                                     </button>
                                 );
                             })}
@@ -241,7 +156,7 @@ const MonthCalendar: React.FC<{ month: string; pieces: api.ContentPiece[]; index
                             </span>
                             <span className="min-w-0 border-l-[3px] pl-3" style={{ borderLeftColor: objectiveColor(p, index) }}>
                                 <span className="block text-sm font-semibold text-gray-900 leading-snug line-clamp-2">{p.topico_angulo || 'Pieza sin tópico'}</span>
-                                <span className="block text-xs text-gray-500 mt-0.5">{p.formato}{p.objetivo ? ` · ${p.objetivo}` : ''}</span>
+                                <span className="flex items-center gap-1.5 text-xs text-gray-500 mt-0.5"><StatusIcon piece={p} />{PLAN_META[planEstado(p)].label} · {p.formato}</span>
                             </span>
                         </button>
                     </li>

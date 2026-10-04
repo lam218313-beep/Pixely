@@ -315,10 +315,11 @@ export const PieceStrategy: React.FC<{ links: PieceLink[] }> = ({ links }) => {
 };
 
 /** How the strategy became this piece: the planner's reasoning, the market fact behind it, and what the image shows. */
-export const PieceReasoning: React.FC<{ piece: api.ContentPiece }> = ({ piece }) => {
+export const PieceReasoning: React.FC<{ piece: api.ContentPiece; withVisual?: boolean }> = ({ piece, withVisual = true }) => {
     const hasWhy = piece.razon || piece.marcador || piece.evidencia;
     const visualTitle = piece.formato === 'Reel' ? 'Qué muestra el video' : 'Qué muestra la imagen';
-    if (!hasWhy && !piece.descripcion_visual) return null;
+    const showVisual = withVisual && !!piece.descripcion_visual;
+    if (!hasWhy && !showVisual) return null;
     return (
         <>
             {hasWhy && (
@@ -335,7 +336,7 @@ export const PieceReasoning: React.FC<{ piece: api.ContentPiece }> = ({ piece })
                     ) : null}
                 </div>
             )}
-            {piece.descripcion_visual && (
+            {showVisual && (
                 <div className="p-6 border-b border-gray-100">
                     <SectionTitle>{visualTitle}</SectionTitle>
                     <p className="text-sm text-gray-700 leading-relaxed">{piece.descripcion_visual}</p>

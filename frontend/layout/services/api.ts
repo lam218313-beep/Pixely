@@ -525,31 +525,34 @@ export interface ContentPiece {
   evidencia: string | null;     // market fact behind an [I] piece, with its source
   razon: string | null;         // why the piece exists: how objective, strategy, concept and evidence became this piece
   descripcion_visual: string | null; // what the image shows and why, in Spanish (written by /03_generar)
+  // The client's decision on the idea, in Planificación (before production)
+  plan_estado: PlanEstado;
+  plan_comentario: string | null;
+  plan_revisado_at: string | null;
+  plan_revisado_por: string | null;
   created_at: string;
 }
 
-export type PlanEstado = 'Pendiente' | 'Aprobado' | 'Cambios solicitados';
+export type PlanEstado = 'Pendiente' | 'Aprobada' | 'Cambios solicitados';
 
-export interface PlanReview {
-  estado: PlanEstado;
-  comentario: string | null;
-  revisada_at: string | null;
-  revisada_por: string | null;
-}
-
-export async function getPlanReview(clientId: string, month: string): Promise<PlanReview> {
-  const response = await fetch(`${API_BASE_URL}/content/${clientId}/plan-review?month=${encodeURIComponent(month)}`, { headers: getAuthHeaders() });
-  const result = await handleResponse<{ status: string; data: PlanReview }>(response);
-  return result.data;
-}
-
-export async function reviewPlan(clientId: string, month: string, estado: Exclude<PlanEstado, 'Pendiente'>, comentario?: string): Promise<PlanReview> {
-  const response = await fetch(`${API_BASE_URL}/content/${clientId}/plan-review?month=${encodeURIComponent(month)}`, {
+/** The client approves (or sends back) one idea of the plan, before it is produced. */
+export async function reviewPlanPiece(clientId: string, pieceId: string, estado: Exclude<PlanEstado, 'Pendiente'>, comentario?: string): Promise<ContentPiece> {
+  const response = await fetch(`${API_BASE_URL}/content/${clientId}/pieces/${pieceId}/plan-review`, {
     method: 'PATCH',
     headers: { ...getAuthHeaders(), 'Content-Type': 'application/json' },
     body: JSON.stringify({ estado, comentario: comentario ?? null }),
   });
-  const result = await handleResponse<{ status: string; data: PlanReview }>(response);
+  const result = await handleResponse<{ status: string; data: ContentPiece }>(response);
+  return result.data;
+}
+
+/** Approves every idea of the month still waiting for the client; returns the pieces it changed. */
+export async function approvePendingPlan(clientId: string, month: string): Promise<ContentPiece[]> {
+  const response = await fetch(`${API_BASE_URL}/content/${clientId}/plan-review/approve-pending?month=${encodeURIComponent(month)}`, {
+    method: 'POST',
+    headers: getAuthHeaders(),
+  });
+  const result = await handleResponse<{ status: string; data: ContentPiece[] }>(response);
   return result.data;
 }
 
