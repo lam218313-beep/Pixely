@@ -135,15 +135,32 @@ const VIEW_KEY = 'pixely_publicaciones_vista';
 const timeOf = (p: api.ContentPiece) =>
     p.publicada_at ? new Date(p.publicada_at).toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit', timeZone: 'America/Lima' }) : null;
 
-const Upcoming: React.FC<{ pieces: api.ContentPiece[]; calendarPieces: api.ContentPiece[]; isTeam: boolean; onOpen: (p: api.ContentPiece) => void }> = ({ pieces, calendarPieces, isTeam, onOpen }) => {
+/** Calendar or list, remembered per browser (shared by Próximas and Publicadas). */
+function useAgendaView(): [AgendaView, (v: AgendaView) => void] {
     const [view, setView] = useState<AgendaView>(() => {
         try { return (localStorage.getItem(VIEW_KEY) as AgendaView) || 'calendario'; } catch { return 'calendario'; }
     });
-    const [month, setMonth] = useState(() => pieces[0]?.fecha.slice(0, 7) ?? currentMonth());
     const choose = (v: AgendaView) => {
         setView(v);
         try { localStorage.setItem(VIEW_KEY, v); } catch { /* per-viewer convenience only */ }
     };
+    return [view, choose];
+}
+
+const ViewToggle: React.FC<{ view: AgendaView; onChange: (v: AgendaView) => void }> = ({ view, onChange }) => (
+    <div className="inline-flex gap-1 bg-white border border-gray-200 rounded-xl p-1" role="group" aria-label="Vista">
+        {([['calendario', 'Calendario', CalendarDays], ['lista', 'Lista', List]] as [AgendaView, string, React.ElementType][]).map(([key, label, Icon]) => (
+            <button key={key} onClick={() => onChange(key)} aria-pressed={view === key}
+                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors ${view === key ? 'bg-gray-900 text-white' : 'text-gray-500 hover:bg-gray-100'}`}>
+                <Icon size={14} /> {label}
+            </button>
+        ))}
+    </div>
+);
+
+const Upcoming: React.FC<{ pieces: api.ContentPiece[]; calendarPieces: api.ContentPiece[]; isTeam: boolean; onOpen: (p: api.ContentPiece) => void }> = ({ pieces, calendarPieces, isTeam, onOpen }) => {
+    const [view, choose] = useAgendaView();
+    const [month, setMonth] = useState(() => pieces[0]?.fecha.slice(0, 7) ?? currentMonth());
     const pending = pieces.filter((p) => pieceStage(p) === 'aprobada').length;
 
     return (
@@ -155,14 +172,7 @@ const Upcoming: React.FC<{ pieces: api.ContentPiece[]; calendarPieces: api.Conte
                 </p>
             )}
             <div className="flex flex-wrap items-center gap-3 mb-4">
-                <div className="inline-flex gap-1 bg-white border border-gray-200 rounded-xl p-1" role="group" aria-label="Vista">
-                    {([['calendario', 'Calendario', CalendarDays], ['lista', 'Lista', List]] as [AgendaView, string, React.ElementType][]).map(([key, label, Icon]) => (
-                        <button key={key} onClick={() => choose(key)} aria-pressed={view === key}
-                            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors ${view === key ? 'bg-gray-900 text-white' : 'text-gray-500 hover:bg-gray-100'}`}>
-                            <Icon size={14} /> {label}
-                        </button>
-                    ))}
-                </div>
+                <ViewToggle view={view} onChange={choose} />
                 {view === 'calendario' && <MonthSwitcher month={month} onChange={setMonth} />}
             </div>
 
@@ -207,7 +217,14 @@ const AgendaList: React.FC<{ pieces: api.ContentPiece[]; onOpen: (p: api.Content
 const WEEKDAYS = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
 
 /** The month as a grid on tablet and up; on phones the same month as a list grouped by day. */
-const AgendaCalendar: React.FC<{ month: string; pieces: api.ContentPiece[]; onOpen: (p: api.ContentPiece) => void }> = ({ month, pieces, onOpen }) => {
+const AgendaCalendar: React.FC<{
+    month: string;
+    pieces: api.ContentPiece[];
+    onOpen: (p: api.ContentPiece) => void;
+    /** Published view: what each day's chip says instead of its time (e.g. its reach). */
+    chipMeta?: (p: api.ContentPiece) => React.ReactNode;
+    summary?: React.ReactNode;
+}> = ({ month, pieces, onOpen, chipMeta, summary }) => {
     const [year, mon] = month.split('-').map(Number);
     const days = new Date(year, mon, 0).getDate();
     const lead = (new Date(year, mon - 1, 1).getDay() + 6) % 7; // Monday first
@@ -221,7 +238,7 @@ const AgendaCalendar: React.FC<{ month: string; pieces: api.ContentPiece[]; onOp
     const cells = [...Array(lead).fill(null), ...Array.from({ length: days }, (_, i) => i + 1)];
 
     const Chip: React.FC<{ p: api.ContentPiece }> = ({ p }) => {
-        const done = pieceStage(p) === 'publicada';
+        const done = !chipMeta && pieceStage(p) === 'publicada';
         const time = timeOf(p);
         const Icon = p.formato ? FORMATO_ICON[p.formato] : CalendarClock;
         return (
@@ -229,11 +246,14 @@ const AgendaCalendar: React.FC<{ month: string; pieces: api.ContentPiece[]; onOp
                 className={`w-full text-left flex items-start gap-1.5 rounded-lg border border-gray-100 p-1 hover:shadow-sm transition-shadow ${done ? 'bg-gray-50 opacity-70' : 'bg-white'}`}>
                 <PieceCover piece={p} className="w-7 aspect-[4/5] rounded overflow-hidden shrink-0" compact />
                 <span className="min-w-0">
-                    <span className="flex items-center gap-1 text-[10px] font-bold text-gray-500">
-                        {done ? <CheckCheck size={10} className="text-gray-400" /> : <Icon size={10} className="text-gray-400" />}
-                        {done ? 'Publicada' : time ?? 'Por confirmar'}
-                    </span>
+                    {!chipMeta && (
+                        <span className="flex items-center gap-1 text-[10px] font-bold text-gray-500">
+                            {done ? <CheckCheck size={10} className="text-gray-400" /> : <Icon size={10} className="text-gray-400" />}
+                            {done ? 'Publicada' : time ?? 'Por confirmar'}
+                        </span>
+                    )}
                     <span className="block text-[11px] leading-tight text-gray-800 line-clamp-2">{p.topico_angulo || 'Pieza'}</span>
+                    {chipMeta && <span className="block mt-0.5">{chipMeta(p)}</span>}
                 </span>
             </button>
         );
@@ -242,8 +262,10 @@ const AgendaCalendar: React.FC<{ month: string; pieces: api.ContentPiece[]; onOp
     return (
         <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-4 md:p-6">
             <p className="text-sm text-gray-500 mb-4">
-                {pieces.filter((p) => pieceStage(p) !== 'publicada').length} por salir en {monthLabel(month).toLowerCase()}
-                {pieces.some((p) => pieceStage(p) === 'publicada') && <> · las ya publicadas se ven en gris</>}
+                {summary ?? <>
+                    {pieces.filter((p) => pieceStage(p) !== 'publicada').length} por salir en {monthLabel(month).toLowerCase()}
+                    {pieces.some((p) => pieceStage(p) === 'publicada') && <> · las ya publicadas se ven en gris</>}
+                </>}
             </p>
             <div className="hidden md:grid grid-cols-7 gap-px bg-gray-100 rounded-2xl overflow-hidden border border-gray-100">
                 {WEEKDAYS.map((d) => <div key={d} className="bg-gray-50 px-2 py-1.5 text-[11px] font-bold uppercase tracking-wider text-gray-400">{d}</div>)}
@@ -266,9 +288,9 @@ const AgendaCalendar: React.FC<{ month: string; pieces: api.ContentPiece[]; onOp
                         <span className="flex-1 space-y-1.5">{items.map((p) => <Chip key={p.id} p={p} />)}</span>
                     </li>
                 ))}
-                {byDay.size === 0 && <li className="py-6 text-center text-sm text-gray-400">Nada programado este mes.</li>}
+                {byDay.size === 0 && <li className="py-6 text-center text-sm text-gray-400">{chipMeta ? 'Nada publicado este mes.' : 'Nada programado este mes.'}</li>}
             </ul>
-            {byDay.size === 0 && <p className="hidden md:block mt-3 text-sm text-gray-400 text-center">Nada programado este mes.</p>}
+            {byDay.size === 0 && <p className="hidden md:block mt-3 text-sm text-gray-400 text-center">{chipMeta ? 'Nada publicado este mes.' : 'Nada programado este mes.'}</p>}
         </div>
     );
 };
@@ -287,6 +309,7 @@ const Published: React.FC<{
     competitors: api.CompetitorBenchmark[];
     onOpen: (p: api.ContentPiece) => void;
 }> = ({ month, pieces, metricsByPiece, competitors, onOpen }) => {
+    const [view, choose] = useAgendaView();
     if (pieces.length === 0) {
         return <Empty icon={Archive} title={`Nada publicado en ${monthLabel(month).toLowerCase()}`} text="Cada pieza llega aquí el día en que se publica, con sus resultados." />;
     }
@@ -308,7 +331,32 @@ const Published: React.FC<{
             <CompetitorComparison ownAvg={ownAvg} competitors={competitors.filter((c) => c.red === 'instagram')} />
 
             <section aria-label="Piezas publicadas">
-                <h2 className="text-lg font-bold text-gray-900 mb-4">Cada publicación</h2>
+                <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
+                    <h2 className="text-lg font-bold text-gray-900">Cada publicación</h2>
+                    <ViewToggle view={view} onChange={choose} />
+                </div>
+                {view === 'calendario' ? (
+                    <AgendaCalendar
+                        month={month}
+                        pieces={pieces}
+                        onOpen={onOpen}
+                        summary={<>{pieces.length} {pieces.length === 1 ? 'publicación' : 'publicaciones'} en {monthLabel(month).toLowerCase()} · abre una para ver cómo le fue</>}
+                        chipMeta={(p) => {
+                            const ms = metricsByPiece.get(p.id) ?? [];
+                            if (ms.length === 0) return <span className="text-[10px] text-gray-400">Resultados en camino</span>;
+                            const reach = ms.reduce((s, m) => s + (m.alcance ?? 0), 0);
+                            const ig = ms.find((m) => m.red === 'instagram');
+                            const avg = competitorAverage(competitors, 'instagram');
+                            const above = ig && avg ? visible(ig) >= avg : null;
+                            return (
+                                <span className="flex items-center gap-1 text-[10px] font-bold text-gray-600">
+                                    <Eye size={10} className="text-gray-400" />{fmt(reach)}
+                                    {above != null && <span style={{ color: above ? ABOVE : '#52514e' }} aria-label={above ? 'sobre la competencia' : 'bajo la competencia'}>{above ? '▲' : '▼'}</span>}
+                                </span>
+                            );
+                        }}
+                    />
+                ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
                     {pieces.map((p) => {
                         const ms = metricsByPiece.get(p.id) ?? [];
@@ -338,6 +386,7 @@ const Published: React.FC<{
                         );
                     })}
                 </div>
+                )}
             </section>
         </div>
     );
