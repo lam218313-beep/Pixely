@@ -9,7 +9,7 @@
  */
 
 import React, { useEffect, useMemo, useState } from 'react';
-import { Archive, CalendarClock, ExternalLink, Users, Eye, Heart, UserPlus } from 'lucide-react';
+import { Archive, CalendarClock, CalendarDays, CheckCheck, ExternalLink, List, Users, Eye, Heart, UserPlus } from 'lucide-react';
 import { WorkflowStepper } from './WorkflowStepper';
 import { AnimatedHeaderCard } from './AnimatedHeaderCard';
 import { useAuth } from '../contexts/AuthContext';
@@ -17,7 +17,7 @@ import { useContentPieces } from '../hooks/useContentPieces';
 import * as api from '../services/api';
 import {
     FormatoBadge, PieceCover, MonthSwitcher, NoClientSelected, LoadingBlock, PieceDetailModal, OtherStations,
-    pieceStage, pieceNetworks, currentMonth, monthLabel, formatFecha, safeUrl,
+    pieceStage, pieceNetworks, currentMonth, monthLabel, formatFecha, safeUrl, FORMATO_ICON,
 } from './content/ContentPieceUI';
 
 type Tab = 'proximas' | 'publicadas';
@@ -53,6 +53,11 @@ export const PublicacionesView: React.FC<{ onNavigate?: (view: string) => void; 
     const upcoming = useMemo(
         () => pieces.filter((p) => { const s = pieceStage(p); return s === 'programada' || s === 'aprobada'; })
             .sort((a, b) => (a.publicada_at ?? a.fecha).localeCompare(b.publicada_at ?? b.fecha)),
+        [pieces],
+    );
+    // The calendar also shows what already went out this month, so each month reads complete.
+    const calendarPieces = useMemo(
+        () => pieces.filter((p) => ['programada', 'aprobada', 'publicada'].includes(pieceStage(p))),
         [pieces],
     );
     const published = useMemo(
@@ -96,7 +101,7 @@ export const PublicacionesView: React.FC<{ onNavigate?: (view: string) => void; 
                         {error && <p className="mb-4 text-sm text-red-600">{error}</p>}
 
                         {loading && pieces.length === 0 ? <LoadingBlock /> : tab === 'proximas' ? (
-                            <Upcoming pieces={upcoming} isTeam={isTeam} onOpen={setSelected} />
+                            <Upcoming pieces={upcoming} calendarPieces={calendarPieces} isTeam={isTeam} onOpen={setSelected} />
                         ) : (
                             <Published month={month} pieces={published} metricsByPiece={metricsByPiece} competitors={results.competitors} onOpen={setSelected} />
                         )}
@@ -124,13 +129,23 @@ const when = (p: api.ContentPiece) => {
     return { date, time };
 };
 
-const Upcoming: React.FC<{ pieces: api.ContentPiece[]; isTeam: boolean; onOpen: (p: api.ContentPiece) => void }> = ({ pieces, isTeam, onOpen }) => {
-    if (pieces.length === 0) {
-        return (
-            <Empty icon={CalendarClock} title="No hay publicaciones en agenda" text="Cuando apruebes piezas en Validación, aparecerán aquí con el día y la hora en que salen." />
-        );
-    }
+type AgendaView = 'calendario' | 'lista';
+const VIEW_KEY = 'pixely_publicaciones_vista';
+
+const timeOf = (p: api.ContentPiece) =>
+    p.publicada_at ? new Date(p.publicada_at).toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit', timeZone: 'America/Lima' }) : null;
+
+const Upcoming: React.FC<{ pieces: api.ContentPiece[]; calendarPieces: api.ContentPiece[]; isTeam: boolean; onOpen: (p: api.ContentPiece) => void }> = ({ pieces, calendarPieces, isTeam, onOpen }) => {
+    const [view, setView] = useState<AgendaView>(() => {
+        try { return (localStorage.getItem(VIEW_KEY) as AgendaView) || 'calendario'; } catch { return 'calendario'; }
+    });
+    const [month, setMonth] = useState(() => pieces[0]?.fecha.slice(0, 7) ?? currentMonth());
+    const choose = (v: AgendaView) => {
+        setView(v);
+        try { localStorage.setItem(VIEW_KEY, v); } catch { /* per-viewer convenience only */ }
+    };
     const pending = pieces.filter((p) => pieceStage(p) === 'aprobada').length;
+
     return (
         <section aria-label="Próximas publicaciones">
             {isTeam && pending > 0 && (
@@ -139,31 +154,122 @@ const Upcoming: React.FC<{ pieces: api.ContentPiece[]; isTeam: boolean; onOpen: 
                     {pending} {pending === 1 ? 'pieza aprobada espera' : 'piezas aprobadas esperan'} ser programadas en Metricool con /05_publicar.
                 </p>
             )}
-            <ul className="bg-white rounded-3xl border border-gray-100 shadow-sm divide-y divide-gray-100 overflow-hidden">
-                {pieces.map((p) => {
-                    const { date, time } = when(p);
-                    const networks = pieceNetworks(p);
-                    return (
-                        <li key={p.id}>
-                            <button onClick={() => onOpen(p)} className="w-full text-left px-5 py-4 hover:bg-gray-50 transition-colors grid grid-cols-[56px_1fr] md:grid-cols-[56px_1fr_auto] items-center gap-x-4 gap-y-2">
-                                <PieceCover piece={p} className="w-14 aspect-[4/5] rounded-xl overflow-hidden" compact />
-                                <span className="min-w-0">
-                                    <span className="block text-xs font-semibold uppercase tracking-wider text-gray-400">{date}{time ? ` · ${time}` : ''}</span>
-                                    <span className="block text-sm font-bold text-gray-900 leading-snug line-clamp-2 mt-0.5">{p.topico_angulo || 'Pieza sin tópico'}</span>
-                                    <span className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1">
-                                        <FormatoBadge formato={p.formato} />
-                                        {networks.length > 0 && <span className="text-xs text-gray-500">{networks.join(' · ')}</span>}
-                                    </span>
-                                </span>
-                                <span className="col-start-2 md:col-start-auto text-xs font-semibold text-gray-600">
-                                    {pieceStage(p) === 'programada' ? <span className="inline-flex items-center gap-1.5"><CalendarClock size={14} className="text-gray-400" /> Programada</span> : 'Hora por confirmar'}
-                                </span>
-                            </button>
-                        </li>
-                    );
-                })}
-            </ul>
+            <div className="flex flex-wrap items-center gap-3 mb-4">
+                <div className="inline-flex gap-1 bg-white border border-gray-200 rounded-xl p-1" role="group" aria-label="Vista">
+                    {([['calendario', 'Calendario', CalendarDays], ['lista', 'Lista', List]] as [AgendaView, string, React.ElementType][]).map(([key, label, Icon]) => (
+                        <button key={key} onClick={() => choose(key)} aria-pressed={view === key}
+                            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors ${view === key ? 'bg-gray-900 text-white' : 'text-gray-500 hover:bg-gray-100'}`}>
+                            <Icon size={14} /> {label}
+                        </button>
+                    ))}
+                </div>
+                {view === 'calendario' && <MonthSwitcher month={month} onChange={setMonth} />}
+            </div>
+
+            {view === 'calendario' ? (
+                <AgendaCalendar month={month} pieces={calendarPieces.filter((p) => p.fecha.startsWith(month))} onOpen={onOpen} />
+            ) : pieces.length === 0 ? (
+                <Empty icon={CalendarClock} title="No hay publicaciones en agenda" text="Cuando apruebes piezas en Validación, aparecerán aquí con el día y la hora en que salen." />
+            ) : (
+                <AgendaList pieces={pieces} onOpen={onOpen} />
+            )}
         </section>
+    );
+};
+
+const AgendaList: React.FC<{ pieces: api.ContentPiece[]; onOpen: (p: api.ContentPiece) => void }> = ({ pieces, onOpen }) => (
+    <ul className="bg-white rounded-3xl border border-gray-100 shadow-sm divide-y divide-gray-100 overflow-hidden">
+        {pieces.map((p) => {
+            const { date, time } = when(p);
+            const networks = pieceNetworks(p);
+            return (
+                <li key={p.id}>
+                    <button onClick={() => onOpen(p)} className="w-full text-left px-5 py-4 hover:bg-gray-50 transition-colors grid grid-cols-[56px_1fr] md:grid-cols-[56px_1fr_auto] items-center gap-x-4 gap-y-2">
+                        <PieceCover piece={p} className="w-14 aspect-[4/5] rounded-xl overflow-hidden" compact />
+                        <span className="min-w-0">
+                            <span className="block text-xs font-semibold uppercase tracking-wider text-gray-400">{date}{time ? ` · ${time}` : ''}</span>
+                            <span className="block text-sm font-bold text-gray-900 leading-snug line-clamp-2 mt-0.5">{p.topico_angulo || 'Pieza sin tópico'}</span>
+                            <span className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1">
+                                <FormatoBadge formato={p.formato} />
+                                {networks.length > 0 && <span className="text-xs text-gray-500">{networks.join(' · ')}</span>}
+                            </span>
+                        </span>
+                        <span className="col-start-2 md:col-start-auto text-xs font-semibold text-gray-600">
+                            {pieceStage(p) === 'programada' ? <span className="inline-flex items-center gap-1.5"><CalendarClock size={14} className="text-gray-400" /> Programada</span> : 'Hora por confirmar'}
+                        </span>
+                    </button>
+                </li>
+            );
+        })}
+    </ul>
+);
+
+const WEEKDAYS = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
+
+/** The month as a grid on tablet and up; on phones the same month as a list grouped by day. */
+const AgendaCalendar: React.FC<{ month: string; pieces: api.ContentPiece[]; onOpen: (p: api.ContentPiece) => void }> = ({ month, pieces, onOpen }) => {
+    const [year, mon] = month.split('-').map(Number);
+    const days = new Date(year, mon, 0).getDate();
+    const lead = (new Date(year, mon - 1, 1).getDay() + 6) % 7; // Monday first
+    const today = new Date();
+    const isToday = (d: number) => today.getFullYear() === year && today.getMonth() === mon - 1 && today.getDate() === d;
+    const byDay = new Map<number, api.ContentPiece[]>();
+    [...pieces].sort((a, b) => (a.publicada_at ?? a.fecha).localeCompare(b.publicada_at ?? b.fecha)).forEach((p) => {
+        const d = Number(p.fecha.slice(8, 10));
+        byDay.set(d, [...(byDay.get(d) ?? []), p]);
+    });
+    const cells = [...Array(lead).fill(null), ...Array.from({ length: days }, (_, i) => i + 1)];
+
+    const Chip: React.FC<{ p: api.ContentPiece }> = ({ p }) => {
+        const done = pieceStage(p) === 'publicada';
+        const time = timeOf(p);
+        const Icon = p.formato ? FORMATO_ICON[p.formato] : CalendarClock;
+        return (
+            <button onClick={() => onOpen(p)} title={`${p.topico_angulo ?? ''}${time ? ` · ${time}` : ''}${done ? ' · Publicada' : ''}`}
+                className={`w-full text-left flex items-start gap-1.5 rounded-lg border border-gray-100 p-1 hover:shadow-sm transition-shadow ${done ? 'bg-gray-50 opacity-70' : 'bg-white'}`}>
+                <PieceCover piece={p} className="w-7 aspect-[4/5] rounded overflow-hidden shrink-0" compact />
+                <span className="min-w-0">
+                    <span className="flex items-center gap-1 text-[10px] font-bold text-gray-500">
+                        {done ? <CheckCheck size={10} className="text-gray-400" /> : <Icon size={10} className="text-gray-400" />}
+                        {done ? 'Publicada' : time ?? 'Por confirmar'}
+                    </span>
+                    <span className="block text-[11px] leading-tight text-gray-800 line-clamp-2">{p.topico_angulo || 'Pieza'}</span>
+                </span>
+            </button>
+        );
+    };
+
+    return (
+        <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-4 md:p-6">
+            <p className="text-sm text-gray-500 mb-4">
+                {pieces.filter((p) => pieceStage(p) !== 'publicada').length} por salir en {monthLabel(month).toLowerCase()}
+                {pieces.some((p) => pieceStage(p) === 'publicada') && <> · las ya publicadas se ven en gris</>}
+            </p>
+            <div className="hidden md:grid grid-cols-7 gap-px bg-gray-100 rounded-2xl overflow-hidden border border-gray-100">
+                {WEEKDAYS.map((d) => <div key={d} className="bg-gray-50 px-2 py-1.5 text-[11px] font-bold uppercase tracking-wider text-gray-400">{d}</div>)}
+                {cells.map((day, i) => (
+                    <div key={i} className={`min-h-[104px] p-1.5 ${day ? 'bg-white' : 'bg-gray-50/60'}`}>
+                        {day && (
+                            <p className={`text-xs font-semibold mb-1 ${isToday(day) ? 'inline-flex items-center justify-center w-5 h-5 rounded-full bg-gray-900 text-white' : 'text-gray-400'}`}>{day}</p>
+                        )}
+                        <div className="space-y-1">{(day ? byDay.get(day) ?? [] : []).map((p) => <Chip key={p.id} p={p} />)}</div>
+                    </div>
+                ))}
+            </div>
+            <ul className="md:hidden divide-y divide-gray-100">
+                {[...byDay.entries()].map(([day, items]) => (
+                    <li key={day} className="py-3 flex gap-3">
+                        <span className="w-10 shrink-0 text-center">
+                            <span className="block text-lg font-bold text-gray-900 leading-none">{day}</span>
+                            <span className="block text-[10px] font-semibold uppercase text-gray-400 mt-0.5">{formatFecha(items[0].fecha, { weekday: 'short' })}</span>
+                        </span>
+                        <span className="flex-1 space-y-1.5">{items.map((p) => <Chip key={p.id} p={p} />)}</span>
+                    </li>
+                ))}
+                {byDay.size === 0 && <li className="py-6 text-center text-sm text-gray-400">Nada programado este mes.</li>}
+            </ul>
+            {byDay.size === 0 && <p className="hidden md:block mt-3 text-sm text-gray-400 text-center">Nada programado este mes.</p>}
+        </div>
     );
 };
 
