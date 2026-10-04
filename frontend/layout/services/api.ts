@@ -363,6 +363,7 @@ export interface StrategyNode {
   parentId?: string | null;
   x: number;
   y: number;
+  tags?: string[];
 }
 
 export async function getStrategy(clientId: string): Promise<StrategyNode[]> {
@@ -516,7 +517,37 @@ export interface ContentPiece {
   prompt_visual: string | null;  // English Magnific prompt, or the reel script when formato = 'Reel'
   url_imagen: string | null;
   url_piezas_finales: string[] | null;
+  // Written by /05_planificacion: what the piece is for, copied when the plan was made
+  concepto_id: string | null;   // strategy_nodes id of the concept it serves
+  concepto: string | null;
+  objetivo: string | null;
+  evidencia: string | null;     // market fact behind an [I] piece, with its source
   created_at: string;
+}
+
+export type PlanEstado = 'Pendiente' | 'Aprobado' | 'Cambios solicitados';
+
+export interface PlanReview {
+  estado: PlanEstado;
+  comentario: string | null;
+  revisada_at: string | null;
+  revisada_por: string | null;
+}
+
+export async function getPlanReview(clientId: string, month: string): Promise<PlanReview> {
+  const response = await fetch(`${API_BASE_URL}/content/${clientId}/plan-review?month=${encodeURIComponent(month)}`, { headers: getAuthHeaders() });
+  const result = await handleResponse<{ status: string; data: PlanReview }>(response);
+  return result.data;
+}
+
+export async function reviewPlan(clientId: string, month: string, estado: Exclude<PlanEstado, 'Pendiente'>, comentario?: string): Promise<PlanReview> {
+  const response = await fetch(`${API_BASE_URL}/content/${clientId}/plan-review?month=${encodeURIComponent(month)}`, {
+    method: 'PATCH',
+    headers: { ...getAuthHeaders(), 'Content-Type': 'application/json' },
+    body: JSON.stringify({ estado, comentario: comentario ?? null }),
+  });
+  const result = await handleResponse<{ status: string; data: PlanReview }>(response);
+  return result.data;
 }
 
 export async function getContentPieces(clientId: string, month?: string): Promise<ContentPiece[]> {

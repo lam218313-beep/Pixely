@@ -169,7 +169,7 @@ async def get_module_status(brand_id: str, module_id: str) -> dict:
     # 1. Interview (Base)
     # 2. Voz de marca (la escribe /02_voz_de_marca desde Claude Desktop)
     # 3. Strategy (la escribe /04_estrategia desde Claude Desktop)
-    # 4. Schedule (lo escribe /02_crearcronograma en content_pieces)
+    # 4. Schedule (lo escribe /05_planificacion en content_pieces)
     # ==============================================================================
 
     if module_id == "interview":
@@ -192,7 +192,7 @@ async def get_module_status(brand_id: str, module_id: str) -> dict:
         return {"status": "pending", "can_execute": False}
 
     elif module_id == "schedule":
-        # The monthly plan is written only by /02_crearcronograma (Claude Desktop) into
+        # The monthly plan is written only by /05_planificacion (Claude Desktop) into
         # content_pieces; the panel just opens it in Planificación once it exists.
         if db.has_content_pieces(brand_id):
             return {"status": "completed", "can_execute": True}

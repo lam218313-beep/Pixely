@@ -261,6 +261,30 @@ interface PieceDetailModalProps {
     onReview?: (estado: 'Aprobado' | 'Cambios solicitados', comentario?: string) => Promise<void>;
 }
 
+/** Why a piece exists: the strategy concept it serves and the evidence behind it (from /05_planificacion). */
+export const PieceWhy: React.FC<{ piece: api.ContentPiece }> = ({ piece }) => {
+    if (!piece.objetivo && !piece.concepto && !piece.marcador) return null;
+    return (
+        <div className="p-6 border-b border-gray-100 space-y-2">
+            <p className="text-xs font-bold uppercase tracking-wider text-gray-400">Por qué esta pieza</p>
+            {piece.objetivo && <p className="text-sm text-gray-700"><span className="font-semibold text-gray-900">Objetivo: </span>{piece.objetivo}</p>}
+            {piece.concepto && <p className="text-sm text-gray-700"><span className="font-semibold text-gray-900">Concepto: </span>{piece.concepto}</p>}
+            {piece.marcador === 'I' && (
+                <p className="text-sm text-gray-700"><span className="font-semibold text-gray-900">Dato de mercado: </span>{piece.evidencia || 'respaldada por la vigilancia del mercado'}</p>
+            )}
+            {piece.marcador === 'C' && <p className="text-sm text-gray-500">Idea creativa del equipo, sin un dato de mercado detrás.</p>}
+        </div>
+    );
+};
+
+/** One quiet line for lists: which objective and concept a piece serves. */
+export const PieceWhyLine: React.FC<{ piece: api.ContentPiece }> = ({ piece }) =>
+    piece.objetivo || piece.concepto ? (
+        <span className="block text-xs text-gray-500 mt-1 line-clamp-1">
+            Sirve a: {[piece.objetivo, piece.concepto].filter(Boolean).join(' · ')}
+        </span>
+    ) : null;
+
 export const PieceDetailModal: React.FC<PieceDetailModalProps> = ({ piece, onClose, onReview }) => {
     const assets = finalAssets(piece);
     const slides = assets.length > 0 ? assets : [safeUrl(piece.url_imagen)].filter((u): u is string => !!u);
@@ -363,6 +387,8 @@ export const PieceDetailModal: React.FC<PieceDetailModalProps> = ({ piece, onClo
                         </p>
                         <h3 className="text-xl font-bold text-gray-900 leading-snug">{piece.topico_angulo || 'Pieza sin tópico'}</h3>
                     </div>
+
+                    <PieceWhy piece={piece} />
 
                     {piece.formato === 'Reel' && piece.prompt_visual && (
                         <div className="p-6 border-b border-gray-100">
