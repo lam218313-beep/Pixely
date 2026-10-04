@@ -8,12 +8,12 @@ Brands contain users and have plans that define accessible modules.
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from typing import Optional, List
-from datetime import datetime
+from datetime import date, datetime, timedelta
 import logging
 
 from ..services.database import db
 from ..services.auth_service import require_admin
-
+from ..services.admin_overview import build_overview
 
 
 logger = logging.getLogger(__name__)
@@ -71,14 +71,16 @@ class ModuleStatus(BaseModel):
 # ENDPOINTS
 # =============================================================================
 
-@router.get("/test")
-async def test_admin():
-    return {"status": "ok"}
+@router.get("/overview")
+async def get_overview():
+    """The "Hoy" board: every brand, where it stands, and what the team (or the client) has to do next."""
+    today = date.today()
+    rows = db.load_admin_overview_rows(since=(today - timedelta(days=45)).isoformat())
+    return {"status": "success", "data": {"hoy": today.isoformat(), "marcas": build_overview(rows, today)}}
 
 @router.get("/brands", response_model=List[BrandResponse])
 async def list_brands():
     """List all brands with user count."""
-    print("ENDPOINT HIT: /admin/brands")
     brands = db.list_clients()
     result = []
     
@@ -297,14 +299,3 @@ async def create_brand_user(brand_id: str, request: UserCreate):
         
         logger.error(f"Failed to create user: {e}")
         raise HTTPException(status_code=500, detail=str(e))
-
-
-@router.get("/brands/{brand_id}/strategies")
-async def get_brand_strategies(brand_id: str):
-    """Get strategies for a brand."""
-    strategies = db.get_strategy_nodes(brand_id) if hasattr(db, 'get_strategy_nodes') else []
-    return {"strategies": strategies}
-
-
-
-

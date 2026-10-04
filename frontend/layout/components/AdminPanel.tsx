@@ -1,718 +1,470 @@
 /**
- * Admin Panel v2 - Brand-Centric Design
- * =====================================
- * Simple panel for managing brands and their modules.
+ * Panel del equipo
+ * ================
+ * - Hoy: every brand on one board — where it stands (Ficha, Mercado, Voz, Estrategia),
+ *   how its content line is going, and what the team (or the client) has to do next,
+ *   with the Claude Desktop recipe to run. Computed by GET /api/admin/overview.
+ * - Marca: the same pages the client sees, in the same order, plus a summary with its
+ *   users. Admin logins carry no client_id, so each page gets the brand explicitly.
  */
 
-import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useCallback, useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import {
-    Plus, Building2, Users, ChevronRight, X, Loader2,
-    ClipboardList, BookOpen, Target, Calendar,
-    Check, Clock, Play, ArrowLeft, Edit2, Trash2, RefreshCw, Radar, CheckCircle2, Send, CalendarRange
+    Plus, Users, ChevronRight, X, Loader2, ArrowLeft, Check, Copy, Eye, MessageSquareWarning, Circle,
+    ClipboardList, Palette, Radar, LayoutGrid, CalendarRange, CheckCircle2, Send, LayoutDashboard, RefreshCw, UserRound,
 } from 'lucide-react';
 import * as api from '../services/api';
-
-// Import BrandBook for preview
-import BrandBookApp from '../brand-book/App';
-import StrategyApp from '../estrategia/App';
+import { InterviewView } from './InterviewView';
+import { BrandView } from './BrandView';
 import { MercadoView } from './MercadoView';
+import { StrategyView } from './StrategyView';
 import { PlanificacionView } from './PlanificacionView';
 import { ValidacionView } from './ValidacionView';
 import { PublicacionesView } from './PublicacionesView';
+import { monthLabel } from './content/ContentPieceUI';
 
-// =============================================================================
-// MODULE CONFIG
-// =============================================================================
+// --- Brand pages, in the client's menu order ---
 
-// Admin logins carry no client_id, so these views get the brand passed in explicitly.
-const PHASE_VIEWS = {
-    mercado: { label: 'Mercado', icon: Radar, Component: MercadoView },
-    planificacion: { label: 'Planificación', icon: CalendarRange, Component: PlanificacionView },
-    validacion: { label: 'Validación', icon: CheckCircle2, Component: ValidacionView },
-    publicacion: { label: 'Publicaciones', icon: Send, Component: PublicacionesView },
-} satisfies Record<string, { label: string; icon: React.ElementType; Component: React.FC<{ clientId?: string }> }>;
+type Tab = 'resumen' | api.AdminDestino;
 
-type PhaseKey = keyof typeof PHASE_VIEWS;
+const PAGES: { key: api.AdminDestino; label: string; icon: React.ElementType; group: string; Component: React.FC<{ clientId?: string; onNavigate?: (v: string) => void }> }[] = [
+    { key: 'ficha', label: 'Ficha', icon: ClipboardList, group: 'Su marca', Component: InterviewView },
+    { key: 'voz', label: 'Voz de marca', icon: Palette, group: 'Su marca', Component: BrandView },
+    { key: 'mercado', label: 'Mercado', icon: Radar, group: 'Su marca', Component: MercadoView },
+    { key: 'estrategia', label: 'Estrategia', icon: LayoutGrid, group: 'Su marca', Component: StrategyView },
+    { key: 'planificacion', label: 'Planificación', icon: CalendarRange, group: 'Contenido', Component: PlanificacionView },
+    { key: 'validacion', label: 'Validación', icon: CheckCircle2, group: 'Contenido', Component: ValidacionView },
+    { key: 'publicaciones', label: 'Publicaciones', icon: Send, group: 'Contenido', Component: PublicacionesView },
+];
 
-const MODULE_CONFIG: Record<string, { name: string; icon: React.ElementType; color: string }> = {
-    interview: { name: 'Entrevista', icon: ClipboardList, color: 'blue' },
-    manual: { name: 'Voz de marca', icon: BookOpen, color: 'purple' },
-    strategy: { name: 'Estrategia', icon: Target, color: 'emerald' },
-    schedule: { name: 'Cronograma', icon: Calendar, color: 'orange' }
+// The client pages navigate with the app's view ids; inside a brand they switch tabs instead.
+const VIEW_TO_TAB: Record<string, api.AdminDestino> = {
+    interview: 'ficha', brand: 'voz', mercado: 'mercado', strategy: 'estrategia',
+    work: 'planificacion', validacion: 'validacion', publicacion: 'publicaciones', repositorio: 'publicaciones',
 };
 
-// =============================================================================
-// TYPES
-// =============================================================================
+// Status colors, always shown with an icon and a word.
+const PASO_META: Record<api.PasoEstado, { color: string; icon: React.ElementType; label: string }> = {
+    listo: { color: '#0ca30c', icon: Check, label: 'Listo' },
+    cliente: { color: '#fab219', icon: Eye, label: 'Por aprobar' },
+    cambios: { color: '#ec835a', icon: MessageSquareWarning, label: 'Cambios pedidos' },
+    falta: { color: '#898781', icon: Circle, label: 'Falta' },
+};
+const PASOS: { key: keyof api.AdminMarca['pasos']; label: string; destino: api.AdminDestino }[] = [
+    { key: 'ficha', label: 'Ficha', destino: 'ficha' },
+    { key: 'mercado', label: 'Mercado', destino: 'mercado' },
+    { key: 'voz', label: 'Voz', destino: 'voz' },
+    { key: 'estrategia', label: 'Estrategia', destino: 'estrategia' },
+];
+const pasoLabel = (key: string, estado: api.PasoEstado) => (key === 'mercado' && estado === 'cambios' ? 'Desactualizado' : PASO_META[estado].label);
 
-interface Brand {
-    id: string;
-    nombre: string;
-    created_at?: string;
-    user_count: number;
-    modules: string[];
+async function adminFetch<T>(path: string, init?: RequestInit): Promise<T> {
+    const response = await fetch(`${api.API_BASE_URL}${path}`, {
+        ...init,
+        headers: { 'Content-Type': 'application/json', ...api.getAuthHeaders(), ...(init?.headers ?? {}) },
+    });
+    if (!response.ok) {
+        const body = await response.json().catch(() => ({}));
+        throw new Error(body.detail || `Error ${response.status}`);
+    }
+    return response.json();
 }
 
-interface ModuleStatus {
-    id: string;
-    name: string;
-    icon: string;
-    status: 'completed' | 'pending' | 'ready' | 'not_available' | 'processing';
-    can_execute: boolean;
-}
-
-interface BrandUser {
-    id: string;
-    email: string;
-    full_name?: string;
-}
-
 // =============================================================================
-// MAIN COMPONENT
+// MAIN
 // =============================================================================
 
-interface AdminPanelProps {
-    onNavigate?: (view: string) => void;
-}
-
-export const AdminPanel: React.FC<AdminPanelProps> = ({ onNavigate }) => {
-    const [brands, setBrands] = useState<Brand[]>([]);
+export const AdminPanel: React.FC<{ onNavigate?: (view: string) => void }> = () => {
+    const [data, setData] = useState<{ hoy: string; marcas: api.AdminMarca[] } | null>(null);
+    const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
-    const [showCreateModal, setShowCreateModal] = useState(false);
-    const [selectedBrand, setSelectedBrand] = useState<string | null>(null);
+    const [open, setOpen] = useState<{ id: string; tab: Tab } | null>(null);
+    const [creating, setCreating] = useState(false);
 
-    const loadBrands = async () => {
+    const load = useCallback(async () => {
         setLoading(true);
-        try {
-            console.log('Fetching brands from:', `${api.API_BASE_URL}/api/admin/brands`);
-            const response = await fetch(`${api.API_BASE_URL}/api/admin/brands`, {
-                headers: api.getAuthHeaders()
-            });
-
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-
-            const data = await response.json();
-            console.log('Brands data:', data);
-
-            if (Array.isArray(data)) {
-                setBrands(data);
-            } else {
-                console.error('Data is not an array:', data);
-                setBrands([]);
-                alert('Error: La respuesta del servidor no es válida (no es una lista de marcas)');
-            }
-        } catch (error) {
-            console.error('Error loading brands:', error);
-            setBrands([]);
-            // alert('Error al cargar marcas. Ver consola.');
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    useEffect(() => {
-        loadBrands();
+        setError(null);
+        try { setData(await api.getAdminOverview()); }
+        catch (e) { setError(e instanceof Error ? e.message : 'No se pudo cargar el tablero'); }
+        finally { setLoading(false); }
     }, []);
 
-    if (selectedBrand) {
-        return (
-            <BrandDetailView
-                brandId={selectedBrand}
-                onBack={() => {
-                    setSelectedBrand(null);
-                    loadBrands();
-                }}
-                onNavigate={onNavigate}
-            />
-        );
+    useEffect(() => { load(); }, [load]);
+
+    const marca = open && data?.marcas.find((m) => m.id === open.id);
+    if (open && marca) {
+        return <BrandDetail marca={marca} tab={open.tab} onTab={(tab) => setOpen({ id: marca.id, tab })} onBack={() => { setOpen(null); load(); }} />;
     }
 
-    return (
-        <div className="h-full flex flex-col p-6">
-            {/* Header */}
-            <div className="flex items-center justify-between mb-8">
-                <div>
-                    <h1 className="text-3xl font-black text-gray-900">Panel de Administración</h1>
-                    <p className="text-gray-500 mt-1">Gestiona marcas y sus módulos</p>
-                </div>
-                <button
-                    onClick={() => setShowCreateModal(true)}
-                    className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-pink-500 to-rose-500 text-white font-bold rounded-2xl shadow-lg shadow-pink-500/30 hover:shadow-xl transition-all"
-                >
-                    <Plus size={20} />
-                    Nueva Marca
-                </button>
-            </div>
-
-            {/* Brands Grid */}
-            <div className="flex-1 overflow-y-auto">
-                {loading ? (
-                    <div className="flex items-center justify-center h-64">
-                        <Loader2 className="animate-spin text-gray-300" size={40} />
-                    </div>
-                ) : brands.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center h-64 text-gray-400">
-                        <Building2 size={48} className="mb-4 opacity-50" />
-                        <p className="text-lg font-medium">No hay marcas registradas</p>
-                        <p className="text-sm">Crea una marca para comenzar</p>
-                    </div>
-                ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {brands.map(brand => (
-                            <BrandCard
-                                key={brand.id}
-                                brand={brand}
-                                onClick={() => setSelectedBrand(brand.id)}
-                            />
-                        ))}
-                    </div>
-                )}
-            </div>
-
-            {/* Create Modal */}
-            <AnimatePresence>
-                {showCreateModal && (
-                    <CreateBrandModal
-                        onClose={() => setShowCreateModal(false)}
-                        onCreated={() => {
-                            setShowCreateModal(false);
-                            loadBrands();
-                        }}
-                    />
-                )}
-            </AnimatePresence>
-        </div>
-    );
-};
-
-// =============================================================================
-// BRAND CARD
-// =============================================================================
-
-const BrandCard: React.FC<{ brand: Brand; onClick: () => void }> = ({ brand, onClick }) => {
-    return (
-        <motion.button
-            onClick={onClick}
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            className="w-full text-left bg-white rounded-3xl p-6 border border-gray-100 hover:border-gray-200 hover:shadow-xl transition-all group"
-        >
-            <div className="flex items-start justify-between mb-4">
-                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-gray-800 to-gray-900 flex items-center justify-center text-white text-xl font-bold shadow-lg">
-                    {brand.nombre.charAt(0).toUpperCase()}
-                </div>
-            </div>
-
-            <h3 className="text-xl font-bold text-gray-900 mb-1">{brand.nombre}</h3>
-
-            <div className="flex items-center gap-4 text-sm text-gray-500 mb-4">
-                <span className="flex items-center gap-1">
-                    <Users size={14} />
-                    {brand.user_count} usuario{brand.user_count !== 1 ? 's' : ''}
-                </span>
-            </div>
-
-            {/* Module Icons */}
-            <div className="flex gap-2">
-                {brand.modules.map(modId => {
-                    const mod = MODULE_CONFIG[modId];
-                    if (!mod) return null;
-                    const Icon = mod.icon;
-                    return (
-                        <div
-                            key={modId}
-                            className="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center text-gray-400"
-                            title={mod.name}
-                        >
-                            <Icon size={16} />
-                        </div>
-                    );
-                })}
-            </div>
-
-            <div className="mt-4 flex items-center justify-end text-gray-400 group-hover:text-pink-500 transition-colors">
-                <span className="text-xs font-medium mr-1">Ver detalles</span>
-                <ChevronRight size={16} />
-            </div>
-        </motion.button>
-    );
-};
-
-// =============================================================================
-// CREATE BRAND MODAL
-// =============================================================================
-
-const CreateBrandModal: React.FC<{ onClose: () => void; onCreated: () => void }> = ({ onClose, onCreated }) => {
-    const [nombre, setNombre] = useState('');
-    const [loading, setLoading] = useState(false);
-
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!nombre.trim()) return;
-
-        setLoading(true);
-        try {
-            const url = `${api.API_BASE_URL}/api/admin/brands`;
-            console.log('Creating brand at:', url);
-
-            const response = await fetch(url, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', ...api.getAuthHeaders() },
-                body: JSON.stringify({ nombre })
-            });
-
-            if (response.ok) {
-                console.log('Brand created successfully');
-                onCreated();
-            } else {
-                const error = await response.json();
-                console.error('Create brand error:', error);
-                alert(`Error al crear marca: ${error.detail || response.statusText}`);
-            }
-        } catch (error) {
-            console.error('Error creating brand:', error);
-            alert('Error al crear marca');
-        } finally {
-            setLoading(false);
-        }
-    };
+    const marcas = data?.marcas ?? [];
+    const equipo = marcas.reduce((n, m) => n + m.acciones.filter((a) => a.quien === 'equipo').length, 0);
+    const cliente = marcas.reduce((n, m) => n + m.acciones.filter((a) => a.quien === 'cliente').length, 0);
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-            <motion.div
-                initial={{ scale: 0.95, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                exit={{ scale: 0.95, opacity: 0 }}
-                className="bg-white rounded-3xl p-8 w-full max-w-md shadow-2xl"
-            >
-                <div className="flex items-center justify-between mb-6">
-                    <h2 className="text-2xl font-black text-gray-900">Nueva Marca</h2>
-                    <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-full">
-                        <X size={20} className="text-gray-400" />
-                    </button>
-                </div>
-
-                <form onSubmit={handleSubmit} className="space-y-6">
+        <div className="h-full overflow-y-auto custom-scrollbar p-4 md:p-8 bg-brand-bg">
+            <div className="max-w-7xl mx-auto">
+                <div className="flex flex-wrap items-end justify-between gap-4 mb-6">
                     <div>
-                        <label className="block text-xs font-bold text-gray-700 uppercase mb-2">
-                            Nombre de la Marca
-                        </label>
-                        <input
-                            type="text"
-                            value={nombre}
-                            onChange={(e) => setNombre(e.target.value)}
-                            className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20 outline-none transition-all"
-                            placeholder="Ej: Nike, Adidas..."
-                            required
-                        />
+                        <p className="text-xs font-bold uppercase tracking-wider text-primary-600">Panel del equipo</p>
+                        <h1 className="text-3xl font-black text-gray-900">Hoy</h1>
+                        <p className="text-gray-500 mt-1">Qué toca hacer en cada marca y qué receta correr.</p>
                     </div>
-
-                    <button
-                        type="submit"
-                        disabled={loading || !nombre.trim()}
-                        className="w-full py-4 bg-gradient-to-r from-pink-500 to-rose-500 text-white font-bold rounded-xl shadow-lg shadow-pink-500/30 hover:shadow-xl transition-all disabled:opacity-50"
-                    >
-                        {loading ? <Loader2 className="animate-spin mx-auto" size={20} /> : 'Crear Marca'}
-                    </button>
-                </form>
-            </motion.div>
-        </div>
-    );
-};
-
-// =============================================================================
-// BRAND DETAIL VIEW
-// =============================================================================
-
-const BrandDetailView: React.FC<{ brandId: string; onBack: () => void; onNavigate?: (view: string) => void }> = ({ brandId, onBack, onNavigate }) => {
-    const [loading, setLoading] = useState(true);
-    const [brand, setBrand] = useState<any>(null);
-    const [modules, setModules] = useState<ModuleStatus[]>([]);
-    const [users, setUsers] = useState<BrandUser[]>([]);
-    const [showAddUser, setShowAddUser] = useState(false);
-    const [showBrandBook, setShowBrandBook] = useState(false);
-    const [showStrategy, setShowStrategy] = useState(false);
-    const [phaseView, setPhaseView] = useState<PhaseKey | null>(null);
-    const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
-
-    // Auto-dismiss toast
-    useEffect(() => {
-        if (toast) {
-            const timer = setTimeout(() => setToast(null), 4000);
-            return () => clearTimeout(timer);
-        }
-    }, [toast]);
-
-    const loadBrandDetail = async () => {
-        setLoading(true);
-        try {
-            const response = await fetch(`${api.API_BASE_URL}/api/admin/brands/${brandId}`, {
-                headers: api.getAuthHeaders()
-            });
-            const data = await response.json();
-            setBrand(data.brand);
-            setModules(data.modules);
-            setUsers(data.users || []);
-        } catch (error) {
-            console.error('Error loading brand:', error);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    useEffect(() => {
-        loadBrandDetail();
-    }, [brandId]);
-
-    if (showBrandBook) {
-        return (
-            <div className="h-full flex flex-col bg-gray-50 relative animate-in fade-in zoom-in duration-300">
-                <div className="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between shadow-sm z-10 shrink-0">
-                    <div className="flex items-center gap-4">
-                        <button onClick={() => setShowBrandBook(false)} className="p-2 hover:bg-gray-100 rounded-xl transition-colors">
-                            <ArrowLeft size={20} className="text-gray-600" />
+                    <div className="flex gap-2">
+                        <button onClick={load} disabled={loading} className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-gray-200 bg-white text-sm font-bold text-gray-700 hover:bg-gray-50 disabled:opacity-60">
+                            <RefreshCw size={16} className={loading ? 'animate-spin' : ''} /> Actualizar
                         </button>
-                        <div>
-                            <h2 className="text-lg font-bold text-gray-900">Manual de Marca</h2>
-                            <p className="text-xs text-gray-500">{brand?.nombre}</p>
-                        </div>
-                    </div>
-                </div>
-                <div className="flex-1 overflow-y-auto p-8">
-                    <BrandBookApp overrideClientId={brandId} />
-                </div>
-            </div>
-        );
-    }
-
-    if (showStrategy) {
-        return (
-            <div className="h-full flex flex-col bg-gray-50 relative animate-in fade-in zoom-in duration-300">
-                <div className="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between shadow-sm z-10 shrink-0">
-                    <div className="flex items-center gap-4">
-                        <button onClick={() => setShowStrategy(false)} className="p-2 hover:bg-gray-100 rounded-xl transition-colors">
-                            <ArrowLeft size={20} className="text-gray-600" />
+                        <button onClick={() => setCreating(true)} className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-pink-500 to-rose-500 text-white text-sm font-bold shadow-lg shadow-pink-500/20">
+                            <Plus size={16} /> Nueva marca
                         </button>
-                        <div>
-                            <h2 className="text-lg font-bold text-gray-900">Estrategia Digital</h2>
-                            <p className="text-xs text-gray-500">{brand?.nombre}</p>
-                        </div>
-                    </div>
-                    <p className="text-xs text-gray-500 max-w-xs text-right">La escribe <code className="font-mono">/04_estrategia</code> desde Claude Desktop; aquí solo se revisa.</p>
-                </div>
-                <div className="flex-1 overflow-hidden p-4">
-                    <div className='h-full rounded-[30px] overflow-hidden border border-gray-200 shadow-sm bg-white'>
-                        <StrategyApp overrideClientId={brandId} />
                     </div>
                 </div>
-            </div>
-        );
-    }
 
-    if (phaseView) {
-        const { label, Component } = PHASE_VIEWS[phaseView];
-        return (
-            <div className="h-full flex flex-col bg-gray-50 relative animate-in fade-in zoom-in duration-300">
-                <div className="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between shadow-sm z-10 shrink-0">
-                    <div className="flex items-center gap-4">
-                        <button onClick={() => setPhaseView(null)} className="p-2 hover:bg-gray-100 rounded-xl transition-colors">
-                            <ArrowLeft size={20} className="text-gray-600" />
-                        </button>
-                        <div>
-                            <h2 className="text-lg font-bold text-gray-900">{label}</h2>
-                            <p className="text-xs text-gray-500">{brand?.nombre}</p>
-                        </div>
-                    </div>
-                </div>
-                <div className="flex-1 overflow-hidden">
-                    <Component clientId={brandId} />
-                </div>
-            </div>
-        );
-    }
+                {error && <p className="mb-4 rounded-2xl bg-red-50 border border-red-100 px-4 py-3 text-sm text-red-700">{error}</p>}
 
-    if (loading) {
-        return (
-            <div className="h-full flex items-center justify-center">
-                <Loader2 className="animate-spin text-gray-300" size={40} />
-            </div>
-        );
-    }
-
-    return (
-        <div className="h-full flex flex-col p-6 overflow-y-auto relative">
-            {/* Header */}
-            <div className="flex items-center gap-4 mb-8">
-                <button
-                    onClick={onBack}
-                    className="p-2 hover:bg-gray-100 rounded-xl transition-colors"
-                >
-                    <ArrowLeft size={24} className="text-gray-600" />
-                </button>
-                <div className="flex-1">
-                    <div className="flex flex-wrap items-center gap-3">
-                        <h1 className="text-3xl font-black text-gray-900">{brand?.nombre}</h1>
-                        {(Object.keys(PHASE_VIEWS) as PhaseKey[]).map((key) => {
-                            const { label, icon: Icon } = PHASE_VIEWS[key];
-                            return (
-                                <button
-                                    key={key}
-                                    onClick={() => setPhaseView(key)}
-                                    className="flex items-center gap-2 px-4 py-2 bg-gray-900 text-white font-bold rounded-xl hover:bg-gray-800 transition-colors text-sm"
-                                >
-                                    <Icon size={16} />
-                                    {label}
-                                </button>
-                            );
-                        })}
-                    </div>
-                </div>
-            </div>
-
-            {/* Modules Section */}
-            <div className="mb-8">
-                <h2 className="text-lg font-bold text-gray-900 mb-4">Módulos Disponibles</h2>
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
-                    {modules.map(mod => (
-                        <ModuleCard
-                            key={mod.id}
-                            module={mod}
-                            onClick={() => {
-                                if (mod.id === 'manual' && mod.can_execute) {
-                                    setShowBrandBook(true);
-                                }
-                                // The strategy is written by /04_estrategia (Claude Desktop); here it is only viewed.
-                                if (mod.id === 'strategy' && mod.status === 'completed') {
-                                    setShowStrategy(true);
-                                }
-                                // The month's plan is written by /05_planificacion (Claude Desktop); here it is only viewed.
-                                if (mod.id === 'schedule' && mod.can_execute) {
-                                    setPhaseView('planificacion');
-                                }
-                            }}
-                        />
-                    ))}
-                </div>
-            </div>
-
-
-            {/* Users Section */}
-            <div className="flex-1">
-                <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-lg font-bold text-gray-900">Usuarios</h2>
-                    <button
-                        onClick={() => setShowAddUser(true)}
-                        className="flex items-center gap-2 px-4 py-2 bg-gray-900 text-white font-bold rounded-xl hover:bg-gray-800 transition-colors"
-                    >
-                        <Plus size={18} />
-                        Agregar Usuario
-                    </button>
-                </div>
-
-                {users.length === 0 ? (
-                    <div className="bg-gray-50 rounded-2xl p-8 text-center text-gray-500">
-                        <Users size={32} className="mx-auto mb-2 opacity-50" />
-                        <p>No hay usuarios en esta marca</p>
-                    </div>
+                {loading && !data ? (
+                    <div className="flex items-center justify-center h-64"><Loader2 className="animate-spin text-gray-300" size={36} /></div>
                 ) : (
-                    <div className="space-y-2">
-                        {users.map(user => (
-                            <div key={user.id} className="flex items-center justify-between p-4 bg-white rounded-xl border border-gray-100">
-                                <div className="flex items-center gap-3">
-                                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold">
-                                        {user.email.charAt(0).toUpperCase()}
-                                    </div>
-                                    <div>
-                                        <p className="font-bold text-gray-900">{user.full_name || user.email.split('@')[0]}</p>
-                                        <p className="text-sm text-gray-500">{user.email}</p>
-                                    </div>
-                                </div>
-                                <button className="p-2 text-gray-400 hover:text-gray-600">
-                                    <Edit2 size={16} />
-                                </button>
+                    <>
+                        <section className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6" aria-label="Resumen">
+                            <Stat label="Tareas del equipo" value={equipo} note="recetas por correr o piezas por subir" strong />
+                            <Stat label="Esperando al cliente" value={cliente} note="aprobaciones pendientes en Partners" />
+                            <Stat label="Marcas" value={marcas.length} note={data ? `al ${new Date(`${data.hoy}T12:00:00`).toLocaleDateString('es-PE', { day: 'numeric', month: 'long' })}` : ''} />
+                        </section>
+
+                        {marcas.length === 0 ? (
+                            <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-12 text-center text-gray-500">Aún no hay marcas. Crea la primera.</div>
+                        ) : (
+                            <div className="space-y-4">
+                                {marcas.map((m) => <BrandRow key={m.id} marca={m} onOpen={(tab) => setOpen({ id: m.id, tab })} />)}
                             </div>
-                        ))}
-                    </div>
+                        )}
+                    </>
                 )}
             </div>
 
-            {/* TOAST Notification */}
-            <AnimatePresence>
-                {toast && (
-                    <motion.div
-                        initial={{ opacity: 0, y: 50, scale: 0.9 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: 20, scale: 0.9 }}
-                        className="fixed bottom-6 right-6 z-50 bg-gray-900 text-white px-6 py-4 rounded-2xl shadow-xl flex items-center gap-3"
-                    >
-                        <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center text-white">
-                            <Check size={18} />
-                        </div>
-                        <div>
-                            <p className="font-bold text-sm">Éxito</p>
-                            <p className="text-xs text-gray-300">{toast.message}</p>
-                        </div>
-                        <button onClick={() => setToast(null)} className="ml-2 text-gray-500 hover:text-white">
-                            <X size={16} />
-                        </button>
-                    </motion.div>
-                )}
-            </AnimatePresence>
-
-            {/* Add User Modal */}
-            <AnimatePresence>
-                {showAddUser && (
-                    <AddUserModal
-                        brandId={brandId}
-                        onClose={() => setShowAddUser(false)}
-                        onCreated={() => {
-                            setShowAddUser(false);
-                            loadBrandDetail();
-                            setToast({ message: "Usuario agregado exitosamente", type: 'success' });
-                        }}
-                    />
-                )}
-            </AnimatePresence>
-
+            {creating && <CreateBrandModal onClose={() => setCreating(false)} onCreated={() => { setCreating(false); load(); }} />}
         </div>
     );
 };
 
-// =============================================================================
-// MODULE CARD
-// =============================================================================
+const Stat: React.FC<{ label: string; value: number; note: string; strong?: boolean }> = ({ label, value, note, strong }) => (
+    <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-5">
+        <p className="text-sm text-gray-500">{label}</p>
+        <p className={`text-4xl font-bold mt-1 ${strong ? 'text-gray-900' : 'text-gray-700'}`}>{value}</p>
+        <p className="text-xs text-gray-400 mt-1">{note}</p>
+    </div>
+);
 
-const ModuleCard: React.FC<{ module: ModuleStatus; onClick: () => void }> = ({ module, onClick }) => {
-    const config = MODULE_CONFIG[module.id];
-    if (!config) return null;
+// --- One brand on the board ---
 
-    const Icon = config.icon;
-
-    const statusStyles: Record<string, { bg: string; icon: React.ReactNode }> = {
-        completed: { bg: 'bg-green-50 border-green-200', icon: <Check size={14} className="text-green-500" /> },
-        pending: { bg: 'bg-gray-50 border-gray-200', icon: <Clock size={14} className="text-gray-400" /> },
-        ready: { bg: 'bg-blue-50 border-blue-200', icon: <Play size={14} className="text-blue-500" /> },
-        processing: { bg: 'bg-indigo-50 border-indigo-200 ring-2 ring-indigo-500/20', icon: <Loader2 size={14} className="text-indigo-600 animate-spin" /> },
-        not_available: { bg: 'bg-gray-100 border-gray-200 opacity-50', icon: null }
-    };
-
-    const style = statusStyles[module.status] || statusStyles.pending;
-
+const PasoChip: React.FC<{ label: string; pasoKey: string; estado: api.PasoEstado; onClick: () => void }> = ({ label, pasoKey, estado, onClick }) => {
+    const meta = PASO_META[estado];
+    const Icon = meta.icon;
     return (
-        <button
-            onClick={onClick}
-            disabled={!module.can_execute}
-            className={`p-4 rounded-2xl border-2 ${style.bg} transition-all ${module.can_execute ? 'hover:scale-105 cursor-pointer' : 'cursor-default'}`}
-        >
-            <div className="flex items-center justify-between mb-3">
-                <div className={`w-10 h-10 rounded-xl bg-${config.color}-100 flex items-center justify-center text-${config.color}-600`}>
-                    <Icon size={20} />
-                </div>
-                {style.icon}
-            </div>
-            <p className="text-sm font-bold text-gray-900">{module.name}</p>
-            <p className="text-xs text-gray-500 capitalize mt-0.5">
-                {module.status === 'completed' ? 'Completado' :
-                    module.status === 'ready' ? 'Listo' :
-                        module.status === 'processing' ? 'Analizando...' :
-                            module.status === 'pending' ? 'Pendiente' : 'N/A'}
-            </p>
+        <button onClick={onClick} title={`${label}: ${pasoLabel(pasoKey, estado)}`}
+            className="inline-flex items-center gap-1.5 rounded-lg px-2 py-1 text-xs font-semibold text-gray-800 hover:ring-1 hover:ring-gray-300"
+            style={{ background: `${meta.color}1F` }}>
+            <Icon size={12} style={{ color: meta.color }} strokeWidth={2.5} />
+            {label}: <span className="font-normal text-gray-600">{pasoLabel(pasoKey, estado)}</span>
         </button>
     );
 };
 
+const BrandRow: React.FC<{ marca: api.AdminMarca; onOpen: (tab: Tab) => void }> = ({ marca, onOpen }) => {
+    const team = marca.acciones.filter((a) => a.quien === 'equipo');
+    const client = marca.acciones.filter((a) => a.quien === 'cliente');
+    const c = marca.contenido;
+    return (
+        <article className="bg-white rounded-3xl border border-gray-100 shadow-sm p-5">
+            <div className="flex flex-wrap items-start justify-between gap-3">
+                <button onClick={() => onOpen('resumen')} className="flex items-center gap-3 text-left group">
+                    <span className="w-11 h-11 rounded-2xl bg-gray-900 text-white flex items-center justify-center text-lg font-bold">{marca.nombre.charAt(0).toUpperCase()}</span>
+                    <span>
+                        <span className="block text-lg font-bold text-gray-900 group-hover:underline underline-offset-2">{marca.nombre}</span>
+                        <span className="text-xs text-gray-500 inline-flex items-center gap-1"><Users size={12} /> {marca.usuarios} {marca.usuarios === 1 ? 'usuario' : 'usuarios'}</span>
+                    </span>
+                </button>
+                <div className="flex flex-wrap gap-1.5">
+                    {PASOS.map((p) => <PasoChip key={p.key} label={p.label} pasoKey={p.key} estado={marca.pasos[p.key]} onClick={() => onOpen(p.destino)} />)}
+                </div>
+            </div>
+
+            <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-500">
+                <span>Plan de {monthLabel(c.mes).split(' ')[0].toLowerCase()}: <strong className="text-gray-800">{c.plan_mes}</strong></span>
+                <span>Próximo mes: <strong className="text-gray-800">{c.plan_siguiente}</strong></span>
+                <span>En producción: <strong className="text-gray-800">{c.en_produccion}</strong></span>
+                <span>Por revisar (cliente): <strong className="text-gray-800">{c.por_revisar}</strong></span>
+                <span>Por programar: <strong className="text-gray-800">{c.por_programar}</strong></span>
+            </div>
+
+            {team.length > 0 && (
+                <ul className="mt-4 divide-y divide-gray-100 rounded-2xl border border-gray-100 overflow-hidden">
+                    {team.map((a, i) => <ActionRow key={i} accion={a} onGo={() => a.destino && onOpen(a.destino)} />)}
+                </ul>
+            )}
+            {team.length === 0 && <p className="mt-4 text-sm text-gray-500 inline-flex items-center gap-1.5"><Check size={14} style={{ color: PASO_META.listo.color }} /> Nada pendiente para el equipo.</p>}
+            {client.length > 0 && (
+                <p className="mt-3 text-xs text-gray-500">
+                    <span className="font-semibold text-gray-700">Esperando al cliente:</span>{' '}
+                    {client.map((a, i) => (
+                        <React.Fragment key={i}>
+                            {i > 0 && ' · '}
+                            <button onClick={() => a.destino && onOpen(a.destino)} className="underline underline-offset-2 hover:text-gray-800">{a.texto}{a.n ? ` (${a.n})` : ''}</button>
+                        </React.Fragment>
+                    ))}
+                </p>
+            )}
+        </article>
+    );
+};
+
+const ActionRow: React.FC<{ accion: api.AdminAccion; onGo: () => void }> = ({ accion, onGo }) => {
+    const [copied, setCopied] = useState(false);
+    const copy = async () => {
+        if (!accion.receta) return;
+        try { await navigator.clipboard.writeText(accion.receta); setCopied(true); setTimeout(() => setCopied(false), 1500); } catch { /* clipboard blocked: the command is visible anyway */ }
+    };
+    return (
+        <li className="flex flex-wrap items-center gap-x-3 gap-y-2 px-4 py-2.5">
+            <span className="flex-1 min-w-[200px] text-sm text-gray-800">
+                {accion.texto}{accion.n ? <strong className="text-gray-900"> ({accion.n})</strong> : null}
+            </span>
+            {accion.receta && (
+                <button onClick={copy} title="Copiar para pegar en Claude Desktop"
+                    className="inline-flex items-center gap-1.5 rounded-lg bg-gray-900 text-white px-2.5 py-1 font-mono text-xs hover:bg-gray-800">
+                    {copied ? <Check size={12} /> : <Copy size={12} />} {copied ? 'Copiado' : accion.receta}
+                </button>
+            )}
+            {accion.destino && (
+                <button onClick={onGo} className="inline-flex items-center gap-1 text-xs font-bold text-gray-600 hover:text-gray-900">
+                    Abrir <ChevronRight size={14} />
+                </button>
+            )}
+        </li>
+    );
+};
+
 // =============================================================================
-// ADD USER MODAL
+// BRAND DETAIL — the client's menu, plus a team summary
 // =============================================================================
+
+interface BrandUser { id: string; email: string; full_name?: string }
+
+const BrandDetail: React.FC<{ marca: api.AdminMarca; tab: Tab; onTab: (t: Tab) => void; onBack: () => void }> = ({ marca, tab, onTab, onBack }) => {
+    const page = PAGES.find((p) => p.key === tab);
+    const navigate = (view: string) => { const t = VIEW_TO_TAB[view]; if (t) onTab(t); };
+
+    return (
+        <div className="h-full flex flex-col bg-brand-bg">
+            <header className="bg-white border-b border-gray-200 px-4 md:px-6 pt-4 shrink-0">
+                <div className="flex items-center gap-3 mb-3">
+                    <button onClick={onBack} className="p-2 rounded-xl hover:bg-gray-100" aria-label="Volver al tablero"><ArrowLeft size={20} className="text-gray-600" /></button>
+                    <div className="min-w-0">
+                        <p className="text-[11px] font-bold uppercase tracking-wider text-gray-400">Panel del equipo</p>
+                        <h1 className="text-xl font-bold text-gray-900 truncate">{marca.nombre}</h1>
+                    </div>
+                </div>
+                <nav className="flex gap-1 overflow-x-auto -mb-px" aria-label="Páginas de la marca">
+                    <TabButton active={tab === 'resumen'} onClick={() => onTab('resumen')} icon={LayoutDashboard} label="Resumen" />
+                    <span className="w-px bg-gray-200 my-2 mx-1 shrink-0" />
+                    {PAGES.map((p, i) => (
+                        <React.Fragment key={p.key}>
+                            {i > 0 && PAGES[i - 1].group !== p.group && <span className="w-px bg-gray-200 my-2 mx-1 shrink-0" />}
+                            <TabButton active={tab === p.key} onClick={() => onTab(p.key)} icon={p.icon} label={p.label} />
+                        </React.Fragment>
+                    ))}
+                </nav>
+            </header>
+
+            {page ? (
+                <div className="flex-1 min-h-0 flex flex-col">
+                    <p className="shrink-0 px-4 md:px-6 py-2 text-xs text-gray-600 bg-amber-50 border-b border-amber-100">
+                        Ves lo mismo que ve el cliente en <strong>{page.label}</strong>. Si apruebas o pides cambios aquí, cuenta como si lo hiciera el cliente.
+                    </p>
+                    <div className="flex-1 min-h-0 overflow-hidden">
+                        <page.Component clientId={marca.id} onNavigate={navigate} />
+                    </div>
+                </div>
+            ) : (
+                <BrandSummary marca={marca} onTab={onTab} />
+            )}
+        </div>
+    );
+};
+
+const TabButton: React.FC<{ active: boolean; onClick: () => void; icon: React.ElementType; label: string }> = ({ active, onClick, icon: Icon, label }) => (
+    <button onClick={onClick} aria-current={active ? 'page' : undefined}
+        className={`shrink-0 inline-flex items-center gap-1.5 px-3 py-2.5 text-sm font-semibold border-b-2 transition-colors ${active ? 'border-gray-900 text-gray-900' : 'border-transparent text-gray-500 hover:text-gray-800'}`}>
+        <Icon size={15} /> {label}
+    </button>
+);
+
+const BrandSummary: React.FC<{ marca: api.AdminMarca; onTab: (t: Tab) => void }> = ({ marca, onTab }) => {
+    const [users, setUsers] = useState<BrandUser[]>([]);
+    const [adding, setAdding] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+
+    const loadUsers = useCallback(async () => {
+        try {
+            const d = await adminFetch<{ users: BrandUser[] }>(`/api/admin/brands/${marca.id}`);
+            setUsers(d.users ?? []);
+        } catch (e) { setError(e instanceof Error ? e.message : 'No se pudieron cargar los usuarios'); }
+    }, [marca.id]);
+    useEffect(() => { loadUsers(); }, [loadUsers]);
+
+    const team = marca.acciones.filter((a) => a.quien === 'equipo');
+    const client = marca.acciones.filter((a) => a.quien === 'cliente');
+
+    return (
+        <div className="flex-1 overflow-y-auto custom-scrollbar p-4 md:p-8">
+            <div className="max-w-5xl mx-auto space-y-6">
+                <section className="bg-white rounded-3xl border border-gray-100 shadow-sm p-6">
+                    <h2 className="text-lg font-bold text-gray-900 mb-3">Dónde está</h2>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                        {PASOS.map((p) => {
+                            const estado = marca.pasos[p.key];
+                            const meta = PASO_META[estado];
+                            return (
+                                <button key={p.key} onClick={() => onTab(p.destino)} className="text-left rounded-2xl border border-gray-100 p-4 hover:shadow-sm" style={{ background: `${meta.color}12` }}>
+                                    <p className="text-sm font-bold text-gray-900">{p.label}</p>
+                                    <p className="text-xs text-gray-600 mt-1 inline-flex items-center gap-1"><meta.icon size={12} style={{ color: meta.color }} strokeWidth={2.5} /> {pasoLabel(p.key, estado)}</p>
+                                </button>
+                            );
+                        })}
+                    </div>
+                    <p className="text-xs text-gray-500 mt-3">
+                        Última vigilancia de mercado: {marca.ultima_vigilancia ? new Date(`${marca.ultima_vigilancia}T12:00:00`).toLocaleDateString('es-PE', { day: 'numeric', month: 'long' }) : 'nunca'}
+                        {' · '}Últimos resultados de Metricool: {marca.ultimos_resultados ? new Date(marca.ultimos_resultados).toLocaleDateString('es-PE', { day: 'numeric', month: 'long' }) : 'nunca'}
+                    </p>
+                </section>
+
+                <section className="bg-white rounded-3xl border border-gray-100 shadow-sm p-6">
+                    <h2 className="text-lg font-bold text-gray-900 mb-3">Qué toca</h2>
+                    {team.length === 0 ? <p className="text-sm text-gray-500">Nada pendiente para el equipo.</p> : (
+                        <ul className="divide-y divide-gray-100 rounded-2xl border border-gray-100 overflow-hidden">
+                            {team.map((a, i) => <ActionRow key={i} accion={a} onGo={() => a.destino && onTab(a.destino)} />)}
+                        </ul>
+                    )}
+                    {client.length > 0 && (
+                        <>
+                            <h3 className="text-sm font-bold text-gray-900 mt-5 mb-2">Esperando al cliente</h3>
+                            <ul className="space-y-1">
+                                {client.map((a, i) => (
+                                    <li key={i}>
+                                        <button onClick={() => a.destino && onTab(a.destino)} className="text-sm text-gray-700 underline underline-offset-2 hover:text-gray-900">{a.texto}{a.n ? ` (${a.n})` : ''}</button>
+                                    </li>
+                                ))}
+                            </ul>
+                        </>
+                    )}
+                </section>
+
+                <section className="bg-white rounded-3xl border border-gray-100 shadow-sm p-6">
+                    <div className="flex items-center justify-between mb-3">
+                        <h2 className="text-lg font-bold text-gray-900">Usuarios del cliente</h2>
+                        <button onClick={() => setAdding(true)} className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gray-900 text-white text-sm font-bold hover:bg-gray-800"><Plus size={16} /> Agregar usuario</button>
+                    </div>
+                    {error && <p className="mb-3 text-sm text-red-600">{error}</p>}
+                    {users.length === 0 ? <p className="text-sm text-gray-500">Esta marca aún no tiene usuarios: el cliente no puede entrar a Partners.</p> : (
+                        <ul className="divide-y divide-gray-100">
+                            {users.map((u) => (
+                                <li key={u.id} className="flex items-center gap-3 py-3">
+                                    <span className="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center text-gray-500"><UserRound size={18} /></span>
+                                    <span>
+                                        <span className="block text-sm font-bold text-gray-900">{u.full_name || u.email.split('@')[0]}</span>
+                                        <span className="block text-xs text-gray-500">{u.email}</span>
+                                    </span>
+                                </li>
+                            ))}
+                        </ul>
+                    )}
+                </section>
+            </div>
+            {adding && <AddUserModal brandId={marca.id} onClose={() => setAdding(false)} onCreated={() => { setAdding(false); loadUsers(); }} />}
+        </div>
+    );
+};
+
+// =============================================================================
+// MODALS
+// =============================================================================
+
+const Modal: React.FC<{ title: string; onClose: () => void; children: React.ReactNode }> = ({ title, onClose, children }) =>
+    createPortal(
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4" onClick={onClose}>
+            <div className="bg-white rounded-3xl p-7 w-full max-w-md shadow-2xl" onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true" aria-label={title}>
+                <div className="flex items-center justify-between mb-5">
+                    <h2 className="text-xl font-bold text-gray-900">{title}</h2>
+                    <button onClick={onClose} className="p-2 -m-2 rounded-full hover:bg-gray-100 text-gray-400" aria-label="Cerrar"><X size={20} /></button>
+                </div>
+                {children}
+            </div>
+        </div>,
+        document.body,
+    );
+
+const Field: React.FC<{ label: string; children: React.ReactNode }> = ({ label, children }) => (
+    <label className="block">
+        <span className="block text-xs font-bold text-gray-700 uppercase mb-1.5">{label}</span>
+        {children}
+    </label>
+);
+const inputCls = 'w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20 outline-none';
+
+const CreateBrandModal: React.FC<{ onClose: () => void; onCreated: () => void }> = ({ onClose, onCreated }) => {
+    const [nombre, setNombre] = useState('');
+    const [saving, setSaving] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+    const submit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!nombre.trim()) return;
+        setSaving(true); setError(null);
+        try { await adminFetch('/api/admin/brands', { method: 'POST', body: JSON.stringify({ nombre: nombre.trim() }) }); onCreated(); }
+        catch (err) { setError(err instanceof Error ? err.message : 'No se pudo crear la marca'); }
+        finally { setSaving(false); }
+    };
+    return (
+        <Modal title="Nueva marca" onClose={onClose}>
+            <form onSubmit={submit} className="space-y-4">
+                <Field label="Nombre de la marca"><input value={nombre} onChange={(e) => setNombre(e.target.value)} className={inputCls} placeholder="Ej. Café Andino" autoFocus required /></Field>
+                <p className="text-xs text-gray-500">Después agrega su usuario desde el resumen de la marca, para que el cliente pueda entrar.</p>
+                {error && <p className="text-sm text-red-600">{error}</p>}
+                <button type="submit" disabled={saving || !nombre.trim()} className="w-full py-3 rounded-xl bg-gradient-to-r from-pink-500 to-rose-500 text-white font-bold disabled:opacity-50">
+                    {saving ? <Loader2 className="animate-spin mx-auto" size={20} /> : 'Crear marca'}
+                </button>
+            </form>
+        </Modal>
+    );
+};
 
 const AddUserModal: React.FC<{ brandId: string; onClose: () => void; onCreated: () => void }> = ({ brandId, onClose, onCreated }) => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [fullName, setFullName] = useState('');
-    const [loading, setLoading] = useState(false);
-
-    const handleSubmit = async (e: React.FormEvent) => {
+    const [saving, setSaving] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+    const submit = async (e: React.FormEvent) => {
         e.preventDefault();
-        setLoading(true);
+        setSaving(true); setError(null);
         try {
-            const response = await fetch(`${api.API_BASE_URL}/api/admin/brands/${brandId}/users`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', ...api.getAuthHeaders() },
-                body: JSON.stringify({ email, password, full_name: fullName || undefined })
-            });
-
-            if (response.ok) {
-                onCreated();
-            } else {
-                const error = await response.json();
-                alert(error.detail || 'Error al crear usuario');
-            }
-        } catch (error) {
-            alert('Error al crear usuario');
-        } finally {
-            setLoading(false);
-        }
+            await adminFetch(`/api/admin/brands/${brandId}/users`, { method: 'POST', body: JSON.stringify({ email, password, full_name: fullName || undefined }) });
+            onCreated();
+        } catch (err) { setError(err instanceof Error ? err.message : 'No se pudo crear el usuario'); }
+        finally { setSaving(false); }
     };
-
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-            <motion.div
-                initial={{ scale: 0.95, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                exit={{ scale: 0.95, opacity: 0 }}
-                className="bg-white rounded-3xl p-8 w-full max-w-md shadow-2xl"
-            >
-                <div className="flex items-center justify-between mb-6">
-                    <h2 className="text-2xl font-black text-gray-900">Nuevo Usuario</h2>
-                    <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-full">
-                        <X size={20} className="text-gray-400" />
-                    </button>
-                </div>
-
-                <form onSubmit={handleSubmit} className="space-y-4">
-                    <div>
-                        <label className="block text-xs font-bold text-gray-700 uppercase mb-2">Email</label>
-                        <input
-                            type="email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-pink-500 outline-none"
-                            required
-                        />
-                    </div>
-                    <div>
-                        <label className="block text-xs font-bold text-gray-700 uppercase mb-2">Contraseña</label>
-                        <input
-                            type="password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-pink-500 outline-none"
-                            required
-                            minLength={6}
-                        />
-                    </div>
-                    <div>
-                        <label className="block text-xs font-bold text-gray-700 uppercase mb-2">Nombre (opcional)</label>
-                        <input
-                            type="text"
-                            value={fullName}
-                            onChange={(e) => setFullName(e.target.value)}
-                            className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-pink-500 outline-none"
-                        />
-                    </div>
-                    <button
-                        type="submit"
-                        disabled={loading}
-                        className="w-full py-4 bg-gray-900 text-white font-bold rounded-xl hover:bg-gray-800 transition-colors disabled:opacity-50"
-                    >
-                        {loading ? <Loader2 className="animate-spin mx-auto" size={20} /> : 'Crear Usuario'}
-                    </button>
-                </form>
-            </motion.div>
-        </div>
+        <Modal title="Nuevo usuario" onClose={onClose}>
+            <form onSubmit={submit} className="space-y-4">
+                <Field label="Email"><input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className={inputCls} required autoFocus /></Field>
+                <Field label="Contraseña"><input type="password" value={password} onChange={(e) => setPassword(e.target.value)} className={inputCls} required minLength={6} /></Field>
+                <Field label="Nombre (opcional)"><input value={fullName} onChange={(e) => setFullName(e.target.value)} className={inputCls} /></Field>
+                {error && <p className="text-sm text-red-600">{error}</p>}
+                <button type="submit" disabled={saving} className="w-full py-3 rounded-xl bg-gray-900 text-white font-bold hover:bg-gray-800 disabled:opacity-50">
+                    {saving ? <Loader2 className="animate-spin mx-auto" size={20} /> : 'Crear usuario'}
+                </button>
+            </form>
+        </Modal>
     );
 };
 

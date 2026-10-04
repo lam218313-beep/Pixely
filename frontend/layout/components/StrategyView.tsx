@@ -11,9 +11,9 @@ const ESTADO_META: Record<api.EstrategiaEstado, { label: string; color: string; 
     Aprobada: { label: 'Aprobada', color: '#0ca30c', icon: Check },
 };
 
-export const StrategyView: React.FC<{ onNavigate: (view: string) => void }> = () => {
+export const StrategyView: React.FC<{ onNavigate?: (view: string) => void; clientId?: string }> = ({ clientId: clientIdProp }) => {
     const { user } = useAuth();
-    const clientId = localStorage.getItem('clientId') || user?.fichaClienteId || null;
+    const clientId = clientIdProp || user?.fichaClienteId || localStorage.getItem('clientId') || null;
     const [review, setReview] = useState<api.StrategyReview | null>(null);
     const [hasStrategy, setHasStrategy] = useState(false);
 
@@ -40,7 +40,7 @@ export const StrategyView: React.FC<{ onNavigate: (view: string) => void }> = ()
 
                 {/* Strategy Map Module */}
                 <div className='h-[600px] rounded-[30px] overflow-hidden border border-gray-200 shadow-sm bg-white'>
-                    <StrategyMap />
+                    <StrategyMap overrideClientId={clientId ?? undefined} />
                 </div>
             </div>
         </div>

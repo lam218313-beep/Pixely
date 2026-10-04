@@ -604,6 +604,36 @@ export async function getResults(clientId: string, month: string): Promise<{ met
   return result.data;
 }
 
+// --- Admin "Hoy" board ---
+
+export type PasoEstado = 'falta' | 'cliente' | 'cambios' | 'listo';
+export type AdminDestino = 'ficha' | 'voz' | 'mercado' | 'estrategia' | 'planificacion' | 'validacion' | 'publicaciones';
+
+export interface AdminAccion {
+  quien: 'equipo' | 'cliente';
+  texto: string;
+  n: number;
+  receta: string | null;
+  destino: AdminDestino | null;
+}
+
+export interface AdminMarca {
+  id: string;
+  nombre: string;
+  usuarios: number;
+  pasos: { ficha: PasoEstado; mercado: PasoEstado; voz: PasoEstado; estrategia: PasoEstado };
+  contenido: { mes: string; plan_mes: number; plan_siguiente: number; ideas_pendientes: number; ideas_cambios: number; en_produccion: number; por_revisar: number; por_programar: number };
+  ultima_vigilancia: string | null;
+  ultimos_resultados: string | null;
+  acciones: AdminAccion[];
+}
+
+export async function getAdminOverview(): Promise<{ hoy: string; marcas: AdminMarca[] }> {
+  const response = await fetch(`${API_BASE_URL}/api/admin/overview`, { headers: getAuthHeaders() });
+  const result = await handleResponse<{ status: string; data: { hoy: string; marcas: AdminMarca[] } }>(response);
+  return result.data;
+}
+
 export async function getContentPieces(clientId: string, month?: string): Promise<ContentPiece[]> {
   const query = month ? `?month=${encodeURIComponent(month)}` : '';
   const response = await fetch(`${API_BASE_URL}/content/${clientId}/pieces${query}`, {

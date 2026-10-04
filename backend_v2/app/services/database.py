@@ -2,7 +2,7 @@
 
 import logging
 from datetime import datetime, timezone
-from typing import Optional, Any, List
+from typing import Optional, Any, List, Dict
 from supabase import create_client, Client
 from ..config import settings
 
@@ -491,5 +491,33 @@ class SupabaseService:
         except Exception as e:
             logger.error(f"DB Get Competitor Benchmarks Error: {e}")
             return []
+
+    def load_admin_overview_rows(self, since: str) -> Dict[str, list]:
+        """One query per table, for every brand at once (admin "Hoy" board). since = 'YYYY-MM-DD' for published pieces."""
+        if not self.client: return {}
+        q = lambda table, cols: self.client.table(table).select(cols)
+        piece_cols = "id,client_id,fecha,plan_estado,estado_copy,estado_render,url_piezas_finales,estado_aprobacion,cambio_tipo,estado_publicado"
+        plan = {
+            "clients": lambda: q("clients", "id,nombre,created_at").execute(),
+            "users": lambda: q("users", "id,client_id").eq("role", "client").execute(),
+            "client_interviews": lambda: q("client_interviews", "client_id").execute(),
+            "market_studies": lambda: q("market_studies", "client_id").execute(),
+            "market_findings": lambda: q("market_findings", "client_id,fecha").execute(),
+            "brand_identities": lambda: q("brand_identities", "client_id,voz_estado,tone_traits,archetype").execute(),
+            "strategy_nodes": lambda: q("strategy_nodes", "client_id").execute(),
+            "strategy_reviews": lambda: q("strategy_reviews", "client_id,estado").execute(),
+            "pieces": lambda: q("content_pieces", piece_cols).eq("estado_publicado", "Pendiente").execute(),
+            "published": lambda: q("content_pieces", "id,client_id,fecha").neq("estado_publicado", "Pendiente").gte("fecha", since).execute(),
+            "piece_metrics": lambda: q("piece_metrics", "piece_id,client_id,actualizado_at").execute(),
+        }
+        rows: Dict[str, list] = {}
+        for key, run in plan.items():
+            try:
+                rows[key] = run().data or []
+            except Exception as e:
+                # One missing table must not blank the whole board
+                logger.error(f"DB admin overview ({key}) Error: {e}")
+                rows[key] = []
+        return rows
 
 db = SupabaseService()
