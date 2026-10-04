@@ -259,8 +259,10 @@ export const LoadingBlock: React.FC = () => (
 interface PieceDetailModalProps {
     piece: api.ContentPiece;
     onClose: () => void;
-    onReview?: (estado: 'Aprobado' | 'Cambios solicitados', comentario?: string) => Promise<void>;
+    onReview?: (estado: 'Aprobado' | 'Cambios solicitados', comentario?: string, cambioTipo?: api.CambioTipo) => Promise<void>;
 }
+
+export const CAMBIO_LABEL: Record<api.CambioTipo, string> = { imagen: 'La imagen', texto: 'El texto', ambos: 'Ambos' };
 
 const SectionTitle: React.FC<{ children: React.ReactNode }> = ({ children }) => (
     <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-3">{children}</p>
@@ -376,6 +378,7 @@ export const PieceDetailModal: React.FC<PieceDetailModalProps> = ({ piece, onClo
     const [copyTab, setCopyTab] = useState(0);
     const [askingChanges, setAskingChanges] = useState(false);
     const [comment, setComment] = useState('');
+    const [cambioTipo, setCambioTipo] = useState<api.CambioTipo | null>(null);
     const [saving, setSaving] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
@@ -387,6 +390,10 @@ export const PieceDetailModal: React.FC<PieceDetailModalProps> = ({ piece, onClo
 
     const submit = async (estado: 'Aprobado' | 'Cambios solicitados') => {
         if (!onReview) return;
+        if (estado === 'Cambios solicitados' && !cambioTipo) {
+            setError('Elige qué quieres cambiar: la imagen, el texto o ambos.');
+            return;
+        }
         if (estado === 'Cambios solicitados' && !comment.trim()) {
             setError('Cuéntanos qué cambiarías para que el equipo pueda corregirlo.');
             return;
@@ -394,7 +401,7 @@ export const PieceDetailModal: React.FC<PieceDetailModalProps> = ({ piece, onClo
         setSaving(true);
         setError(null);
         try {
-            await onReview(estado, estado === 'Cambios solicitados' ? comment.trim() : undefined);
+            await onReview(estado, estado === 'Cambios solicitados' ? comment.trim() : undefined, estado === 'Cambios solicitados' ? cambioTipo ?? undefined : undefined);
             onClose();
         } catch (e) {
             setError(e instanceof Error ? e.message : 'No se pudo guardar tu revisión');
@@ -505,7 +512,9 @@ export const PieceDetailModal: React.FC<PieceDetailModalProps> = ({ piece, onClo
 
                     {piece.comentario_cliente && (
                         <div className="mx-6 mt-6 p-4 rounded-2xl bg-orange-50 border border-orange-100">
-                            <p className="text-xs font-bold uppercase tracking-wider text-gray-500 mb-1">Comentario de revisión</p>
+                            <p className="text-xs font-bold uppercase tracking-wider text-gray-500 mb-1">
+                                Comentario de revisión{piece.cambio_tipo ? ` · cambiar ${CAMBIO_LABEL[piece.cambio_tipo].toLowerCase()}` : ''}
+                            </p>
                             <p className="text-sm text-gray-800 whitespace-pre-line">{piece.comentario_cliente}</p>
                         </div>
                     )}
@@ -514,14 +523,24 @@ export const PieceDetailModal: React.FC<PieceDetailModalProps> = ({ piece, onClo
                         {canReview ? (
                             askingChanges ? (
                                 <div className="space-y-3">
-                                    <label htmlFor="review-comment" className="text-sm font-bold text-gray-800">¿Qué cambiarías?</label>
+                                    <fieldset>
+                                        <legend className="text-sm font-bold text-gray-800 mb-2">¿Qué quieres cambiar?</legend>
+                                        <div className="grid grid-cols-3 gap-2" role="radiogroup">
+                                            {(Object.keys(CAMBIO_LABEL) as api.CambioTipo[]).map((t) => (
+                                                <button key={t} type="button" role="radio" aria-checked={cambioTipo === t} onClick={() => setCambioTipo(t)}
+                                                    className={`py-2.5 rounded-xl border text-sm font-bold transition-colors ${cambioTipo === t ? 'border-gray-900 bg-gray-900 text-white' : 'border-gray-200 text-gray-700 hover:bg-gray-50'}`}>
+                                                    {CAMBIO_LABEL[t]}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </fieldset>
+                                    <label htmlFor="review-comment" className="block text-sm font-bold text-gray-800">¿Qué cambiarías?</label>
                                     <textarea
                                         id="review-comment"
                                         value={comment}
                                         onChange={(e) => setComment(e.target.value)}
                                         rows={3}
-                                        autoFocus
-                                        placeholder="Ej. El titular no refleja nuestro tono, preferimos una foto con personas…"
+                                        placeholder={cambioTipo === 'texto' ? 'Ej. El titular no refleja nuestro tono; quiten el precio del texto…' : cambioTipo === 'imagen' ? 'Ej. Preferimos una foto con personas; el logo se ve muy pequeño…' : 'Ej. El titular no refleja nuestro tono y preferimos una foto con personas…'}
                                         className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-pink-500/20 focus:border-pink-500"
                                     />
                                     <div className="flex gap-2">

@@ -2,9 +2,9 @@
  * ValidacionView - Fase 6
  *
  * La mesa de revisión del cliente: solo muestra lo que necesita su decisión
- * (piezas por revisar y las que devolvió con cambios). Es la única escritura
- * desde la app en esta cadena: aprobar o pedir cambios (siempre una persona).
- * Lo que está en producción vive en Planificación; lo aprobado, en Publicación.
+ * (piezas terminadas por revisar, primero las que salen antes, y las que devolvió
+ * con cambios, diciendo si es la imagen, el texto o ambos). Lo aprobado pasa a Publicación.
+ * El equipo ve además "Por entregar": ahí sube cada pieza final tras el postprocesado.
  */
 
 import React, { useMemo, useState } from 'react';
@@ -16,8 +16,9 @@ import { useContentPieces } from '../hooks/useContentPieces';
 import * as api from '../services/api';
 import {
     STAGE_META, PilarBadge, FormatoBadge, PieceCover, NoClientSelected, LoadingBlock,
-    PieceDetailModal, OtherStations, pieceStage, formatFecha,
+    PieceDetailModal, OtherStations, pieceStage, formatFecha, CAMBIO_LABEL,
 } from './content/ContentPieceUI';
+import { DeliveryQueue, DeliveryModal, DueBadge } from './content/DeliveryUI';
 
 const ChangesIcon = STAGE_META.cambios.icon;
 
@@ -27,6 +28,8 @@ export const ValidacionView: React.FC<{ onNavigate?: (view: string) => void; cli
     // Every month: a piece waiting for the client never falls out of view because the month changed.
     const { pieces, loading, error, replacePiece } = useContentPieces(clientId);
     const [selected, setSelected] = useState<api.ContentPiece | null>(null);
+    const [delivering, setDelivering] = useState<api.ContentPiece | null>(null);
+    const isTeam = !!user?.isAdmin;
 
     const { toReview, withChanges } = useMemo(() => {
         const byDate = [...pieces].sort((a, b) => a.fecha.localeCompare(b.fecha));
@@ -36,10 +39,15 @@ export const ValidacionView: React.FC<{ onNavigate?: (view: string) => void; cli
         };
     }, [pieces]);
 
-    const handleReview = async (estado: 'Aprobado' | 'Cambios solicitados', comentario?: string) => {
+    const handleReview = async (estado: 'Aprobado' | 'Cambios solicitados', comentario?: string, cambioTipo?: api.CambioTipo) => {
         if (!clientId || !selected) return;
-        const updated = await api.reviewContentPiece(clientId, selected.id, estado, comentario);
+        const updated = await api.reviewContentPiece(clientId, selected.id, estado, comentario, cambioTipo);
         replacePiece(updated);
+    };
+
+    const handleUpload = async (files: File[], generadaConIa: boolean) => {
+        if (!clientId || !delivering) return;
+        replacePiece(await api.uploadPieceFinals(clientId, delivering.id, files, generadaConIa));
     };
 
     return (
@@ -52,6 +60,8 @@ export const ValidacionView: React.FC<{ onNavigate?: (view: string) => void; cli
                     <>
                         {error && <p className="mb-4 text-sm text-red-600">{error}</p>}
 
+                        {isTeam && <DeliveryQueue pieces={pieces} onOpen={setDelivering} />}
+
                         <div className={`grid grid-cols-1 lg:grid-cols-3 gap-6 transition-opacity ${loading ? 'opacity-50' : ''}`}>
                             {/* What the client must decide */}
                             <section className="lg:col-span-2" aria-label="Por revisar">
@@ -63,7 +73,7 @@ export const ValidacionView: React.FC<{ onNavigate?: (view: string) => void; cli
                                         </p>
                                     </div>
                                     <p className="text-sm text-gray-500 max-w-xs text-right hidden md:block">
-                                        Abre una pieza para ver el diseño final y el copy de cada red. Solo lo que apruebes pasa a Publicación.
+                                        Primero las que salen antes. Abre cada una para ver el diseño final y su texto; solo lo que apruebes pasa a Publicación.
                                     </p>
                                 </div>
 
@@ -101,6 +111,7 @@ export const ValidacionView: React.FC<{ onNavigate?: (view: string) => void; cli
                                         >
                                             <span className="text-[11px] font-semibold uppercase tracking-wider text-gray-400">{formatFecha(piece.fecha)}</span>
                                             <p className="text-sm font-bold text-gray-900 leading-snug line-clamp-2 mt-0.5">{piece.topico_angulo || 'Pieza sin tópico'}</p>
+                                            {piece.cambio_tipo && <span className="block mt-1 text-xs font-semibold text-gray-700">Cambiar: {CAMBIO_LABEL[piece.cambio_tipo].toLowerCase()}</span>}
                                             {piece.comentario_cliente && (
                                                 <p className="mt-2 text-xs text-gray-600 italic line-clamp-2 border-l-2 border-orange-200 pl-2">“{piece.comentario_cliente}”</p>
                                             )}
@@ -119,6 +130,7 @@ export const ValidacionView: React.FC<{ onNavigate?: (view: string) => void; cli
             {selected && (
                 <PieceDetailModal piece={selected} onClose={() => setSelected(null)} onReview={handleReview} />
             )}
+            {delivering && <DeliveryModal piece={delivering} onClose={() => setDelivering(null)} onUpload={handleUpload} />}
         </div>
     );
 };
@@ -130,7 +142,7 @@ const ReviewCard: React.FC<{ piece: api.ContentPiece; onOpen: () => void }> = ({
     >
         <PieceCover piece={piece} className="w-28 shrink-0 aspect-[4/5]" compact />
         <div className="p-4 min-w-0 flex flex-col gap-2">
-            <span className="text-[11px] font-semibold uppercase tracking-wider text-gray-400">{formatFecha(piece.fecha, { weekday: 'short', day: 'numeric', month: 'short' })}</span>
+            <DueBadge fecha={piece.fecha} />
             <p className="text-sm font-bold text-gray-900 leading-snug line-clamp-3">{piece.topico_angulo || 'Pieza sin tópico'}</p>
             <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-auto">
                 <FormatoBadge formato={piece.formato} />
