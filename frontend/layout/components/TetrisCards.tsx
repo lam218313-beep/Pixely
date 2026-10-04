@@ -70,7 +70,7 @@ const cards: CardData[] = [
   {
     id: 8,
     title: "30 días",
-    description: "Cada mes: plan, producción, tu revisión y publicación programada. Todo lo publicado queda archivado en tu Repositorio, mes a mes.",
+    description: "Cada mes: apruebas las ideas, revisas las piezas terminadas y ves en Publicaciones qué sale, cuándo y cómo le fue.",
     icon: <Calendar className="w-8 h-8 md:w-10 md:h-10 text-rose-500" />,
     gridClass: "md:col-span-2 md:row-span-1",
     hoverClass: "md:group-hover:w-[calc(200%+1rem)] md:group-hover:-ml-[calc(100%+1rem)]"

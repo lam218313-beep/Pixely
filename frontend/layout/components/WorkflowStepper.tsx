@@ -1,19 +1,18 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { CalendarRange, CheckCircle2, Images, Send } from 'lucide-react';
+import { CalendarRange, CheckCircle2, Send } from 'lucide-react';
 
 interface WorkflowStepperProps {
-    currentStep: 1 | 2 | 3 | 4;
+    currentStep: 1 | 2 | 3;
     onNavigate: (viewId: string) => void;
 }
 
 // Only "Contenido": the content production line. Brand pages (Ficha, Manual, Análisis,
 // Mercado, Estrategia) are reference material, not steps, so they carry no stepper.
 const TABS = [
-    { id: 'work', label: 'Planificación', icon: CalendarRange, desc: 'Plan del mes y piezas en producción' },
-    { id: 'validacion', label: 'Validación', icon: CheckCircle2, desc: 'Aprobación del cliente' },
-    { id: 'publicacion', label: 'Publicación', icon: Send, desc: 'Aprobadas y programadas' },
-    { id: 'repositorio', label: 'Repositorio', icon: Images, desc: 'Archivo de lo publicado' },
+    { id: 'work', label: 'Planificación', icon: CalendarRange, desc: 'Aprobar las ideas del mes' },
+    { id: 'validacion', label: 'Validación', icon: CheckCircle2, desc: 'Aprobar las piezas terminadas' },
+    { id: 'publicacion', label: 'Publicaciones', icon: Send, desc: 'Agenda, archivo y resultados' },
 ];
 
 export const WorkflowStepper: React.FC<WorkflowStepperProps> = ({ currentStep, onNavigate }) => {

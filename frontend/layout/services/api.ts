@@ -537,6 +537,8 @@ export interface ContentPiece {
   generada_con_ia: boolean | null;   // set by whoever uploads the finals
   entregada_at: string | null;
   entregada_por: string | null;
+  publicada_at: string | null;   // exact date-time scheduled in Metricool (/05_publicar)
+  metricool_uuid: string | null;
   created_at: string;
 }
 
@@ -561,6 +563,44 @@ export async function approvePendingPlan(clientId: string, month: string): Promi
     headers: getAuthHeaders(),
   });
   const result = await handleResponse<{ status: string; data: ContentPiece[] }>(response);
+  return result.data;
+}
+
+// --- Results (Metricool), shown in Publicaciones ---
+
+export type MetricRed = 'instagram' | 'facebook' | 'linkedin' | 'tiktok' | 'pinterest' | 'gbp' | 'youtube' | 'x';
+
+export interface PieceMetric {
+  piece_id: string;
+  red: MetricRed;
+  post_url: string | null;
+  publicado_at: string | null;
+  alcance: number | null;
+  vistas: number | null;
+  interacciones: number | null;
+  likes: number | null;
+  comentarios: number | null;
+  guardados: number | null;
+  compartidos: number | null;
+  nuevos_seguidores: number | null;
+  actualizado_at: string;
+}
+
+export interface CompetitorBenchmark {
+  mes: string;
+  red: 'instagram' | 'facebook' | 'youtube' | 'x';
+  competidor: string;
+  seguidores: number | null;
+  posts: number | null;
+  reels: number | null;
+  interacciones_prom: number | null;  // average likes + comments per publication that month
+  engagement: number | null;
+  actualizado_at: string;
+}
+
+export async function getResults(clientId: string, month: string): Promise<{ metrics: PieceMetric[]; competitors: CompetitorBenchmark[] }> {
+  const response = await fetch(`${API_BASE_URL}/content/${clientId}/results?month=${encodeURIComponent(month)}`, { headers: getAuthHeaders() });
+  const result = await handleResponse<{ status: string; data: { metrics: PieceMetric[]; competitors: CompetitorBenchmark[] } }>(response);
   return result.data;
 }
 

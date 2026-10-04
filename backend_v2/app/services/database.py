@@ -469,4 +469,27 @@ class SupabaseService:
         response = self.client.table("content_pieces").update(data).eq("id", piece_id).eq("client_id", client_id).execute()
         return response.data[0] if response.data else None
 
+    def get_piece_metrics(self, client_id: str, piece_ids: List[str]) -> List[dict]:
+        """Per-network results of published pieces (piece_metrics), as brought from Metricool."""
+        if not self.client or not piece_ids: return []
+        try:
+            response = self.client.table("piece_metrics").select("*").eq("client_id", client_id).in_("piece_id", piece_ids).execute()
+            return response.data or []
+        except Exception as e:
+            logger.error(f"DB Get Piece Metrics Error: {e}")
+            return []
+
+    def get_competitor_benchmarks(self, client_id: str, month: str) -> List[dict]:
+        """Competitors' monthly averages from Metricool; falls back to the latest month before it."""
+        if not self.client: return []
+        try:
+            response = (self.client.table("competitor_benchmarks").select("*").eq("client_id", client_id)
+                        .lte("mes", month).order("mes", desc=True).limit(50).execute())
+            rows = response.data or []
+            latest = rows[0]["mes"] if rows else None
+            return [r for r in rows if r["mes"] == latest]
+        except Exception as e:
+            logger.error(f"DB Get Competitor Benchmarks Error: {e}")
+            return []
+
 db = SupabaseService()

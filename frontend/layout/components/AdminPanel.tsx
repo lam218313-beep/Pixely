@@ -9,7 +9,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
     Plus, Building2, Users, ChevronRight, X, Loader2,
     ClipboardList, BookOpen, Target, Calendar,
-    Check, Clock, Play, ArrowLeft, Edit2, Trash2, RefreshCw, Radar, Images, CheckCircle2, Send, CalendarRange
+    Check, Clock, Play, ArrowLeft, Edit2, Trash2, RefreshCw, Radar, CheckCircle2, Send, CalendarRange
 } from 'lucide-react';
 import * as api from '../services/api';
 
@@ -18,9 +18,8 @@ import BrandBookApp from '../brand-book/App';
 import StrategyApp from '../estrategia/App';
 import { MercadoView } from './MercadoView';
 import { PlanificacionView } from './PlanificacionView';
-import { RepositorioView } from './RepositorioView';
 import { ValidacionView } from './ValidacionView';
-import { PublicacionView } from './PublicacionView';
+import { PublicacionesView } from './PublicacionesView';
 
 // =============================================================================
 // MODULE CONFIG
@@ -31,8 +30,7 @@ const PHASE_VIEWS = {
     mercado: { label: 'Mercado', icon: Radar, Component: MercadoView },
     planificacion: { label: 'Planificación', icon: CalendarRange, Component: PlanificacionView },
     validacion: { label: 'Validación', icon: CheckCircle2, Component: ValidacionView },
-    publicacion: { label: 'Publicación', icon: Send, Component: PublicacionView },
-    repositorio: { label: 'Repositorio', icon: Images, Component: RepositorioView },
+    publicacion: { label: 'Publicaciones', icon: Send, Component: PublicacionesView },
 } satisfies Record<string, { label: string; icon: React.ElementType; Component: React.FC<{ clientId?: string }> }>;
 
 type PhaseKey = keyof typeof PHASE_VIEWS;
