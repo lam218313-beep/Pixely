@@ -394,7 +394,7 @@ class SupabaseService:
             return []
 
     def has_content_pieces(self, client_id: str) -> bool:
-        """True once /02_crearcronograma has written at least one piece for this client."""
+        """True once /05_planificacion has written at least one piece for this client."""
         if not self.client:
             return False
         try:
@@ -404,8 +404,22 @@ class SupabaseService:
             logger.error(f"DB has_content_pieces Error: {e}")
             return False
 
+    def get_plan_review(self, client_id: str, month: str) -> Optional[dict]:
+        """The client's approval of one month's plan (plan_reviews), if any."""
+        if not self.client: return None
+        try:
+            response = self.client.table("plan_reviews").select("*").eq("client_id", client_id).eq("mes", month).limit(1).execute()
+            return response.data[0] if response.data else None
+        except Exception as e:
+            logger.error(f"DB Get Plan Review Error: {e}")
+            return None
+
+    def save_plan_review(self, client_id: str, month: str, data: dict) -> None:
+        if not self.client: return
+        self.client.table("plan_reviews").upsert({"client_id": client_id, "mes": month, **data}, on_conflict="client_id,mes").execute()
+
     def get_content_pieces(self, client_id: str, month: Optional[str] = None) -> List[dict]:
-        """Pieces written by the Claude Desktop pipeline (02 crea, 03 copy, 04 render, 05 publica). month = 'YYYY-MM'."""
+        """Pieces written by the Claude Desktop pipeline (05_planificacion creates them, then copy, render and publishing). month = 'YYYY-MM'."""
         if not self.client: return []
         try:
             query = self.client.table("content_pieces").select("*").eq("client_id", client_id)

@@ -490,7 +490,7 @@ const BrandDetailView: React.FC<{ brandId: string; onBack: () => void; onNavigat
                                 if (mod.id === 'strategy' && mod.status === 'completed') {
                                     setShowStrategy(true);
                                 }
-                                // The month's plan is written by /02_crearcronograma (Claude Desktop); here it is only viewed.
+                                // The month's plan is written by /05_planificacion (Claude Desktop); here it is only viewed.
                                 if (mod.id === 'schedule' && mod.can_execute) {
                                     setPhaseView('planificacion');
                                 }
