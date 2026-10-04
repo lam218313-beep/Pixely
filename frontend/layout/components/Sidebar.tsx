@@ -52,6 +52,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isExpanded, setIsExpanded, act
             <nav className="flex-1 flex flex-col justify-center gap-1 px-2 w-full overflow-y-auto custom-scrollbar" role="navigation" aria-label="Navegación principal">
                 <SidebarItem icon={Home} label="Inicio" viewId="partners" isActive={activeView === 'partners'} onClick={setActiveView} />
 
+                {!(user?.isAdmin && !clientId) && <>
                 <SidebarGroup label="Tu marca">
                     <SidebarItem icon={ClipboardList} label="Ficha" viewId="interview" isActive={activeView === 'interview'} onClick={setActiveView} />
                     <SidebarItem icon={Palette} label="Voz de marca" viewId="brand" isActive={activeView === 'brand'} onClick={setActiveView} />
@@ -64,11 +65,12 @@ export const Sidebar: React.FC<SidebarProps> = ({ isExpanded, setIsExpanded, act
                     <SidebarItem icon={CheckCircle2} label="Validación" viewId="validacion" isActive={activeView === 'validacion'} onClick={setActiveView} badge={toReview} />
                     <SidebarItem icon={Send} label="Publicaciones" viewId="publicacion" isActive={activeView === 'publicacion' || activeView === 'repositorio'} onClick={setActiveView} />
                 </SidebarGroup>
+                </>}
 
                 {/* Admin Panel - Only visible for admin users */}
                 {user?.isAdmin && (
                     <div className="pt-3 mt-2 border-t border-gray-100">
-                        <SidebarItem icon={Shield} label="Admin" viewId="admin" isActive={activeView === 'admin'} onClick={setActiveView} />
+                        <SidebarItem icon={Shield} label="Panel del equipo" viewId="admin" isActive={activeView === 'admin'} onClick={setActiveView} />
                     </div>
                 )}
             </nav>

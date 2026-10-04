@@ -121,7 +121,8 @@ const AppContent: React.FC = () => {
       // Skip animation if already authenticated
       setDisplayUser(authUser.email.split('@')[0]);
       setFlow('DASHBOARD_ACTIVE');
-      setActiveView('partners');
+      // The team lands on its board; client pages only make sense inside a brand
+      setActiveView(authUser.isAdmin && !authUser.fichaClienteId ? 'admin' : 'partners');
 
       // Check if tutorial has been seen
       const seen = localStorage.getItem('pixely_tutorial_seen_v2');
