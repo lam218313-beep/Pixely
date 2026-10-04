@@ -16,9 +16,8 @@ const AdminPanel = lazy(() => import('./components/AdminPanel.tsx').then(m => ({
 const InterviewView = lazy(() => import('./components/InterviewView.tsx').then(m => ({ default: m.InterviewView })));
 const BrandView = lazy(() => import('./components/BrandView.tsx').then(m => ({ default: m.BrandView })));
 const StrategyView = lazy(() => import('./components/StrategyView.tsx').then(m => ({ default: m.StrategyView })));
-const RepositorioView = lazy(() => import('./components/RepositorioView.tsx').then(m => ({ default: m.RepositorioView })));
 const ValidacionView = lazy(() => import('./components/ValidacionView.tsx').then(m => ({ default: m.ValidacionView })));
-const PublicacionView = lazy(() => import('./components/PublicacionView.tsx').then(m => ({ default: m.PublicacionView })));
+const PublicacionesView = lazy(() => import('./components/PublicacionesView.tsx').then(m => ({ default: m.PublicacionesView })));
 
 // =============================================================================
 // ERROR BOUNDARY
@@ -224,13 +223,13 @@ const AppContent: React.FC = () => {
       case 'publicacion':
         return (
           <ErrorBoundary key={viewKey}>
-            <PublicacionView onNavigate={handleNavigate} />
+            <PublicacionesView onNavigate={handleNavigate} />
           </ErrorBoundary>
         );
       case 'repositorio':
         return (
           <ErrorBoundary key={viewKey}>
-            <RepositorioView onNavigate={handleNavigate} />
+            <PublicacionesView onNavigate={handleNavigate} initialTab="publicadas" />
           </ErrorBoundary>
         );
       case 'admin':

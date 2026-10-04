@@ -3,7 +3,7 @@
  *
  * La mesa de revisión del cliente: solo muestra lo que necesita su decisión
  * (piezas terminadas por revisar, primero las que salen antes, y las que devolvió
- * con cambios, diciendo si es la imagen, el texto o ambos). Lo aprobado pasa a Publicación.
+ * con cambios, diciendo si es la imagen, el texto o ambos). Lo aprobado pasa a Publicaciones.
  * El equipo ve además "Por entregar": ahí sube cada pieza final tras el postprocesado.
  */
 
@@ -73,7 +73,7 @@ export const ValidacionView: React.FC<{ onNavigate?: (view: string) => void; cli
                                         </p>
                                     </div>
                                     <p className="text-sm text-gray-500 max-w-xs text-right hidden md:block">
-                                        Primero las que salen antes. Abre cada una para ver el diseño final y su texto; solo lo que apruebes pasa a Publicación.
+                                        Primero las que salen antes. Abre cada una para ver el diseño final y su texto; solo lo que apruebes pasa a Publicaciones.
                                     </p>
                                 </div>
 

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { LayoutGrid, Home, Power, Shield, ClipboardList, Palette, CalendarRange, CheckCircle2, Radar, Images, Send } from 'lucide-react';
+import { LayoutGrid, Home, Power, Shield, ClipboardList, Palette, CalendarRange, CheckCircle2, Radar, Send } from 'lucide-react';
 import pixelyLogo from '../src/assets/logo.png';
 import { useAuth } from '../contexts/AuthContext';
 import * as api from '../services/api';
@@ -62,11 +62,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isExpanded, setIsExpanded, act
                 <SidebarGroup label="Contenido">
                     <SidebarItem icon={CalendarRange} label="Planificación" viewId="work" isActive={activeView === 'work'} onClick={setActiveView} />
                     <SidebarItem icon={CheckCircle2} label="Validación" viewId="validacion" isActive={activeView === 'validacion'} onClick={setActiveView} badge={toReview} />
-                    <SidebarItem icon={Send} label="Publicación" viewId="publicacion" isActive={activeView === 'publicacion'} onClick={setActiveView} />
-                </SidebarGroup>
-
-                <SidebarGroup label="Archivo">
-                    <SidebarItem icon={Images} label="Repositorio" viewId="repositorio" isActive={activeView === 'repositorio'} onClick={setActiveView} />
+                    <SidebarItem icon={Send} label="Publicaciones" viewId="publicacion" isActive={activeView === 'publicacion' || activeView === 'repositorio'} onClick={setActiveView} />
                 </SidebarGroup>
 
                 {/* Admin Panel - Only visible for admin users */}

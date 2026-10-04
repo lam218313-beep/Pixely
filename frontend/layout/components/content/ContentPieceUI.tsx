@@ -1,6 +1,6 @@
 /**
  * Shared building blocks for the content production line over content_pieces:
- * Planificación (5) → Validación (6) → Publicación (7) → Repositorio (8).
+ * Planificación (5) → Validación (6) → Publicaciones (7: próximas y publicadas, con sus resultados).
  * Each piece sits in exactly one station at a time; `pieceStage` decides which.
  */
 
@@ -39,13 +39,13 @@ export const STAGE_META: Record<PieceStage, { label: string; color: string; icon
 };
 
 /** The station (view) that owns each stage — the one place a piece is shown as a card. */
-export const STAGE_STATION: Record<PieceStage, 'work' | 'validacion' | 'publicacion' | 'repositorio'> = {
+export const STAGE_STATION: Record<PieceStage, 'work' | 'validacion' | 'publicacion'> = {
     produccion: 'work',
     revision: 'validacion',
     cambios: 'validacion',
     aprobada: 'publicacion',
     programada: 'publicacion',
-    publicada: 'repositorio',
+    publicada: 'publicacion',
 };
 
 const COPY_FIELDS: { key: keyof api.ContentPiece; label: string }[] = [
@@ -215,8 +215,7 @@ export const NoClientSelected: React.FC = () => (
 const STATION_LABEL: Record<(typeof STAGE_STATION)[PieceStage], string> = {
     work: 'Planificación',
     validacion: 'Validación',
-    publicacion: 'Publicación',
-    repositorio: 'Repositorio',
+    publicacion: 'Publicaciones',
 };
 
 /** One line pointing to the other stations (counts only, never their cards), so no piece is listed twice. */
@@ -230,7 +229,7 @@ export const OtherStations: React.FC<{
         const station = STAGE_STATION[pieceStage(p)];
         if (station !== current) counts.set(station, (counts.get(station) ?? 0) + 1);
     });
-    const order = (['work', 'validacion', 'publicacion', 'repositorio'] as const).filter((s) => counts.get(s));
+    const order = (['work', 'validacion', 'publicacion'] as const).filter((s) => counts.get(s));
     if (order.length === 0) return null;
     return (
         <p className="mt-6 text-sm text-gray-500">
@@ -254,12 +253,14 @@ export const LoadingBlock: React.FC = () => (
     </div>
 );
 
-// --- Piece detail (read-only, or with review actions in Validación / Publicación) ---
+// --- Piece detail (read-only, or with review actions in Validación / Publicaciones) ---
 
 interface PieceDetailModalProps {
     piece: api.ContentPiece;
     onClose: () => void;
     onReview?: (estado: 'Aprobado' | 'Cambios solicitados', comentario?: string, cambioTipo?: api.CambioTipo) => Promise<void>;
+    /** Extra section shown right under the title (e.g. the results of a published piece). */
+    children?: React.ReactNode;
 }
 
 export const CAMBIO_LABEL: Record<api.CambioTipo, string> = { imagen: 'La imagen', texto: 'El texto', ambos: 'Ambos' };
@@ -365,7 +366,7 @@ export const PieceWhyLine: React.FC<{ piece: api.ContentPiece; index?: StrategyI
     );
 };
 
-export const PieceDetailModal: React.FC<PieceDetailModalProps> = ({ piece, onClose, onReview }) => {
+export const PieceDetailModal: React.FC<PieceDetailModalProps> = ({ piece, onClose, onReview, children }) => {
     const assets = finalAssets(piece);
     const slides = assets.length > 0 ? assets : [safeUrl(piece.url_imagen)].filter((u): u is string => !!u);
     const copies = COPY_FIELDS.filter(({ key }) => !!piece[key]);
@@ -478,6 +479,7 @@ export const PieceDetailModal: React.FC<PieceDetailModalProps> = ({ piece, onClo
                         <h3 className="text-xl font-bold text-gray-900 leading-snug">{piece.topico_angulo || 'Pieza sin tópico'}</h3>
                     </div>
 
+                    {children}
                     <PieceStrategy links={links} />
                     <PieceReasoning piece={piece} />
 

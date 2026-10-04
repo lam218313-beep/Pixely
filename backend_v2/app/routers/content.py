@@ -180,3 +180,17 @@ async def upload_finals(
     updated = db.save_piece_finals(client_id, str(piece_id), urls, generada_con_ia, user.get("email") or user.get("id"),
                                    back_to_review=piece.get("estado_aprobacion") == "Cambios solicitados")
     return {"status": "success", "data": updated or piece}
+
+
+# --- Results of what was published (Metricool), read by Publicaciones ---
+# /05_publicar (modo resultados) writes piece_metrics; /01 and /03 write competitor_benchmarks.
+
+@router.get("/{client_id}/results")
+async def get_results(
+    client_id: str,
+    month: str = Query(..., pattern=MONTH),
+    _user: dict = Depends(verify_client_access),
+):
+    pieces = db.get_content_pieces(client_id, month)
+    metrics = db.get_piece_metrics(client_id, [p["id"] for p in pieces])
+    return {"status": "success", "data": {"metrics": metrics, "competitors": db.get_competitor_benchmarks(client_id, month)}}
