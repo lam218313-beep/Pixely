@@ -4,7 +4,7 @@ import { AnimatedHeaderCard } from './AnimatedHeaderCard';
 
 export const BrandView: React.FC<{ onNavigate?: (view: string) => void; clientId?: string }> = ({ clientId }) => {
     return (
-        <div className="h-full overflow-y-auto custom-scrollbar animate-fade-in-up bg-[#F4F7FE] p-4 md:p-8">
+        <div className="h-full overflow-y-auto custom-scrollbar animate-fade-in-up bg-[#0A0A0C] p-4 md:p-8">
             <div className="max-w-7xl mx-auto">
 
                 <AnimatedHeaderCard

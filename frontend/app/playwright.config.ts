@@ -27,6 +27,8 @@ export default defineConfig({
     { name: 'android', use: { ...devices['Pixel 7'] } },
     // A small iPhone-sized screen (Chromium engine; WebKit isn't installed here).
     { name: 'iphone-se', use: { browserName: 'chromium', viewport: { width: 375, height: 667 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true } },
+    // Clients also use the app on a computer (side column instead of the bottom bar).
+    { name: 'computadora', use: { ...devices['Desktop Chrome'], viewport: { width: 1440, height: 900 } } },
   ],
   webServer: {
     command: `npx vite build --mode e2e --outDir dist-e2e && npx vite preview --outDir dist-e2e --port ${PORT} --strictPort`,

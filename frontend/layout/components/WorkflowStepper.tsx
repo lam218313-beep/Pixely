@@ -27,10 +27,10 @@ export const WorkflowStepper: React.FC<WorkflowStepperProps> = ({ currentStep, o
 
                 {/* Progress Line Background */}
                 {/* Line runs through the circle centers: py-6 + half a circle, minus half the line height */}
-                <div className="absolute top-[39px] md:top-[45px] left-[26px] right-[26px] md:left-[60px] md:right-[60px] h-1.5 bg-gray-300 rounded-full z-0 overflow-hidden">
+                <div className="absolute top-[39px] md:top-[45px] left-[26px] right-[26px] md:left-[60px] md:right-[60px] h-1.5 bg-line rounded-full z-0 overflow-hidden">
                     {/* Animated Progress Line Foreground */}
                     <motion.div
-                        className="h-full bg-primary-500 rounded-full"
+                        className="h-full bg-pink-fill rounded-full"
                         initial={{ width: '0%' }}
                         animate={{ width: `${(activeTab / (TABS.length - 1)) * 100}%` }}
                         transition={{ type: "spring", stiffness: 300, damping: 30 }}
@@ -52,10 +52,10 @@ export const WorkflowStepper: React.FC<WorkflowStepperProps> = ({ currentStep, o
                                 {/* Icon Circle */}
                                 <motion.div
                                     className={`w-9 h-9 md:w-12 md:h-12 rounded-full flex items-center justify-center border-4 transition-colors duration-300 relative ${isActive
-                                        ? 'bg-primary-500 border-primary-100 text-white shadow-[0_0_20px_rgba(242,15,121,0.4)]'
+                                        ? 'bg-pink-fill border-pink text-white shadow-[0_0_20px_rgba(242,15,121,0.4)]'
                                         : isCompleted
-                                            ? 'bg-primary-500 border-primary-500 text-white'
-                                            : 'bg-white border-gray-300 text-gray-400 hover:border-primary-200 hover:text-primary-500'
+                                            ? 'bg-pink-fill border-pink text-white'
+                                            : 'bg-card border-line text-text-3 hover:border-pink hover:text-pink-text'
                                         }`}
                                     whileHover={{ scale: 1.1 }}
                                     whileTap={{ scale: 0.95 }}
@@ -66,7 +66,7 @@ export const WorkflowStepper: React.FC<WorkflowStepperProps> = ({ currentStep, o
                                     {/* Ripple effect for active */}
                                     {isActive && (
                                         <motion.div
-                                            className="absolute inset-0 rounded-full border-2 border-primary-500"
+                                            className="absolute inset-0 rounded-full border-2 border-pink"
                                             initial={{ scale: 1, opacity: 1 }}
                                             animate={{ scale: 1.6, opacity: 0 }}
                                             transition={{ repeat: Infinity, duration: 1.5 }}
@@ -76,7 +76,7 @@ export const WorkflowStepper: React.FC<WorkflowStepperProps> = ({ currentStep, o
 
                                 {/* Label (desktop only: on a phone the line below names the current step) */}
                                 <div className="text-center hidden md:block">
-                                    <p className={`text-sm font-bold transition-colors duration-300 ${isActive ? 'text-primary-600' : isCompleted ? 'text-brand-dark' : 'text-gray-400'
+                                    <p className={`text-sm font-bold transition-colors duration-300 ${isActive ? 'text-pink-text' : isCompleted ? 'text-white' : 'text-text-3'
                                         }`}>
                                         {tab.label}
                                     </p>
@@ -88,7 +88,7 @@ export const WorkflowStepper: React.FC<WorkflowStepperProps> = ({ currentStep, o
                 </div>
 
                 {/* Phone: name only the current step */}
-                <p className="md:hidden mt-3 text-center text-sm font-bold text-primary-600">
+                <p className="md:hidden mt-3 text-center text-sm font-bold text-pink-text">
                     Paso {currentStep} de {TABS.length} · {TABS[activeTab].label}
                 </p>
             </div>

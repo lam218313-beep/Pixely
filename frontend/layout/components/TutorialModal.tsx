@@ -57,7 +57,7 @@ const SlideGraphic: React.FC<{ Icon: any; isActive: boolean; slideIndex: number 
                             y: isActive ? [0, -8, 0] : 0,
                         }}
                         transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-                        className="relative bg-white/20 backdrop-blur-xl rounded-[32px] p-12 border-2 border-white/30"
+                        className="relative bg-white/20 backdrop-blur-xl rounded-[32px] p-12 border-2 border-edge/30"
                         style={{
                             boxShadow: '0 20px 60px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.6)',
                             background: 'linear-gradient(135deg, rgba(255,255,255,0.25), rgba(255,255,255,0.1))'
@@ -153,7 +153,7 @@ export const TutorialModal: React.FC<TutorialModalProps> = ({ isOpen, onClose, s
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         onClick={onClose}
-                        className="absolute inset-0 bg-gradient-to-br from-slate-900/40 via-slate-800/30 to-slate-900/40 backdrop-blur-md"
+                        className="absolute inset-0 bg-gradient-to-br from-ink/40 via-ink/30 to-ink/40 backdrop-blur-md"
                     />
 
                     {/* Premium Glassmorphism Modal Card */}
@@ -229,7 +229,7 @@ export const TutorialModal: React.FC<TutorialModalProps> = ({ isOpen, onClose, s
                         <div className="flex-1 flex flex-col relative">
                             {/* Modern Premium Header */}
                             <div
-                                className="px-10 md:px-12 py-6 border-b border-slate-200/40"
+                                className="px-10 md:px-12 py-6 border-b border-edge/40"
                                 style={{
                                     background: 'linear-gradient(135deg, rgba(255,255,255,0.6), rgba(255,255,255,0.4))',
                                     backdropFilter: 'blur(10px)'
@@ -241,36 +241,36 @@ export const TutorialModal: React.FC<TutorialModalProps> = ({ isOpen, onClose, s
                                         <div
                                             className="w-10 h-10 rounded-xl flex items-center justify-center"
                                             style={{
-                                                background: 'linear-gradient(135deg, #ec4899, #f43f5e)',
+                                                background: 'linear-gradient(135deg, #EB0C6E, #EB0C6E)',
                                                 boxShadow: '0 4px 12px rgba(236, 72, 153, 0.3)'
                                             }}
                                         >
                                             <Sparkles size={20} className="text-white" strokeWidth={2.5} />
                                         </div>
                                         <div>
-                                            <h3 className="text-sm font-bold text-slate-900">Pixely Partners</h3>
-                                            <p className="text-xs text-slate-500 font-medium">Tutorial Interactivo</p>
+                                            <h3 className="text-sm font-bold text-white">Pixely Partners</h3>
+                                            <p className="text-xs text-text-3 font-medium">Tutorial Interactivo</p>
                                         </div>
                                     </div>
 
                                     {/* Slide Counter */}
                                     <div className="flex items-center gap-4">
                                         <div
-                                            className="px-4 py-2 rounded-xl text-sm font-bold text-slate-700"
+                                            className="px-4 py-2 rounded-xl text-sm font-bold text-text-2"
                                             style={{
                                                 background: 'rgba(255,255,255,0.5)',
                                                 border: '1.5px solid rgba(255,255,255,0.8)'
                                             }}
                                         >
-                                            <span className="text-pink-600">{currentIndex + 1}</span>
-                                            <span className="text-slate-400 mx-1">/</span>
-                                            <span className="text-slate-500">{slides.length}</span>
+                                            <span className="text-pink-text">{currentIndex + 1}</span>
+                                            <span className="text-text-3 mx-1">/</span>
+                                            <span className="text-text-3">{slides.length}</span>
                                         </div>
 
                                         {/* Close Button */}
                                         <button
                                             onClick={onClose}
-                                            className="p-2.5 rounded-xl text-slate-500 hover:text-slate-800 transition-all"
+                                            className="p-2.5 rounded-xl text-text-3 hover:text-white transition-all"
                                             style={{
                                                 background: 'rgba(255,255,255,0.5)',
                                                 border: '1.5px solid rgba(255,255,255,0.7)'
@@ -292,10 +292,10 @@ export const TutorialModal: React.FC<TutorialModalProps> = ({ isOpen, onClose, s
                                         exit={{ opacity: 0, y: -10 }}
                                         transition={{ duration: 0.3 }}
                                     >
-                                        <h2 className="text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 mb-6 leading-tight tracking-tight">
+                                        <h2 className="text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-br from-ink via-ink to-ink mb-6 leading-tight tracking-tight">
                                             {slides[currentIndex].title}
                                         </h2>
-                                        <p className="text-slate-600 text-lg md:text-xl leading-relaxed font-medium">
+                                        <p className="text-text-2 text-lg md:text-xl leading-relaxed font-medium">
                                             {slides[currentIndex].description}
                                         </p>
                                     </motion.div>
@@ -308,7 +308,7 @@ export const TutorialModal: React.FC<TutorialModalProps> = ({ isOpen, onClose, s
                                 <div className="flex items-center gap-2.5">
                                     <button
                                         onClick={toggleAudio}
-                                        className="p-3 rounded-full text-slate-600 hover:text-blue-600 transition-all"
+                                        className="p-3 rounded-full text-text-2 hover:text-text-2 transition-all"
                                         style={{
                                             background: 'rgba(255,255,255,0.5)',
                                             backdropFilter: 'blur(10px)',
@@ -320,7 +320,7 @@ export const TutorialModal: React.FC<TutorialModalProps> = ({ isOpen, onClose, s
                                     </button>
                                     <button
                                         onClick={toggleMute}
-                                        className="p-3 rounded-full text-slate-600 hover:text-blue-600 transition-all"
+                                        className="p-3 rounded-full text-text-2 hover:text-text-2 transition-all"
                                         style={{
                                             background: 'rgba(255,255,255,0.5)',
                                             backdropFilter: 'blur(10px)',
@@ -341,7 +341,7 @@ export const TutorialModal: React.FC<TutorialModalProps> = ({ isOpen, onClose, s
                                                 key={idx}
                                                 className={`h-2 rounded-full transition-all duration-500 ${idx === currentIndex
                                                     ? 'w-10 bg-gradient-to-r from-pink-500 via-rose-500 to-pink-500'
-                                                    : 'w-2 bg-slate-300/60'
+                                                    : 'w-2 bg-line/60'
                                                     }`}
                                             />
                                         ))}
@@ -351,8 +351,8 @@ export const TutorialModal: React.FC<TutorialModalProps> = ({ isOpen, onClose, s
                                         onClick={handlePrev}
                                         disabled={currentIndex === 0}
                                         className={`p-3.5 rounded-full transition-all ${currentIndex === 0
-                                            ? 'text-slate-300 cursor-not-allowed'
-                                            : 'text-slate-700 hover:text-pink-600'
+                                            ? 'text-mute cursor-not-allowed'
+                                            : 'text-text-2 hover:text-pink-text'
                                             }`}
                                         style={{
                                             background: currentIndex === 0 ? 'rgba(255,255,255,0.3)' : 'rgba(255,255,255,0.5)',
@@ -367,7 +367,7 @@ export const TutorialModal: React.FC<TutorialModalProps> = ({ isOpen, onClose, s
                                         onClick={handleNext}
                                         className="flex items-center gap-2.5 px-8 py-4 text-white font-bold rounded-2xl transition-all shadow-xl group"
                                         style={{
-                                            background: 'linear-gradient(135deg, #ec4899 0%, #f43f5e 100%)',
+                                            background: 'linear-gradient(135deg, #EB0C6E 0%, #EB0C6E 100%)',
                                             boxShadow: '0 10px 40px rgba(236, 72, 153, 0.4), inset 0 1px 0 rgba(255,255,255,0.3)'
                                         }}
                                     >

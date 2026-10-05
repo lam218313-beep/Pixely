@@ -73,9 +73,9 @@ export const MagicCard: React.FC<MagicCardProps> = ({
         </div>
 
         {/* BACK FACE */}
-        <div className="absolute inset-0 backface-hidden w-full h-full rotate-y-180 bg-white rounded-[32px] shadow-xl border border-gray-100 overflow-hidden">
+        <div className="absolute inset-0 backface-hidden w-full h-full rotate-y-180 bg-card rounded-[32px] shadow-xl border border-edge overflow-hidden">
           {backContent || (
-            <div className="flex items-center justify-center h-full text-gray-400 p-6 text-center">
+            <div className="flex items-center justify-center h-full text-text-3 p-6 text-center">
               <p>Detalles adicionales no disponibles</p>
             </div>
           )}
@@ -97,18 +97,18 @@ export const DashboardHeader: React.FC<{ onRefresh?: () => void }> = ({ onRefres
     <div className="w-full bg-gradient-to-r from-primary-600 to-primary-800 rounded-[32px] p-8 text-white shadow-lg mb-8 relative overflow-hidden group">
       {/* Background Pattern */}
       <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -mr-16 -mt-16 blur-3xl group-hover:scale-110 transition-transform duration-700"></div>
-      <div className="absolute bottom-0 left-0 w-48 h-48 bg-black/10 rounded-full -ml-10 -mb-10 blur-2xl"></div>
+      <div className="absolute bottom-0 left-0 w-48 h-48 bg-raised/10 rounded-full -ml-10 -mb-10 blur-2xl"></div>
 
       <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
         <div>
-          <div className="flex items-center gap-2 text-primary-100 mb-2 text-sm font-medium">
+          <div className="flex items-center gap-2 text-pink-soft mb-2 text-sm font-medium">
             <Calendar size={16} />
             <span className="capitalize">{date}</span>
           </div>
           <h1 className="text-3xl md:text-4xl font-bold mb-1 tracking-tight">
             Dashboard Ejecutivo
           </h1>
-          <p className="text-primary-100 text-lg opacity-90">
+          <p className="text-pink-soft text-lg opacity-90">
             Análisis Estratégico Q1-Q10
           </p>
         </div>
@@ -116,12 +116,12 @@ export const DashboardHeader: React.FC<{ onRefresh?: () => void }> = ({ onRefres
         <div className="flex items-center gap-4">
           <div className="flex flex-col items-end mr-2">
             <span className="text-sm font-bold">{user?.email || 'Usuario'}</span>
-            <span className="text-xs text-primary-200 bg-primary-900/30 px-2 py-0.5 rounded-full">
+            <span className="text-xs text-pink-soft bg-pink-fill/30 px-2 py-0.5 rounded-full">
               {user?.tenantId || 'Tenant'}
             </span>
           </div>
           {/* Avatar with Initial or Logo */}
-          <div className="w-12 h-12 rounded-full border-2 border-white/20 shadow-inner bg-gradient-to-br from-primary-500 to-primary-700 flex items-center justify-center overflow-hidden">
+          <div className="w-12 h-12 rounded-full border-2 border-edge shadow-inner bg-gradient-to-br from-primary-500 to-primary-700 flex items-center justify-center overflow-hidden">
             {user?.logoUrl ? (
               <img
                 src={user.logoUrl}
@@ -137,7 +137,7 @@ export const DashboardHeader: React.FC<{ onRefresh?: () => void }> = ({ onRefres
           {onRefresh && (
             <button
               onClick={(e) => { e.stopPropagation(); onRefresh(); }}
-              className="p-3 bg-white/10 hover:bg-white/20 rounded-xl transition-colors backdrop-blur-sm border border-white/10"
+              className="p-3 bg-white/10 hover:bg-white/20 rounded-xl transition-colors backdrop-blur-sm border border-edge"
               title="Actualizar Datos"
             >
               <RefreshCw size={20} />

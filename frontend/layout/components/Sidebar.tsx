@@ -34,7 +34,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isExpanded, setIsExpanded, act
             onMouseLeave={() => setIsExpanded(false)}
             className={`
                 relative flex flex-col z-40 transition-all duration-300 ease-in-out group overflow-hidden shadow-xl 
-                rounded-[30px] border border-gray-200 font-sans bg-white text-gray-600
+                rounded-[30px] border border-edge font-sans bg-card text-text-2
                 my-4 mx-2 h-[calc(100vh-2rem)]
                 w-full
             `}
@@ -69,7 +69,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isExpanded, setIsExpanded, act
 
                 {/* Admin Panel - Only visible for admin users */}
                 {user?.isAdmin && (
-                    <div className="pt-3 mt-2 border-t border-gray-100">
+                    <div className="pt-3 mt-2 border-t border-edge">
                         <SidebarItem icon={Shield} label="Panel del equipo" viewId="admin" isActive={activeView === 'admin'} onClick={setActiveView} />
                     </div>
                 )}
@@ -77,7 +77,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isExpanded, setIsExpanded, act
 
             {/* --- Bottom User Section --- */}
             <div className="px-3 mb-2 w-full shrink-0">
-                <div className="flex items-center p-3 rounded-[20px] bg-gray-50 border border-gray-100 cursor-pointer hover:bg-gray-100 transition-colors overflow-hidden relative h-[68px] group/user">
+                <div className="flex items-center p-3 rounded-[20px] bg-raised border border-edge cursor-pointer hover:bg-raised transition-colors overflow-hidden relative h-[68px] group/user">
 
                     {/* Avatar with Initial */}
                     <div className="relative w-10 h-10 shrink-0">
@@ -85,22 +85,22 @@ export const Sidebar: React.FC<SidebarProps> = ({ isExpanded, setIsExpanded, act
                             <img
                                 src={user.logoUrl}
                                 alt="User"
-                                className="w-full h-full object-cover rounded-full border-2 border-gray-200 shadow-sm"
+                                className="w-full h-full object-cover rounded-full border-2 border-edge shadow-sm"
                             />
                         ) : (
-                            <div className="w-full h-full rounded-full border-2 border-gray-200 shadow-sm bg-gradient-to-br from-primary-500 to-primary-700 flex items-center justify-center">
+                            <div className="w-full h-full rounded-full border-2 border-edge shadow-sm bg-gradient-to-br from-primary-500 to-primary-700 flex items-center justify-center">
                                 <span className="text-white font-bold text-lg">
                                     {user?.email ? user.email.charAt(0).toUpperCase() : "U"}
                                 </span>
                             </div>
                         )}
-                        <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></div>
+                        <div className="absolute bottom-0 right-0 w-3 h-3 bg-mute border-2 border-edge rounded-full"></div>
                     </div>
 
                     {/* User Info (Reveals on hover) */}
                     <div className="ml-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300 min-w-[120px]">
-                        <span className="block text-sm font-bold text-gray-800 leading-none mb-1">{user?.email ? user.email.split('@')[0] : "Usuario Demo"}</span>
-                        <span className="block text-[10px] text-gray-500 font-medium">{user?.email || "admin@pixely.com"}</span>
+                        <span className="block text-sm font-bold text-white leading-none mb-1">{user?.email ? user.email.split('@')[0] : "Usuario Demo"}</span>
+                        <span className="block text-[10px] text-text-3 font-medium">{user?.email || "admin@pixely.com"}</span>
                     </div>
 
                     {/* Logout / Power Icon (Absolute right, reveals on hover) */}
@@ -109,7 +109,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isExpanded, setIsExpanded, act
                             e.stopPropagation();
                             onLogout();
                         }}
-                        className="absolute right-4 text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                        className="absolute right-4 text-text-3 hover:text-pink-text opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                         aria-label="Cerrar sesión"
                     >
                         <Power size={18} />
@@ -132,8 +132,8 @@ interface SidebarItemProps {
 
 /** Section label shows with the expanded rail; collapsed, a hairline keeps the groups apart. */
 const SidebarGroup: React.FC<{ label: string; children: React.ReactNode }> = ({ label, children }) => (
-    <div className="pt-3 mt-1 border-t border-gray-100 group-hover:border-transparent transition-colors" role="group" aria-label={label}>
-        <p className="h-0 group-hover:h-5 overflow-hidden px-4 text-[10px] font-bold uppercase tracking-[0.15em] text-gray-400 opacity-0 group-hover:opacity-100 transition-all duration-300 whitespace-nowrap">{label}</p>
+    <div className="pt-3 mt-1 border-t border-edge group-hover:border-transparent transition-colors" role="group" aria-label={label}>
+        <p className="h-0 group-hover:h-5 overflow-hidden px-4 text-[10px] font-bold uppercase tracking-[0.15em] text-text-3 opacity-0 group-hover:opacity-100 transition-all duration-300 whitespace-nowrap">{label}</p>
         <div className="space-y-1">{children}</div>
     </div>
 );
@@ -143,7 +143,7 @@ const SidebarItem: React.FC<SidebarItemProps> = ({ icon: Icon, label, viewId, is
         onClick={() => onClick(viewId)}
         className={`w-full flex items-center h-11 rounded-[18px] transition-all duration-200 relative group/item overflow-hidden px-4 ${isActive
             ? 'bg-gradient-to-r from-pink-500 to-rose-500 text-white shadow-lg shadow-pink-500/30'
-            : 'text-gray-500 hover:text-primary-600 hover:bg-primary-50'
+            : 'text-text-3 hover:text-pink-text hover:bg-pink/15'
             }`}
         aria-label={`Ir a ${label}${badge ? ` (${badge} por revisar)` : ''}`}
         aria-current={isActive ? 'page' : undefined}
@@ -152,7 +152,7 @@ const SidebarItem: React.FC<SidebarItemProps> = ({ icon: Icon, label, viewId, is
         <div className="w-8 flex items-center justify-center shrink-0 relative">
             <Icon size={22} strokeWidth={isActive ? 2.5 : 2} />
             {!!badge && (
-                <span className={`absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] px-1 rounded-full text-[10px] font-bold flex items-center justify-center ring-2 ${isActive ? 'bg-white text-primary-600 ring-primary-500' : 'bg-primary-600 text-white ring-white'}`}>
+                <span className={`absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] px-1 rounded-full text-[10px] font-bold flex items-center justify-center ring-2 ${isActive ? 'bg-card text-pink-text ring-pink' : 'bg-pink-fill text-white ring-edge'}`}>
                     {badge}
                 </span>
             )}
@@ -166,7 +166,7 @@ const SidebarItem: React.FC<SidebarItemProps> = ({ icon: Icon, label, viewId, is
 
         {/* Active Indicator Dot */}
         {isActive && (
-            <div className="absolute right-4 w-1.5 h-1.5 bg-white rounded-full shadow-glow opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            <div className="absolute right-4 w-1.5 h-1.5 bg-card rounded-full shadow-glow opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
         )}
     </button>
 );

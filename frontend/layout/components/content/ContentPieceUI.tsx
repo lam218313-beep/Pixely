@@ -16,8 +16,8 @@ import { pieceLinks, useStrategyIndex, type PieceLink, type StrategyIndex } from
 // Validated with the dataviz palette validator (all-pairs CVD + 3:1 on white). Always shown beside a text label.
 export const PILAR_META: Record<api.ContentPilar, { label: string; color: string }> = {
     Problema: { label: 'Problema', color: '#D90B66' },
-    Identidad: { label: 'Identidad', color: '#2a78d6' },
-    Prueba: { label: 'Prueba', color: '#eb6834' },
+    Identidad: { label: 'Identidad', color: '#E4E4EA' },
+    Prueba: { label: 'Prueba', color: '#8A8A96' },
 };
 
 export const FORMATO_ICON: Record<api.ContentFormato, React.ElementType> = {
@@ -30,12 +30,12 @@ export const FORMATO_ICON: Record<api.ContentFormato, React.ElementType> = {
 export type PieceStage = 'produccion' | 'revision' | 'cambios' | 'aprobada' | 'programada' | 'publicada';
 
 export const STAGE_META: Record<PieceStage, { label: string; color: string; icon: React.ElementType }> = {
-    produccion: { label: 'En producción', color: '#898781', icon: Clock },
-    revision: { label: 'Por revisar', color: '#fab219', icon: Eye },
-    cambios: { label: 'Cambios pedidos', color: '#ec835a', icon: MessageSquareWarning },
-    aprobada: { label: 'Aprobada', color: '#0ca30c', icon: Check },
-    programada: { label: 'Programada', color: '#0ca30c', icon: Send },
-    publicada: { label: 'Publicada', color: '#0ca30c', icon: CheckCheck },
+    produccion: { label: 'En producción', color: '#8A8A96', icon: Clock },
+    revision: { label: 'Por revisar', color: '#EB0C6E', icon: Eye },
+    cambios: { label: 'Cambios pedidos', color: '#FF85C3', icon: MessageSquareWarning },
+    aprobada: { label: 'Aprobada', color: '#E4E4EA', icon: Check },
+    programada: { label: 'Programada', color: '#E4E4EA', icon: Send },
+    publicada: { label: 'Publicada', color: '#E4E4EA', icon: CheckCheck },
 };
 
 /** The station (view) that owns each stage — the one place a piece is shown as a card. */
@@ -137,7 +137,7 @@ export const PilarBadge: React.FC<{ pilar: api.ContentPilar | null }> = ({ pilar
     if (!pilar) return null;
     const meta = PILAR_META[pilar];
     return (
-        <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-gray-700">
+        <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-text-2">
             <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: meta.color }} />
             {meta.label}
         </span>
@@ -148,8 +148,8 @@ export const FormatoBadge: React.FC<{ formato: api.ContentFormato | null }> = ({
     if (!formato) return null;
     const Icon = FORMATO_ICON[formato];
     return (
-        <span className="inline-flex items-center gap-1 text-xs font-semibold text-gray-600">
-            <Icon size={13} className="text-gray-400" />
+        <span className="inline-flex items-center gap-1 text-xs font-semibold text-text-2">
+            <Icon size={13} className="text-text-3" />
             {formato}
         </span>
     );
@@ -160,7 +160,7 @@ export const StageChip: React.FC<{ stage: PieceStage; compact?: boolean }> = ({ 
     const Icon = meta.icon;
     return (
         <span
-            className="inline-flex items-center gap-1.5 rounded-lg px-2 py-1 text-xs font-semibold text-gray-800 whitespace-nowrap"
+            className="inline-flex items-center gap-1.5 rounded-lg px-2 py-1 text-xs font-semibold text-white whitespace-nowrap"
             // tint over an opaque white base so the chip stays legible on top of photos
             style={{ background: `linear-gradient(${meta.color}1F, ${meta.color}1F), #fff` }}
         >
@@ -177,38 +177,38 @@ export const PieceCover: React.FC<{ piece: api.ContentPiece; className?: string;
 
     if (!src || failed) {
         return (
-            <div className={`flex flex-col items-center justify-center gap-2 bg-gray-50 text-gray-300 ${className}`}>
+            <div className={`flex flex-col items-center justify-center gap-2 bg-raised text-mute ${className}`}>
                 <Icon size={compact ? 22 : 28} />
-                {!compact && <span className="text-[11px] font-semibold uppercase tracking-wider text-gray-400">En producción</span>}
+                {!compact && <span className="text-[11px] font-semibold uppercase tracking-wider text-text-3">En producción</span>}
             </div>
         );
     }
     if (isVideoUrl(src)) {
         // First frame as the cover; muted + metadata-only so a grid of reels stays light.
-        return <video src={`${src}#t=0.1`} muted playsInline preload="metadata" onError={() => setFailed(true)} className={`object-cover bg-gray-900 ${className}`} aria-label={piece.topico_angulo ?? 'Reel'} />;
+        return <video src={`${src}#t=0.1`} muted playsInline preload="metadata" onError={() => setFailed(true)} className={`object-cover bg-raised ${className}`} aria-label={piece.topico_angulo ?? 'Reel'} />;
     }
     return <img src={src} alt={piece.topico_angulo ?? 'Pieza de contenido'} loading="lazy" onError={() => setFailed(true)} className={`object-cover ${className}`} />;
 };
 
 export const MonthSwitcher: React.FC<{ month: string; onChange: (month: string) => void }> = ({ month, onChange }) => (
-    <div className="inline-flex items-center gap-1 bg-white border border-gray-200 rounded-xl p-1">
-        <button onClick={() => onChange(shiftMonth(month, -1))} className="p-2 rounded-lg hover:bg-gray-100 text-gray-500" aria-label="Mes anterior">
+    <div className="inline-flex items-center gap-1 bg-card border border-edge rounded-xl p-1">
+        <button onClick={() => onChange(shiftMonth(month, -1))} className="p-2 rounded-lg hover:bg-raised text-text-3" aria-label="Mes anterior">
             <ChevronLeft size={16} />
         </button>
-        <span className="px-2 min-w-[140px] text-center text-sm font-bold text-gray-800">{monthLabel(month)}</span>
-        <button onClick={() => onChange(shiftMonth(month, 1))} className="p-2 rounded-lg hover:bg-gray-100 text-gray-500" aria-label="Mes siguiente">
+        <span className="px-2 min-w-[140px] text-center text-sm font-bold text-white">{monthLabel(month)}</span>
+        <button onClick={() => onChange(shiftMonth(month, 1))} className="p-2 rounded-lg hover:bg-raised text-text-3" aria-label="Mes siguiente">
             <ChevronRight size={16} />
         </button>
     </div>
 );
 
 export const NoClientSelected: React.FC = () => (
-    <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-12 flex flex-col items-center text-center">
-        <div className="w-14 h-14 rounded-2xl bg-gray-50 flex items-center justify-center mb-4">
-            <Building2 size={26} className="text-gray-300" />
+    <div className="bg-card rounded-3xl border border-edge shadow-sm p-12 flex flex-col items-center text-center">
+        <div className="w-14 h-14 rounded-2xl bg-raised flex items-center justify-center mb-4">
+            <Building2 size={26} className="text-mute" />
         </div>
-        <h3 className="text-lg font-bold text-gray-900 mb-1">Ninguna marca seleccionada</h3>
-        <p className="text-sm text-gray-500 max-w-sm">Esta vista muestra el contenido de una marca. Entra desde el Panel Admin y elige la marca que quieres revisar.</p>
+        <h3 className="text-lg font-bold text-white mb-1">Ninguna marca seleccionada</h3>
+        <p className="text-sm text-text-3 max-w-sm">Esta vista muestra el contenido de una marca. Entra desde el Panel Admin y elige la marca que quieres revisar.</p>
     </div>
 );
 
@@ -232,14 +232,14 @@ export const OtherStations: React.FC<{
     const order = (['work', 'validacion', 'publicacion'] as const).filter((s) => counts.get(s));
     if (order.length === 0) return null;
     return (
-        <p className="mt-6 text-sm text-gray-500">
+        <p className="mt-6 text-sm text-text-3">
             En otras etapas:{' '}
             {order.map((station, i) => (
                 <React.Fragment key={station}>
                     {i > 0 && ' · '}
                     {counts.get(station)} en{' '}
                     {onNavigate ? (
-                        <button onClick={() => onNavigate(station)} className="font-bold text-gray-900 underline underline-offset-2">{STATION_LABEL[station]}</button>
+                        <button onClick={() => onNavigate(station)} className="font-bold text-white underline underline-offset-2">{STATION_LABEL[station]}</button>
                     ) : STATION_LABEL[station]}
                 </React.Fragment>
             ))}
@@ -249,7 +249,7 @@ export const OtherStations: React.FC<{
 
 export const LoadingBlock: React.FC = () => (
     <div className="flex items-center justify-center h-64">
-        <Loader2 className="animate-spin text-gray-300" size={36} />
+        <Loader2 className="animate-spin text-mute" size={36} />
     </div>
 );
 
@@ -266,7 +266,7 @@ interface PieceDetailModalProps {
 export const CAMBIO_LABEL: Record<api.CambioTipo, string> = { imagen: 'La imagen', texto: 'El texto', ambos: 'Ambos' };
 
 const SectionTitle: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-    <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-3">{children}</p>
+    <p className="text-xs font-bold uppercase tracking-wider text-text-3 mb-3">{children}</p>
 );
 
 /** Where a piece comes from in the Estrategia: objetivo → estrategia → concepto(s), one branch per strategy it touches. */
@@ -274,33 +274,33 @@ export const PieceStrategy: React.FC<{ links: PieceLink[] }> = ({ links }) => {
     if (links.length === 0) return null;
     const conceptCount = links.reduce((n, l) => n + l.concepts.length, 0);
     return (
-        <div className="p-6 border-b border-gray-100">
+        <div className="p-6 border-b border-edge">
             <SectionTitle>De dónde sale en tu estrategia</SectionTitle>
             {conceptCount > 1 && (
-                <p className="text-sm text-gray-600 mb-3">
-                    Esta pieza combina <strong className="text-gray-900">{conceptCount} conceptos</strong>
+                <p className="text-sm text-text-2 mb-3">
+                    Esta pieza combina <strong className="text-white">{conceptCount} conceptos</strong>
                     {links.length > 1 ? ` de ${new Set(links.map((l) => l.objective.label)).size > 1 ? 'distintos objetivos' : 'distintas estrategias'}` : ''}.
                 </p>
             )}
             <ol className="space-y-3">
                 {links.map((link, i) => (
-                    <li key={i} className="rounded-2xl border border-gray-100 bg-gray-50/60 p-4 border-l-4" style={{ borderLeftColor: link.objective.color }}>
-                        <p className="text-[11px] font-bold uppercase tracking-wider text-gray-400 flex items-center gap-2">
+                    <li key={i} className="rounded-2xl border border-edge bg-raised/60 p-4 border-l-4" style={{ borderLeftColor: link.objective.color }}>
+                        <p className="text-[11px] font-bold uppercase tracking-wider text-text-3 flex items-center gap-2">
                             <span className="w-2 h-2 rounded-full" style={{ backgroundColor: link.objective.color }} />
                             Objetivo
-                            {link.objective.principal && <span className="text-primary-600">· Principal</span>}
+                            {link.objective.principal && <span className="text-pink-text">· Principal</span>}
                         </p>
-                        <p className="text-sm font-bold text-gray-900 mt-0.5">{link.objective.label}</p>
+                        <p className="text-sm font-bold text-white mt-0.5">{link.objective.label}</p>
                         {link.strategy && (
-                            <div className="mt-3 ml-1 pl-3 border-l-2 border-gray-200">
-                                <p className="text-[11px] font-bold uppercase tracking-wider text-gray-400">Estrategia</p>
-                                <p className="text-sm font-semibold text-gray-800 mt-0.5">{link.strategy}</p>
+                            <div className="mt-3 ml-1 pl-3 border-l-2 border-edge">
+                                <p className="text-[11px] font-bold uppercase tracking-wider text-text-3">Estrategia</p>
+                                <p className="text-sm font-semibold text-white mt-0.5">{link.strategy}</p>
                                 {link.concepts.length > 0 && (
-                                    <div className="mt-3 ml-1 pl-3 border-l-2 border-gray-200">
-                                        <p className="text-[11px] font-bold uppercase tracking-wider text-gray-400">{link.concepts.length > 1 ? 'Conceptos' : 'Concepto'}</p>
+                                    <div className="mt-3 ml-1 pl-3 border-l-2 border-edge">
+                                        <p className="text-[11px] font-bold uppercase tracking-wider text-text-3">{link.concepts.length > 1 ? 'Conceptos' : 'Concepto'}</p>
                                         <div className="flex flex-wrap gap-1.5 mt-1">
                                             {link.concepts.map((c) => (
-                                                <span key={c} className="text-xs font-semibold text-gray-800 bg-white border border-gray-200 rounded-lg px-2 py-1">{c}</span>
+                                                <span key={c} className="text-xs font-semibold text-white bg-card border border-edge rounded-lg px-2 py-1">{c}</span>
                                             ))}
                                         </div>
                                     </div>
@@ -308,7 +308,7 @@ export const PieceStrategy: React.FC<{ links: PieceLink[] }> = ({ links }) => {
                             </div>
                         )}
                         {!link.strategy && link.concepts.length > 0 && (
-                            <p className="text-sm text-gray-700 mt-2"><span className="font-semibold text-gray-900">Concepto: </span>{link.concepts.join(', ')}</p>
+                            <p className="text-sm text-text-2 mt-2"><span className="font-semibold text-white">Concepto: </span>{link.concepts.join(', ')}</p>
                         )}
                     </li>
                 ))}
@@ -326,23 +326,23 @@ export const PieceReasoning: React.FC<{ piece: api.ContentPiece; withVisual?: bo
     return (
         <>
             {hasWhy && (
-                <div className="p-6 border-b border-gray-100 space-y-3">
+                <div className="p-6 border-b border-edge space-y-3">
                     <SectionTitle>Cómo llegamos a esta pieza</SectionTitle>
-                    {piece.razon && <p className="text-sm text-gray-700 leading-relaxed">{piece.razon}</p>}
+                    {piece.razon && <p className="text-sm text-text-2 leading-relaxed">{piece.razon}</p>}
                     {piece.marcador === 'I' || piece.evidencia ? (
-                        <div className="rounded-xl bg-gray-50 border border-gray-100 p-3">
-                            <p className="text-[11px] font-bold uppercase tracking-wider text-gray-400 mb-1">Dato de mercado que la respalda</p>
-                            <p className="text-sm text-gray-800">{piece.evidencia || 'Respaldada por la vigilancia del mercado.'}</p>
+                        <div className="rounded-xl bg-raised border border-edge p-3">
+                            <p className="text-[11px] font-bold uppercase tracking-wider text-text-3 mb-1">Dato de mercado que la respalda</p>
+                            <p className="text-sm text-white">{piece.evidencia || 'Respaldada por la vigilancia del mercado.'}</p>
                         </div>
                     ) : piece.marcador === 'C' ? (
-                        <p className="text-sm text-gray-500">Idea creativa del equipo, sin un dato de mercado detrás.</p>
+                        <p className="text-sm text-text-3">Idea creativa del equipo, sin un dato de mercado detrás.</p>
                     ) : null}
                 </div>
             )}
             {showVisual && (
-                <div className="p-6 border-b border-gray-100">
+                <div className="p-6 border-b border-edge">
                     <SectionTitle>{visualTitle}</SectionTitle>
-                    <p className="text-sm text-gray-700 leading-relaxed">{piece.descripcion_visual}</p>
+                    <p className="text-sm text-text-2 leading-relaxed">{piece.descripcion_visual}</p>
                 </div>
             )}
         </>
@@ -355,17 +355,17 @@ export const PieceOutline: React.FC<{ piece: api.ContentPiece }> = ({ piece }) =
     if (!piece.descripcion_visual && steps.length === 0) return null;
     const unit = piece.formato === 'Reel' ? 'Escenas' : 'Láminas';
     return (
-        <div className="p-6 border-b border-gray-100 space-y-3">
+        <div className="p-6 border-b border-edge space-y-3">
             <SectionTitle>Qué contaremos</SectionTitle>
-            {piece.descripcion_visual && <p className="text-sm text-gray-700 leading-relaxed">{piece.descripcion_visual}</p>}
+            {piece.descripcion_visual && <p className="text-sm text-text-2 leading-relaxed">{piece.descripcion_visual}</p>}
             {steps.length > 0 && (
                 <div>
-                    <p className="text-[11px] font-bold uppercase tracking-wider text-gray-400 mb-2">{unit}</p>
+                    <p className="text-[11px] font-bold uppercase tracking-wider text-text-3 mb-2">{unit}</p>
                     <ol className="space-y-2">
                         {steps.map((s) => (
                             <li key={s.n} className="flex gap-3">
-                                <span className="w-6 h-6 rounded-full bg-pink-50 text-pink-600 text-xs font-bold flex items-center justify-center shrink-0">{s.n}</span>
-                                <p className="text-sm text-gray-700"><span className="font-semibold text-gray-900">{s.titulo}</span>{s.detalle ? `: ${s.detalle}` : ''}</p>
+                                <span className="w-6 h-6 rounded-full bg-pink/15 text-pink-text text-xs font-bold flex items-center justify-center shrink-0">{s.n}</span>
+                                <p className="text-sm text-text-2"><span className="font-semibold text-white">{s.titulo}</span>{s.detalle ? `: ${s.detalle}` : ''}</p>
                             </li>
                         ))}
                     </ol>
@@ -382,11 +382,11 @@ export const PieceWhyLine: React.FC<{ piece: api.ContentPiece; index?: StrategyI
     const main = links[0];
     const extra = links.reduce((n, l) => n + l.concepts.length, 0) - Math.min(main.concepts.length, 1);
     return (
-        <span className="flex items-center gap-1.5 text-xs text-gray-500 mt-1 min-w-0">
+        <span className="flex items-center gap-1.5 text-xs text-text-3 mt-1 min-w-0">
             <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: main.objective.color }} />
             <span className="line-clamp-1">
                 {[main.objective.label, main.strategy, main.concepts[0]].filter(Boolean).join(' → ')}
-                {extra > 0 && <strong className="text-gray-700"> +{extra} {extra === 1 ? 'concepto' : 'conceptos'}</strong>}
+                {extra > 0 && <strong className="text-text-2"> +{extra} {extra === 1 ? 'concepto' : 'conceptos'}</strong>}
             </span>
         </span>
     );
@@ -439,19 +439,19 @@ export const PieceDetailModal: React.FC<PieceDetailModalProps> = ({ piece, onClo
 
     // Portal to <body>: page containers animate with transform, which would otherwise trap a `fixed` overlay inside them.
     return createPortal(
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4" onClick={onClose}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-raised/50 backdrop-blur-sm p-4" onClick={onClose}>
             <div
-                className="bg-white rounded-3xl shadow-2xl w-full max-w-5xl max-h-[92vh] overflow-hidden flex flex-col md:flex-row"
+                className="bg-card rounded-3xl shadow-2xl w-full max-w-5xl max-h-[92vh] overflow-hidden flex flex-col md:flex-row"
                 onClick={(e) => e.stopPropagation()}
                 role="dialog"
                 aria-modal="true"
                 aria-label={piece.topico_angulo ?? 'Detalle de la pieza'}
             >
                 {/* Visual */}
-                <div className="md:w-1/2 bg-gray-50 relative flex items-center justify-center min-h-[280px] shrink-0 overflow-hidden">
+                <div className="md:w-1/2 bg-raised relative flex items-center justify-center min-h-[280px] shrink-0 overflow-hidden">
                     {slides.length > 0 ? (
                         isVideoUrl(slides[slide]) ? (
-                            <video src={slides[slide]} controls playsInline className="w-full h-full max-h-[45vh] md:max-h-[92vh] object-contain bg-black" />
+                            <video src={slides[slide]} controls playsInline className="w-full h-full max-h-[45vh] md:max-h-[92vh] object-contain bg-raised" />
                         ) : (
                             <img src={slides[slide]} alt={`Lámina ${slide + 1}`} className="w-full h-full max-h-[45vh] md:max-h-[92vh] object-contain" />
                         )
@@ -460,13 +460,13 @@ export const PieceDetailModal: React.FC<PieceDetailModalProps> = ({ piece, onClo
                     )}
                     {slides.length > 1 && (
                         <>
-                            <button onClick={() => setSlide((slide - 1 + slides.length) % slides.length)} className="absolute left-3 top-1/2 -translate-y-1/2 p-2 rounded-full bg-white/90 shadow hover:bg-white" aria-label="Lámina anterior">
+                            <button onClick={() => setSlide((slide - 1 + slides.length) % slides.length)} className="absolute left-3 top-1/2 -translate-y-1/2 p-2 rounded-full bg-card/90 shadow hover:bg-card" aria-label="Lámina anterior">
                                 <ChevronLeft size={18} />
                             </button>
-                            <button onClick={() => setSlide((slide + 1) % slides.length)} className="absolute right-3 top-1/2 -translate-y-1/2 p-2 rounded-full bg-white/90 shadow hover:bg-white" aria-label="Lámina siguiente">
+                            <button onClick={() => setSlide((slide + 1) % slides.length)} className="absolute right-3 top-1/2 -translate-y-1/2 p-2 rounded-full bg-card/90 shadow hover:bg-card" aria-label="Lámina siguiente">
                                 <ChevronRight size={18} />
                             </button>
-                            <span className="absolute bottom-3 left-1/2 -translate-x-1/2 text-xs font-bold bg-white/90 rounded-full px-3 py-1 text-gray-700">
+                            <span className="absolute bottom-3 left-1/2 -translate-x-1/2 text-xs font-bold bg-card/90 rounded-full px-3 py-1 text-text-2">
                                 {slide + 1} / {slides.length}
                             </span>
                         </>
@@ -476,7 +476,7 @@ export const PieceDetailModal: React.FC<PieceDetailModalProps> = ({ piece, onClo
                             href={slides[slide]}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="absolute top-3 right-3 flex items-center gap-1.5 text-xs font-bold bg-white/90 rounded-lg px-2.5 py-1.5 text-gray-700 hover:bg-white shadow-sm"
+                            className="absolute top-3 right-3 flex items-center gap-1.5 text-xs font-bold bg-card/90 rounded-lg px-2.5 py-1.5 text-text-2 hover:bg-card shadow-sm"
                         >
                             <ExternalLink size={13} /> Abrir original
                         </a>
@@ -485,24 +485,24 @@ export const PieceDetailModal: React.FC<PieceDetailModalProps> = ({ piece, onClo
 
                 {/* Info */}
                 <div className="md:w-1/2 flex flex-col overflow-y-auto">
-                    <div className="p-6 border-b border-gray-100">
+                    <div className="p-6 border-b border-edge">
                         <div className="flex items-start justify-between gap-4 mb-3">
                             <div className="flex flex-wrap items-center gap-3">
                                 <StageChip stage={stage} />
                                 <FormatoBadge formato={piece.formato} />
                                 <PilarBadge pilar={piece.pilar} />
                                 {piece.marcador && (
-                                    <span className="text-xs font-semibold text-gray-500">{piece.marcador === 'I' ? 'Con dato de mercado' : 'Idea creativa'}</span>
+                                    <span className="text-xs font-semibold text-text-3">{piece.marcador === 'I' ? 'Con dato de mercado' : 'Idea creativa'}</span>
                                 )}
                             </div>
-                            <button onClick={onClose} className="p-2 -m-2 rounded-full hover:bg-gray-100 text-gray-400" aria-label="Cerrar">
+                            <button onClick={onClose} className="p-2 -m-2 rounded-full hover:bg-raised text-text-3" aria-label="Cerrar">
                                 <X size={20} />
                             </button>
                         </div>
-                        <p className="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1">
+                        <p className="text-xs font-semibold uppercase tracking-wider text-text-3 mb-1">
                             {formatFecha(piece.fecha, { weekday: 'long', day: 'numeric', month: 'long' })}
                         </p>
-                        <h3 className="text-xl font-bold text-gray-900 leading-snug">{piece.topico_angulo || 'Pieza sin tópico'}</h3>
+                        <h3 className="text-xl font-bold text-white leading-snug">{piece.topico_angulo || 'Pieza sin tópico'}</h3>
                     </div>
 
                     {children}
@@ -510,16 +510,16 @@ export const PieceDetailModal: React.FC<PieceDetailModalProps> = ({ piece, onClo
                     <PieceReasoning piece={piece} />
 
                     {piece.formato === 'Reel' && piece.prompt_visual && (
-                        <div className="p-6 border-b border-gray-100">
-                            <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-2">Guion del reel</p>
-                            <p className="text-sm text-gray-700 whitespace-pre-line">{piece.prompt_visual}</p>
+                        <div className="p-6 border-b border-edge">
+                            <p className="text-xs font-bold uppercase tracking-wider text-text-3 mb-2">Guion del reel</p>
+                            <p className="text-sm text-text-2 whitespace-pre-line">{piece.prompt_visual}</p>
                         </div>
                     )}
 
-                    <div className="p-6 border-b border-gray-100 flex-1">
-                        <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-3">Copy por red</p>
+                    <div className="p-6 border-b border-edge flex-1">
+                        <p className="text-xs font-bold uppercase tracking-wider text-text-3 mb-3">Copy por red</p>
                         {copies.length === 0 ? (
-                            <p className="text-sm text-gray-400">El copy todavía se está redactando.</p>
+                            <p className="text-sm text-text-3">El copy todavía se está redactando.</p>
                         ) : (
                             <>
                                 <div className="flex flex-wrap gap-1 mb-3">
@@ -527,23 +527,23 @@ export const PieceDetailModal: React.FC<PieceDetailModalProps> = ({ piece, onClo
                                         <button
                                             key={label}
                                             onClick={() => setCopyTab(i)}
-                                            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors ${i === copyTab ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}`}
+                                            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors ${i === copyTab ? 'bg-raised text-white' : 'bg-raised text-text-3 hover:bg-edge'}`}
                                         >
                                             {label}
                                         </button>
                                     ))}
                                 </div>
-                                <p className="text-sm text-gray-700 whitespace-pre-line leading-relaxed">{String(piece[copies[Math.min(copyTab, copies.length - 1)].key] ?? '')}</p>
+                                <p className="text-sm text-text-2 whitespace-pre-line leading-relaxed">{String(piece[copies[Math.min(copyTab, copies.length - 1)].key] ?? '')}</p>
                             </>
                         )}
                     </div>
 
                     {piece.comentario_cliente && (
-                        <div className="mx-6 mt-6 p-4 rounded-2xl bg-orange-50 border border-orange-100">
-                            <p className="text-xs font-bold uppercase tracking-wider text-gray-500 mb-1">
+                        <div className="mx-6 mt-6 p-4 rounded-2xl bg-raised border border-pink/40">
+                            <p className="text-xs font-bold uppercase tracking-wider text-text-3 mb-1">
                                 Comentario de revisión{piece.cambio_tipo ? ` · cambiar ${CAMBIO_LABEL[piece.cambio_tipo].toLowerCase()}` : ''}
                             </p>
-                            <p className="text-sm text-gray-800 whitespace-pre-line">{piece.comentario_cliente}</p>
+                            <p className="text-sm text-white whitespace-pre-line">{piece.comentario_cliente}</p>
                         </div>
                     )}
 
@@ -552,30 +552,30 @@ export const PieceDetailModal: React.FC<PieceDetailModalProps> = ({ piece, onClo
                             askingChanges ? (
                                 <div className="space-y-3">
                                     <fieldset>
-                                        <legend className="text-sm font-bold text-gray-800 mb-2">¿Qué quieres cambiar?</legend>
+                                        <legend className="text-sm font-bold text-white mb-2">¿Qué quieres cambiar?</legend>
                                         <div className="grid grid-cols-3 gap-2" role="radiogroup">
                                             {(Object.keys(CAMBIO_LABEL) as api.CambioTipo[]).map((t) => (
                                                 <button key={t} type="button" role="radio" aria-checked={cambioTipo === t} onClick={() => setCambioTipo(t)}
-                                                    className={`py-2.5 rounded-xl border text-sm font-bold transition-colors ${cambioTipo === t ? 'border-gray-900 bg-gray-900 text-white' : 'border-gray-200 text-gray-700 hover:bg-gray-50'}`}>
+                                                    className={`py-2.5 rounded-xl border text-sm font-bold transition-colors ${cambioTipo === t ? 'border-text-3 bg-raised text-white' : 'border-edge text-text-2 hover:bg-raised'}`}>
                                                     {CAMBIO_LABEL[t]}
                                                 </button>
                                             ))}
                                         </div>
                                     </fieldset>
-                                    <label htmlFor="review-comment" className="block text-sm font-bold text-gray-800">¿Qué cambiarías?</label>
+                                    <label htmlFor="review-comment" className="block text-sm font-bold text-white">¿Qué cambiarías?</label>
                                     <textarea
                                         id="review-comment"
                                         value={comment}
                                         onChange={(e) => setComment(e.target.value)}
                                         rows={3}
                                         placeholder={cambioTipo === 'texto' ? 'Ej. El titular no refleja nuestro tono; quiten el precio del texto…' : cambioTipo === 'imagen' ? 'Ej. Preferimos una foto con personas; el logo se ve muy pequeño…' : 'Ej. El titular no refleja nuestro tono y preferimos una foto con personas…'}
-                                        className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-pink-500/20 focus:border-pink-500"
+                                        className="w-full rounded-xl border border-edge px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-pink/20 focus:border-pink"
                                     />
                                     <div className="flex gap-2">
-                                        <button onClick={() => { setAskingChanges(false); setError(null); }} disabled={saving} className="flex-1 py-3 rounded-xl border border-gray-200 text-sm font-bold text-gray-600 hover:bg-gray-50">
+                                        <button onClick={() => { setAskingChanges(false); setError(null); }} disabled={saving} className="flex-1 py-3 rounded-xl border border-edge text-sm font-bold text-text-2 hover:bg-raised">
                                             Volver
                                         </button>
-                                        <button onClick={() => submit('Cambios solicitados')} disabled={saving} className="flex-1 py-3 rounded-xl bg-gray-900 text-white text-sm font-bold hover:bg-gray-800 disabled:opacity-60 flex items-center justify-center gap-2">
+                                        <button onClick={() => submit('Cambios solicitados')} disabled={saving} className="flex-1 py-3 rounded-xl bg-raised text-white text-sm font-bold hover:bg-edge disabled:opacity-60 flex items-center justify-center gap-2">
                                             {saving && <Loader2 size={16} className="animate-spin" />}
                                             Enviar cambios
                                         </button>
@@ -583,7 +583,7 @@ export const PieceDetailModal: React.FC<PieceDetailModalProps> = ({ piece, onClo
                                 </div>
                             ) : (
                                 <div className="flex gap-2">
-                                    <button onClick={() => setAskingChanges(true)} disabled={saving} className="flex-1 py-3 rounded-xl border border-gray-200 text-sm font-bold text-gray-700 hover:bg-gray-50 flex items-center justify-center gap-2">
+                                    <button onClick={() => setAskingChanges(true)} disabled={saving} className="flex-1 py-3 rounded-xl border border-edge text-sm font-bold text-text-2 hover:bg-raised flex items-center justify-center gap-2">
                                         <MessageSquareWarning size={16} />
                                         Solicitar cambios
                                     </button>
@@ -596,13 +596,13 @@ export const PieceDetailModal: React.FC<PieceDetailModalProps> = ({ piece, onClo
                                 </div>
                             )
                         ) : (
-                            <p className="text-sm text-gray-400">
+                            <p className="text-sm text-text-3">
                                 {stage === 'programada' ? 'Esta pieza ya está programada para publicarse.' : stage === 'produccion' ? 'La pieza final todavía se está produciendo.' : ''}
                             </p>
                         )}
-                        {error && <p className="mt-3 text-sm font-medium text-red-600">{error}</p>}
+                        {error && <p className="mt-3 text-sm font-medium text-pink-text">{error}</p>}
                         {piece.revisado_at && (
-                            <p className="mt-3 text-xs text-gray-400">
+                            <p className="mt-3 text-xs text-text-3">
                                 Revisada el {new Date(piece.revisado_at).toLocaleDateString('es-PE', { day: 'numeric', month: 'long' })}
                                 {piece.revisado_por ? ` por ${piece.revisado_por}` : ''}
                             </p>

@@ -15,7 +15,7 @@ const cards: CardData[] = [
     id: 1,
     title: "Inteligencia de Mercado",
     description: "No adivinamos: estudiamos tu mercado. Mapeamos a tu competencia, sus precios, sus promociones y su tráfico real, y lo vigilamos cada mes para saber qué cambia antes que nadie.",
-    icon: <Brain className="w-8 h-8 md:w-10 md:h-10 text-primary-500" />,
+    icon: <Brain className="w-8 h-8 md:w-10 md:h-10 text-pink-text" />,
     gridClass: "md:col-span-2 md:row-span-1",
     hoverClass: "md:group-hover:h-[calc(200%+1rem)]"
   },
@@ -23,7 +23,7 @@ const cards: CardData[] = [
     id: 2,
     title: "Tecnología",
     description: "Combinamos inteligencia artificial con criterio humano: cada estudio, plan y pieza se trabaja a mano, con fuentes verificadas y sin automatización ciega. Tu mercado no se entiende solo con datos.",
-    icon: <Cpu className="w-8 h-8 md:w-10 md:h-10 text-blue-500" />,
+    icon: <Cpu className="w-8 h-8 md:w-10 md:h-10 text-text-2" />,
     gridClass: "md:col-span-1 md:row-span-2",
     hoverClass: "md:group-hover:w-[calc(200%+1rem)]"
   },
@@ -31,7 +31,7 @@ const cards: CardData[] = [
     id: 3,
     title: "Muéstrate",
     description: "Definimos cómo habla tu marca —su tono, las palabras que usa y las que evita— y tú la apruebas. Cada publicación sale con esa voz.",
-    icon: <Fingerprint className="w-8 h-8 md:w-10 md:h-10 text-purple-500" />,
+    icon: <Fingerprint className="w-8 h-8 md:w-10 md:h-10 text-text-2" />,
     gridClass: "md:col-span-1 md:row-span-1",
     hoverClass: "md:group-hover:h-[calc(200%+1rem)]"
   },
@@ -39,7 +39,7 @@ const cards: CardData[] = [
     id: 4,
     title: "Acierta",
     description: "Elimina la subjetividad. Cada idea de contenido nace de un hallazgo real de tu mercado, con su nivel de confianza.",
-    icon: <Target className="w-8 h-8 md:w-10 md:h-10 text-teal-500" />,
+    icon: <Target className="w-8 h-8 md:w-10 md:h-10 text-text-2" />,
     gridClass: "md:col-span-1 md:row-span-1",
     hoverClass: "md:group-hover:w-[calc(200%+1rem)]"
   },
@@ -47,7 +47,7 @@ const cards: CardData[] = [
     id: 5,
     title: "Anticipa",
     description: "Vigilamos a tu competencia cada mes: si un rival lanza una promoción o empieza a pagar anuncios, lo sabrás a tiempo.",
-    icon: <Radar className="w-8 h-8 md:w-10 md:h-10 text-indigo-500" />,
+    icon: <Radar className="w-8 h-8 md:w-10 md:h-10 text-text-2" />,
     gridClass: "md:col-span-1 md:row-span-1",
     hoverClass: "md:group-hover:w-[calc(200%+1rem)] md:group-hover:-ml-[calc(100%+1rem)]"
   },
@@ -55,7 +55,7 @@ const cards: CardData[] = [
     id: 6,
     title: "Destaca",
     description: "Conoces las promociones que ya usa tu competencia y la vara de calidad de tu mercado, para que tu marca no sea una más.",
-    icon: <Megaphone className="w-8 h-8 md:w-10 md:h-10 text-yellow-500" />,
+    icon: <Megaphone className="w-8 h-8 md:w-10 md:h-10 text-text-2" />,
     gridClass: "md:col-span-1 md:row-span-1",
     hoverClass: "md:group-hover:h-[calc(200%+1rem)] md:group-hover:-mt-[calc(100%+1rem)]"
   },
@@ -63,7 +63,7 @@ const cards: CardData[] = [
     id: 7,
     title: "Apruebas tú",
     description: "Ves cada pieza antes de que salga: apruebas o pides cambios con un comentario, y el equipo la corrige. Nada se publica sin tu visto bueno.",
-    icon: <ListTodo className="w-8 h-8 md:w-10 md:h-10 text-cyan-500" />,
+    icon: <ListTodo className="w-8 h-8 md:w-10 md:h-10 text-text-2" />,
     gridClass: "md:col-span-2 md:row-span-1",
     hoverClass: "md:group-hover:w-[calc(200%+1rem)]"
   },
@@ -71,7 +71,7 @@ const cards: CardData[] = [
     id: 8,
     title: "30 días",
     description: "Cada mes: apruebas las ideas, revisas las piezas terminadas y ves en Publicaciones qué sale, cuándo y cómo le fue.",
-    icon: <Calendar className="w-8 h-8 md:w-10 md:h-10 text-rose-500" />,
+    icon: <Calendar className="w-8 h-8 md:w-10 md:h-10 text-pink-text" />,
     gridClass: "md:col-span-2 md:row-span-1",
     hoverClass: "md:group-hover:w-[calc(200%+1rem)] md:group-hover:-ml-[calc(100%+1rem)]"
   }
@@ -100,11 +100,11 @@ const TetrisCards: React.FC = () => {
             <div
               className={`
                 absolute inset-0 
-                bg-white rounded-[30px] shadow-sm border border-gray-100
+                bg-card rounded-[30px] shadow-sm border border-edge
                 flex flex-col justify-between overflow-hidden
                 transition-all duration-700 ease-[cubic-bezier(0.2,0,0.2,1)]
                 cursor-pointer
-                ${isHovered ? `shadow-2xl border-primary-100 ${card.hoverClass}` : ''}
+                ${isHovered ? `shadow-2xl border-pink ${card.hoverClass}` : ''}
                 ${isBlurred ? 'blur-[2px] opacity-60 scale-[0.98] grayscale-[0.2]' : ''}
               `}
             >
@@ -112,14 +112,14 @@ const TetrisCards: React.FC = () => {
                 {/* Header Section */}
                 <div className="flex flex-col items-start space-y-4 mb-4">
                   <div className={`
-                      p-3 rounded-2xl bg-gray-50 transition-all duration-500 
+                      p-3 rounded-2xl bg-raised transition-all duration-500 
                       origin-left
-                      ${isHovered ? 'bg-primary-50 scale-105' : ''}
+                      ${isHovered ? 'bg-pink/15 scale-105' : ''}
                     `}>
                     {card.icon}
                   </div>
                   <h3 className={`
-                      text-xl md:text-2xl font-bold text-gray-900 leading-tight transition-transform duration-500
+                      text-xl md:text-2xl font-bold text-white leading-tight transition-transform duration-500
                       ${isHovered ? 'translate-y-0' : ''}
                     `}>
                     {card.title}
@@ -131,7 +131,7 @@ const TetrisCards: React.FC = () => {
                     mt-auto flex flex-col space-y-4 transition-all duration-700 delay-100
                     ${isHovered ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}
                   `}>
-                  <p className="text-gray-600 text-base leading-relaxed">
+                  <p className="text-text-2 text-base leading-relaxed">
                     {card.description}
                   </p>
 

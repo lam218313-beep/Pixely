@@ -23,8 +23,8 @@ import {
 type Tab = 'proximas' | 'publicadas';
 
 const OWN = '#D90B66';          // the brand's own bar
-const RIVAL = '#c3c2b7';        // competitors, neutral
-const ABOVE = '#006300';
+const RIVAL = '#4A4A55';        // competitors, neutral
+const ABOVE = '#E4E4EA';
 const nf = new Intl.NumberFormat('es-PE', { notation: 'compact', maximumFractionDigits: 1 });
 const fmt = (n: number | null | undefined) => (n == null ? '—' : nf.format(n));
 
@@ -79,7 +79,7 @@ export const PublicacionesView: React.FC<{ onNavigate?: (view: string) => void; 
     };
 
     return (
-        <div className="p-4 md:p-8 h-full overflow-y-auto custom-scrollbar animate-fade-in-up bg-brand-bg">
+        <div className="p-4 md:p-8 h-full overflow-y-auto custom-scrollbar animate-fade-in-up bg-ink">
             <div className="max-w-7xl mx-auto">
                 {onNavigate && <WorkflowStepper currentStep={3} onNavigate={onNavigate} />}
                 <AnimatedHeaderCard supertitle="Contenido" title="Publicaciones" subtitle="Qué sale y cuándo, y cómo le fue a lo que ya salió." />
@@ -87,10 +87,10 @@ export const PublicacionesView: React.FC<{ onNavigate?: (view: string) => void; 
                 {!clientId ? <NoClientSelected /> : (
                     <>
                         <div className="flex flex-wrap items-center gap-3 mb-6">
-                            <div className="inline-flex gap-1 bg-white border border-gray-200 rounded-xl p-1" role="tablist">
+                            <div className="inline-flex gap-1 bg-card border border-edge rounded-xl p-1" role="tablist">
                                 {([['proximas', `Próximas (${upcoming.length})`], ['publicadas', 'Publicadas']] as [Tab, string][]).map(([key, label]) => (
                                     <button key={key} role="tab" aria-selected={tab === key} onClick={() => setTab(key)}
-                                        className={`px-4 py-2 rounded-lg text-sm font-bold transition-colors ${tab === key ? 'bg-gray-900 text-white' : 'text-gray-500 hover:bg-gray-100'}`}>
+                                        className={`px-4 py-2 rounded-lg text-sm font-bold transition-colors ${tab === key ? 'bg-raised text-white' : 'text-text-3 hover:bg-raised'}`}>
                                         {label}
                                     </button>
                                 ))}
@@ -98,7 +98,7 @@ export const PublicacionesView: React.FC<{ onNavigate?: (view: string) => void; 
                             {tab === 'publicadas' && <MonthSwitcher month={month} onChange={setMonth} />}
                         </div>
 
-                        {error && <p className="mb-4 text-sm text-red-600">{error}</p>}
+                        {error && <p className="mb-4 text-sm text-pink-text">{error}</p>}
 
                         {loading && pieces.length === 0 ? <LoadingBlock /> : tab === 'proximas' ? (
                             <Upcoming pieces={upcoming} calendarPieces={calendarPieces} isTeam={isTeam} onOpen={setSelected} />
@@ -148,10 +148,10 @@ function useAgendaView(): [AgendaView, (v: AgendaView) => void] {
 }
 
 const ViewToggle: React.FC<{ view: AgendaView; onChange: (v: AgendaView) => void }> = ({ view, onChange }) => (
-    <div className="inline-flex gap-1 bg-white border border-gray-200 rounded-xl p-1" role="group" aria-label="Vista">
+    <div className="inline-flex gap-1 bg-card border border-edge rounded-xl p-1" role="group" aria-label="Vista">
         {([['calendario', 'Calendario', CalendarDays], ['lista', 'Lista', List]] as [AgendaView, string, React.ElementType][]).map(([key, label, Icon]) => (
             <button key={key} onClick={() => onChange(key)} aria-pressed={view === key}
-                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors ${view === key ? 'bg-gray-900 text-white' : 'text-gray-500 hover:bg-gray-100'}`}>
+                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors ${view === key ? 'bg-raised text-white' : 'text-text-3 hover:bg-raised'}`}>
                 <Icon size={14} /> {label}
             </button>
         ))}
@@ -166,8 +166,8 @@ const Upcoming: React.FC<{ pieces: api.ContentPiece[]; calendarPieces: api.Conte
     return (
         <section aria-label="Próximas publicaciones">
             {isTeam && pending > 0 && (
-                <p className="mb-4 rounded-2xl border border-dashed border-gray-300 bg-white/60 px-4 py-3 text-sm text-gray-700">
-                    <span className="text-[11px] font-bold uppercase tracking-wider text-primary-600 mr-2">Solo equipo</span>
+                <p className="mb-4 rounded-2xl border border-dashed border-line bg-card/60 px-4 py-3 text-sm text-text-2">
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-pink-text mr-2">Solo equipo</span>
                     {pending} {pending === 1 ? 'pieza aprobada espera' : 'piezas aprobadas esperan'} ser programadas en Metricool con /05_publicar.
                 </p>
             )}
@@ -188,24 +188,24 @@ const Upcoming: React.FC<{ pieces: api.ContentPiece[]; calendarPieces: api.Conte
 };
 
 const AgendaList: React.FC<{ pieces: api.ContentPiece[]; onOpen: (p: api.ContentPiece) => void }> = ({ pieces, onOpen }) => (
-    <ul className="bg-white rounded-3xl border border-gray-100 shadow-sm divide-y divide-gray-100 overflow-hidden">
+    <ul className="bg-card rounded-3xl border border-edge shadow-sm divide-y divide-edge overflow-hidden">
         {pieces.map((p) => {
             const { date, time } = when(p);
             const networks = pieceNetworks(p);
             return (
                 <li key={p.id}>
-                    <button onClick={() => onOpen(p)} className="w-full text-left px-5 py-4 hover:bg-gray-50 transition-colors grid grid-cols-[56px_1fr] md:grid-cols-[56px_1fr_auto] items-center gap-x-4 gap-y-2">
+                    <button onClick={() => onOpen(p)} className="w-full text-left px-5 py-4 hover:bg-raised transition-colors grid grid-cols-[56px_1fr] md:grid-cols-[56px_1fr_auto] items-center gap-x-4 gap-y-2">
                         <PieceCover piece={p} className="w-14 aspect-[4/5] rounded-xl overflow-hidden" compact />
                         <span className="min-w-0">
-                            <span className="block text-xs font-semibold uppercase tracking-wider text-gray-400">{date}{time ? ` · ${time}` : ''}</span>
-                            <span className="block text-sm font-bold text-gray-900 leading-snug line-clamp-2 mt-0.5">{p.topico_angulo || 'Pieza sin tópico'}</span>
+                            <span className="block text-xs font-semibold uppercase tracking-wider text-text-3">{date}{time ? ` · ${time}` : ''}</span>
+                            <span className="block text-sm font-bold text-white leading-snug line-clamp-2 mt-0.5">{p.topico_angulo || 'Pieza sin tópico'}</span>
                             <span className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1">
                                 <FormatoBadge formato={p.formato} />
-                                {networks.length > 0 && <span className="text-xs text-gray-500">{networks.join(' · ')}</span>}
+                                {networks.length > 0 && <span className="text-xs text-text-3">{networks.join(' · ')}</span>}
                             </span>
                         </span>
-                        <span className="col-start-2 md:col-start-auto text-xs font-semibold text-gray-600">
-                            {pieceStage(p) === 'programada' ? <span className="inline-flex items-center gap-1.5"><CalendarClock size={14} className="text-gray-400" /> Programada</span> : 'Hora por confirmar'}
+                        <span className="col-start-2 md:col-start-auto text-xs font-semibold text-text-2">
+                            {pieceStage(p) === 'programada' ? <span className="inline-flex items-center gap-1.5"><CalendarClock size={14} className="text-text-3" /> Programada</span> : 'Hora por confirmar'}
                         </span>
                     </button>
                 </li>
@@ -243,16 +243,16 @@ const AgendaCalendar: React.FC<{
         const Icon = p.formato ? FORMATO_ICON[p.formato] : CalendarClock;
         return (
             <button onClick={() => onOpen(p)} title={`${p.topico_angulo ?? ''}${time ? ` · ${time}` : ''}${done ? ' · Publicada' : ''}`}
-                className={`w-full text-left flex items-start gap-1.5 rounded-lg border border-gray-100 p-1 hover:shadow-sm transition-shadow ${done ? 'bg-gray-50 opacity-70' : 'bg-white'}`}>
+                className={`w-full text-left flex items-start gap-1.5 rounded-lg border border-edge p-1 hover:shadow-sm transition-shadow ${done ? 'bg-raised opacity-70' : 'bg-card'}`}>
                 <PieceCover piece={p} className="w-7 aspect-[4/5] rounded overflow-hidden shrink-0" compact />
                 <span className="min-w-0">
                     {!chipMeta && (
-                        <span className="flex items-center gap-1 text-[10px] font-bold text-gray-500">
-                            {done ? <CheckCheck size={10} className="text-gray-400" /> : <Icon size={10} className="text-gray-400" />}
+                        <span className="flex items-center gap-1 text-[10px] font-bold text-text-3">
+                            {done ? <CheckCheck size={10} className="text-text-3" /> : <Icon size={10} className="text-text-3" />}
                             {done ? 'Publicada' : time ?? 'Por confirmar'}
                         </span>
                     )}
-                    <span className="block text-[11px] leading-tight text-gray-800 line-clamp-2">{p.topico_angulo || 'Pieza'}</span>
+                    <span className="block text-[11px] leading-tight text-white line-clamp-2">{p.topico_angulo || 'Pieza'}</span>
                     {chipMeta && <span className="block mt-0.5">{chipMeta(p)}</span>}
                 </span>
             </button>
@@ -260,37 +260,37 @@ const AgendaCalendar: React.FC<{
     };
 
     return (
-        <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-4 md:p-6">
-            <p className="text-sm text-gray-500 mb-4">
+        <div className="bg-card rounded-3xl border border-edge shadow-sm p-4 md:p-6">
+            <p className="text-sm text-text-3 mb-4">
                 {summary ?? <>
                     {pieces.filter((p) => pieceStage(p) !== 'publicada').length} por salir en {monthLabel(month).toLowerCase()}
                     {pieces.some((p) => pieceStage(p) === 'publicada') && <> · las ya publicadas se ven en gris</>}
                 </>}
             </p>
-            <div className="hidden md:grid grid-cols-7 gap-px bg-gray-100 rounded-2xl overflow-hidden border border-gray-100">
-                {WEEKDAYS.map((d) => <div key={d} className="bg-gray-50 px-2 py-1.5 text-[11px] font-bold uppercase tracking-wider text-gray-400">{d}</div>)}
+            <div className="hidden md:grid grid-cols-7 gap-px bg-raised rounded-2xl overflow-hidden border border-edge">
+                {WEEKDAYS.map((d) => <div key={d} className="bg-raised px-2 py-1.5 text-[11px] font-bold uppercase tracking-wider text-text-3">{d}</div>)}
                 {cells.map((day, i) => (
-                    <div key={i} className={`min-h-[104px] p-1.5 ${day ? 'bg-white' : 'bg-gray-50/60'}`}>
+                    <div key={i} className={`min-h-[104px] p-1.5 ${day ? 'bg-card' : 'bg-raised/60'}`}>
                         {day && (
-                            <p className={`text-xs font-semibold mb-1 ${isToday(day) ? 'inline-flex items-center justify-center w-5 h-5 rounded-full bg-gray-900 text-white' : 'text-gray-400'}`}>{day}</p>
+                            <p className={`text-xs font-semibold mb-1 ${isToday(day) ? 'inline-flex items-center justify-center w-5 h-5 rounded-full bg-raised text-white' : 'text-text-3'}`}>{day}</p>
                         )}
                         <div className="space-y-1">{(day ? byDay.get(day) ?? [] : []).map((p) => <Chip key={p.id} p={p} />)}</div>
                     </div>
                 ))}
             </div>
-            <ul className="md:hidden divide-y divide-gray-100">
+            <ul className="md:hidden divide-y divide-edge">
                 {[...byDay.entries()].map(([day, items]) => (
                     <li key={day} className="py-3 flex gap-3">
                         <span className="w-10 shrink-0 text-center">
-                            <span className="block text-lg font-bold text-gray-900 leading-none">{day}</span>
-                            <span className="block text-[10px] font-semibold uppercase text-gray-400 mt-0.5">{formatFecha(items[0].fecha, { weekday: 'short' })}</span>
+                            <span className="block text-lg font-bold text-white leading-none">{day}</span>
+                            <span className="block text-[10px] font-semibold uppercase text-text-3 mt-0.5">{formatFecha(items[0].fecha, { weekday: 'short' })}</span>
                         </span>
                         <span className="flex-1 space-y-1.5">{items.map((p) => <Chip key={p.id} p={p} />)}</span>
                     </li>
                 ))}
-                {byDay.size === 0 && <li className="py-6 text-center text-sm text-gray-400">{chipMeta ? 'Nada publicado este mes.' : 'Nada programado este mes.'}</li>}
+                {byDay.size === 0 && <li className="py-6 text-center text-sm text-text-3">{chipMeta ? 'Nada publicado este mes.' : 'Nada programado este mes.'}</li>}
             </ul>
-            {byDay.size === 0 && <p className="hidden md:block mt-3 text-sm text-gray-400 text-center">{chipMeta ? 'Nada publicado este mes.' : 'Nada programado este mes.'}</p>}
+            {byDay.size === 0 && <p className="hidden md:block mt-3 text-sm text-text-3 text-center">{chipMeta ? 'Nada publicado este mes.' : 'Nada programado este mes.'}</p>}
         </div>
     );
 };
@@ -332,7 +332,7 @@ const Published: React.FC<{
 
             <section aria-label="Piezas publicadas">
                 <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
-                    <h2 className="text-lg font-bold text-gray-900">Cada publicación</h2>
+                    <h2 className="text-lg font-bold text-white">Cada publicación</h2>
                     <ViewToggle view={view} onChange={choose} />
                 </div>
                 {view === 'calendario' ? (
@@ -343,15 +343,15 @@ const Published: React.FC<{
                         summary={<>{pieces.length} {pieces.length === 1 ? 'publicación' : 'publicaciones'} en {monthLabel(month).toLowerCase()} · abre una para ver cómo le fue</>}
                         chipMeta={(p) => {
                             const ms = metricsByPiece.get(p.id) ?? [];
-                            if (ms.length === 0) return <span className="text-[10px] text-gray-400">Resultados en camino</span>;
+                            if (ms.length === 0) return <span className="text-[10px] text-text-3">Resultados en camino</span>;
                             const reach = ms.reduce((s, m) => s + (m.alcance ?? 0), 0);
                             const ig = ms.find((m) => m.red === 'instagram');
                             const avg = competitorAverage(competitors, 'instagram');
                             const above = ig && avg ? visible(ig) >= avg : null;
                             return (
-                                <span className="flex items-center gap-1 text-[10px] font-bold text-gray-600">
-                                    <Eye size={10} className="text-gray-400" />{fmt(reach)}
-                                    {above != null && <span style={{ color: above ? ABOVE : '#52514e' }} aria-label={above ? 'sobre la competencia' : 'bajo la competencia'}>{above ? '▲' : '▼'}</span>}
+                                <span className="flex items-center gap-1 text-[10px] font-bold text-text-2">
+                                    <Eye size={10} className="text-text-3" />{fmt(reach)}
+                                    {above != null && <span style={{ color: above ? ABOVE : '#4A4A55' }} aria-label={above ? 'sobre la competencia' : 'bajo la competencia'}>{above ? '▲' : '▼'}</span>}
                                 </span>
                             );
                         }}
@@ -364,19 +364,19 @@ const Published: React.FC<{
                         const ig = ms.find((m) => m.red === 'instagram');
                         const avg = competitorAverage(competitors, 'instagram');
                         return (
-                            <button key={p.id} onClick={() => onOpen(p)} className="flex text-left bg-white rounded-3xl border border-gray-100 shadow-sm hover:shadow-lg transition-shadow overflow-hidden">
+                            <button key={p.id} onClick={() => onOpen(p)} className="flex text-left bg-card rounded-3xl border border-edge shadow-sm hover:shadow-lg transition-shadow overflow-hidden">
                                 <PieceCover piece={p} className="w-28 shrink-0 aspect-[4/5]" compact />
                                 <span className="p-4 min-w-0 flex flex-col gap-2">
-                                    <span className="text-xs text-gray-400">{formatFecha(p.fecha, { weekday: 'short', day: 'numeric', month: 'short' })}</span>
-                                    <span className="text-sm font-bold text-gray-900 leading-snug line-clamp-2">{p.topico_angulo || 'Pieza sin tópico'}</span>
+                                    <span className="text-xs text-text-3">{formatFecha(p.fecha, { weekday: 'short', day: 'numeric', month: 'short' })}</span>
+                                    <span className="text-sm font-bold text-white leading-snug line-clamp-2">{p.topico_angulo || 'Pieza sin tópico'}</span>
                                     {ms.length === 0 ? (
-                                        <span className="text-xs text-gray-400 mt-auto">Resultados en camino</span>
+                                        <span className="text-xs text-text-3 mt-auto">Resultados en camino</span>
                                     ) : (
                                         <span className="mt-auto space-y-1.5">
-                                            <span className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-gray-600">
-                                                <span><strong className="text-gray-900">{fmt(total('alcance'))}</strong> alcance</span>
-                                                <span><strong className="text-gray-900">{fmt(total('interacciones'))}</strong> interacciones</span>
-                                                <span><strong className="text-gray-900">{fmt(total('nuevos_seguidores'))}</strong> seguidores</span>
+                                            <span className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-text-2">
+                                                <span><strong className="text-white">{fmt(total('alcance'))}</strong> alcance</span>
+                                                <span><strong className="text-white">{fmt(total('interacciones'))}</strong> interacciones</span>
+                                                <span><strong className="text-white">{fmt(total('nuevos_seguidores'))}</strong> seguidores</span>
                                             </span>
                                             {ig && avg != null && <VsCompetition own={visible(ig)} avg={avg} />}
                                         </span>
@@ -397,7 +397,7 @@ const VsCompetition: React.FC<{ own: number; avg: number }> = ({ own, avg }) => 
     const above = ratio >= 1;
     const label = above ? `${ratio >= 1.95 ? `${ratio.toFixed(1)}×` : `+${Math.round((ratio - 1) * 100)}%`} sobre la competencia` : `${Math.round((1 - ratio) * 100)}% bajo la competencia`;
     return (
-        <span className="inline-flex items-center gap-1.5 text-xs font-semibold" style={{ color: above ? ABOVE : '#52514e' }}>
+        <span className="inline-flex items-center gap-1.5 text-xs font-semibold" style={{ color: above ? ABOVE : '#4A4A55' }}>
             <span aria-hidden>{above ? '▲' : '▼'}</span>{label}
         </span>
     );
@@ -406,8 +406,8 @@ const VsCompetition: React.FC<{ own: number; avg: number }> = ({ own, avg }) => 
 const CompetitorComparison: React.FC<{ ownAvg: number | null; competitors: api.CompetitorBenchmark[] }> = ({ ownAvg, competitors }) => {
     if (competitors.length === 0) {
         return (
-            <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-6 text-sm text-gray-500">
-                <p className="font-bold text-gray-900 mb-1">Frente a tu competencia</p>
+            <div className="bg-card rounded-3xl border border-edge shadow-sm p-6 text-sm text-text-3">
+                <p className="font-bold text-white mb-1">Frente a tu competencia</p>
                 Aún no hay datos de tu competencia para comparar. Los trae la vigilancia de mercado desde Metricool.
             </div>
         );
@@ -419,26 +419,26 @@ const CompetitorComparison: React.FC<{ ownAvg: number | null; competitors: api.C
     const max = Math.max(1, ...rows.map((r) => r.value));
     const mes = competitors[0]?.mes;
     return (
-        <section className="bg-white rounded-3xl border border-gray-100 shadow-sm p-6" aria-label="Frente a tu competencia">
+        <section className="bg-card rounded-3xl border border-edge shadow-sm p-6" aria-label="Frente a tu competencia">
             <div className="flex flex-wrap items-end justify-between gap-2 mb-4">
                 <div>
-                    <h2 className="text-lg font-bold text-gray-900">Frente a tu competencia</h2>
-                    <p className="text-sm text-gray-500">Likes + comentarios por publicación en Instagram, en promedio. Es la misma medida que Metricool da de tus competidores.</p>
+                    <h2 className="text-lg font-bold text-white">Frente a tu competencia</h2>
+                    <p className="text-sm text-text-3">Likes + comentarios por publicación en Instagram, en promedio. Es la misma medida que Metricool da de tus competidores.</p>
                 </div>
-                {mes && <span className="text-xs text-gray-400 inline-flex items-center gap-1"><Users size={13} /> Competencia de {monthLabel(mes).toLowerCase()}</span>}
+                {mes && <span className="text-xs text-text-3 inline-flex items-center gap-1"><Users size={13} /> Competencia de {monthLabel(mes).toLowerCase()}</span>}
             </div>
             <ul className="space-y-2.5">
                 {rows.map((r) => (
                     <li key={r.key} className="grid grid-cols-[120px_1fr_48px] items-center gap-3" title={`${r.label}: ${Math.round(r.value)} por publicación`}>
-                        <span className={`text-sm truncate ${r.own ? 'font-bold text-gray-900' : 'text-gray-600'}`}>{r.label}</span>
-                        <span className="h-3 rounded-r bg-gray-100 overflow-hidden">
+                        <span className={`text-sm truncate ${r.own ? 'font-bold text-white' : 'text-text-2'}`}>{r.label}</span>
+                        <span className="h-3 rounded-r bg-raised overflow-hidden">
                             <span className="block h-full rounded-r" style={{ width: `${(r.value / max) * 100}%`, backgroundColor: r.own ? OWN : RIVAL }} />
                         </span>
-                        <span className={`text-sm tabular-nums text-right ${r.own ? 'font-bold text-gray-900' : 'text-gray-600'}`}>{Math.round(r.value)}</span>
+                        <span className={`text-sm tabular-nums text-right ${r.own ? 'font-bold text-white' : 'text-text-2'}`}>{Math.round(r.value)}</span>
                     </li>
                 ))}
             </ul>
-            {ownAvg == null && <p className="mt-3 text-xs text-gray-500">Tus resultados de Instagram de este mes todavía no llegan.</p>}
+            {ownAvg == null && <p className="mt-3 text-xs text-text-3">Tus resultados de Instagram de este mes todavía no llegan.</p>}
         </section>
     );
 };
@@ -448,10 +448,10 @@ const CompetitorComparison: React.FC<{ ownAvg: number | null; competitors: api.C
 const RED_LABEL: Record<string, string> = { instagram: 'Instagram', facebook: 'Facebook', linkedin: 'LinkedIn', tiktok: 'TikTok', pinterest: 'Pinterest', gbp: 'Google Business', youtube: 'YouTube', x: 'X' };
 
 const PieceResults: React.FC<{ metrics: api.PieceMetric[]; competitors: api.CompetitorBenchmark[] }> = ({ metrics, competitors }) => (
-    <div className="p-6 border-b border-gray-100">
-        <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-3">Cómo le fue</p>
+    <div className="p-6 border-b border-edge">
+        <p className="text-xs font-bold uppercase tracking-wider text-text-3 mb-3">Cómo le fue</p>
         {metrics.length === 0 ? (
-            <p className="text-sm text-gray-500">Los resultados de esta pieza aún no llegan. Se actualizan unos días después de publicada.</p>
+            <p className="text-sm text-text-3">Los resultados de esta pieza aún no llegan. Se actualizan unos días después de publicada.</p>
         ) : (
             <div className="space-y-4">
                 {metrics.map((m) => {
@@ -460,26 +460,26 @@ const PieceResults: React.FC<{ metrics: api.PieceMetric[]; competitors: api.Comp
                     return (
                         <div key={m.red}>
                             <div className="flex items-center justify-between gap-2 mb-2">
-                                <span className="text-sm font-bold text-gray-900">{RED_LABEL[m.red] ?? m.red}</span>
-                                {url && <a href={url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs font-semibold text-gray-600 hover:text-gray-900"><ExternalLink size={12} /> Ver publicación</a>}
+                                <span className="text-sm font-bold text-white">{RED_LABEL[m.red] ?? m.red}</span>
+                                {url && <a href={url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs font-semibold text-text-2 hover:text-white"><ExternalLink size={12} /> Ver publicación</a>}
                             </div>
                             <dl className="grid grid-cols-3 gap-3">
                                 {([['Alcance', m.alcance], ['Vistas', m.vistas], ['Interacciones', m.interacciones], ['Guardados', m.guardados], ['Compartidos', m.compartidos], ['Nuevos seguidores', m.nuevos_seguidores]] as [string, number | null][]).map(([label, v]) => (
-                                    <div key={label} className="rounded-xl bg-gray-50 px-3 py-2">
-                                        <dt className="text-[11px] text-gray-500">{label}</dt>
-                                        <dd className="text-base font-bold text-gray-900 tabular-nums">{fmt(v)}</dd>
+                                    <div key={label} className="rounded-xl bg-raised px-3 py-2">
+                                        <dt className="text-[11px] text-text-3">{label}</dt>
+                                        <dd className="text-base font-bold text-white tabular-nums">{fmt(v)}</dd>
                                     </div>
                                 ))}
                             </dl>
                             {avg != null && (
-                                <p className="mt-2 text-xs text-gray-600">
+                                <p className="mt-2 text-xs text-text-2">
                                     {visible(m)} likes + comentarios frente a {Math.round(avg)} de promedio de tu competencia. <VsCompetition own={visible(m)} avg={avg} />
                                 </p>
                             )}
                         </div>
                     );
                 })}
-                <p className="text-[11px] text-gray-400">Fuente: Metricool. Actualizado el {new Date(metrics[0].actualizado_at).toLocaleDateString('es-PE', { day: 'numeric', month: 'long' })}.</p>
+                <p className="text-[11px] text-text-3">Fuente: Metricool. Actualizado el {new Date(metrics[0].actualizado_at).toLocaleDateString('es-PE', { day: 'numeric', month: 'long' })}.</p>
             </div>
         )}
     </div>
@@ -488,18 +488,18 @@ const PieceResults: React.FC<{ metrics: api.PieceMetric[]; competitors: api.Comp
 // --- Small pieces ---
 
 const Kpi: React.FC<{ label: string; value: string; note?: string; icon?: React.ElementType }> = ({ label, value, note, icon: Icon }) => (
-    <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-5">
-        <p className="text-sm text-gray-500 flex items-center gap-1.5">{Icon && <Icon size={14} className="text-gray-400" />}{label}</p>
-        <p className="text-3xl font-bold text-gray-900 mt-1">{value}</p>
-        {note && <p className="text-xs text-gray-400 mt-1">{note}</p>}
+    <div className="bg-card rounded-3xl border border-edge shadow-sm p-5">
+        <p className="text-sm text-text-3 flex items-center gap-1.5">{Icon && <Icon size={14} className="text-text-3" />}{label}</p>
+        <p className="text-3xl font-bold text-white mt-1">{value}</p>
+        {note && <p className="text-xs text-text-3 mt-1">{note}</p>}
     </div>
 );
 
 const Empty: React.FC<{ icon: React.ElementType; title: string; text: string }> = ({ icon: Icon, title, text }) => (
-    <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-12 flex flex-col items-center text-center">
-        <div className="w-14 h-14 rounded-2xl bg-gray-50 flex items-center justify-center mb-4"><Icon size={26} className="text-gray-300" /></div>
-        <h3 className="text-lg font-bold text-gray-900 mb-1">{title}</h3>
-        <p className="text-sm text-gray-500 max-w-sm">{text}</p>
+    <div className="bg-card rounded-3xl border border-edge shadow-sm p-12 flex flex-col items-center text-center">
+        <div className="w-14 h-14 rounded-2xl bg-raised flex items-center justify-center mb-4"><Icon size={26} className="text-mute" /></div>
+        <h3 className="text-lg font-bold text-white mb-1">{title}</h3>
+        <p className="text-sm text-text-3 max-w-sm">{text}</p>
     </div>
 );
 

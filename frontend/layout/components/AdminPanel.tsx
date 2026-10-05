@@ -47,10 +47,10 @@ const VIEW_TO_TAB: Record<string, api.AdminDestino> = {
 
 // Status colors, always shown with an icon and a word.
 const PASO_META: Record<api.PasoEstado, { color: string; icon: React.ElementType; label: string }> = {
-    listo: { color: '#0ca30c', icon: Check, label: 'Listo' },
-    cliente: { color: '#fab219', icon: Eye, label: 'Por aprobar' },
-    cambios: { color: '#ec835a', icon: MessageSquareWarning, label: 'Cambios pedidos' },
-    falta: { color: '#898781', icon: Circle, label: 'Falta' },
+    listo: { color: '#E4E4EA', icon: Check, label: 'Listo' },
+    cliente: { color: '#EB0C6E', icon: Eye, label: 'Por aprobar' },
+    cambios: { color: '#FF85C3', icon: MessageSquareWarning, label: 'Cambios pedidos' },
+    falta: { color: '#8A8A96', icon: Circle, label: 'Falta' },
 };
 const PASOS: { key: keyof api.AdminMarca['pasos']; label: string; destino: api.AdminDestino }[] = [
     { key: 'ficha', label: 'Ficha', destino: 'ficha' },
@@ -103,16 +103,16 @@ export const AdminPanel: React.FC<{ onNavigate?: (view: string) => void }> = () 
     const cliente = marcas.reduce((n, m) => n + m.acciones.filter((a) => a.quien === 'cliente').length, 0);
 
     return (
-        <div className="h-full overflow-y-auto custom-scrollbar p-4 md:p-8 bg-brand-bg">
+        <div className="h-full overflow-y-auto custom-scrollbar p-4 md:p-8 bg-ink">
             <div className="max-w-7xl mx-auto">
                 <div className="flex flex-wrap items-end justify-between gap-4 mb-6">
                     <div>
-                        <p className="text-xs font-bold uppercase tracking-wider text-primary-600">Panel del equipo</p>
-                        <h1 className="text-3xl font-black text-gray-900">Hoy</h1>
-                        <p className="text-gray-500 mt-1">Qué toca hacer en cada marca y qué receta correr.</p>
+                        <p className="text-xs font-bold uppercase tracking-wider text-pink-text">Panel del equipo</p>
+                        <h1 className="text-3xl font-black text-white">Hoy</h1>
+                        <p className="text-text-3 mt-1">Qué toca hacer en cada marca y qué receta correr.</p>
                     </div>
                     <div className="flex gap-2">
-                        <button onClick={load} disabled={loading} className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-gray-200 bg-white text-sm font-bold text-gray-700 hover:bg-gray-50 disabled:opacity-60">
+                        <button onClick={load} disabled={loading} className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-edge bg-card text-sm font-bold text-text-2 hover:bg-raised disabled:opacity-60">
                             <RefreshCw size={16} className={loading ? 'animate-spin' : ''} /> Actualizar
                         </button>
                         <button onClick={() => setCreating(true)} className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-pink-500 to-rose-500 text-white text-sm font-bold shadow-lg shadow-pink-500/20">
@@ -121,10 +121,10 @@ export const AdminPanel: React.FC<{ onNavigate?: (view: string) => void }> = () 
                     </div>
                 </div>
 
-                {error && <p className="mb-4 rounded-2xl bg-red-50 border border-red-100 px-4 py-3 text-sm text-red-700">{error}</p>}
+                {error && <p className="mb-4 rounded-2xl bg-raised border border-pink/40 px-4 py-3 text-sm text-pink-text">{error}</p>}
 
                 {loading && !data ? (
-                    <div className="flex items-center justify-center h-64"><Loader2 className="animate-spin text-gray-300" size={36} /></div>
+                    <div className="flex items-center justify-center h-64"><Loader2 className="animate-spin text-mute" size={36} /></div>
                 ) : (
                     <>
                         <section className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6" aria-label="Resumen">
@@ -134,7 +134,7 @@ export const AdminPanel: React.FC<{ onNavigate?: (view: string) => void }> = () 
                         </section>
 
                         {marcas.length === 0 ? (
-                            <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-12 text-center text-gray-500">Aún no hay marcas. Crea la primera.</div>
+                            <div className="bg-card rounded-3xl border border-edge shadow-sm p-12 text-center text-text-3">Aún no hay marcas. Crea la primera.</div>
                         ) : (
                             <div className="space-y-4">
                                 {marcas.map((m) => <BrandRow key={m.id} marca={m} onOpen={(tab) => setOpen({ id: m.id, tab })} />)}
@@ -150,10 +150,10 @@ export const AdminPanel: React.FC<{ onNavigate?: (view: string) => void }> = () 
 };
 
 const Stat: React.FC<{ label: string; value: number; note: string; strong?: boolean }> = ({ label, value, note, strong }) => (
-    <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-5">
-        <p className="text-sm text-gray-500">{label}</p>
-        <p className={`text-4xl font-bold mt-1 ${strong ? 'text-gray-900' : 'text-gray-700'}`}>{value}</p>
-        <p className="text-xs text-gray-400 mt-1">{note}</p>
+    <div className="bg-card rounded-3xl border border-edge shadow-sm p-5">
+        <p className="text-sm text-text-3">{label}</p>
+        <p className={`text-4xl font-bold mt-1 ${strong ? 'text-white' : 'text-text-2'}`}>{value}</p>
+        <p className="text-xs text-text-3 mt-1">{note}</p>
     </div>
 );
 
@@ -164,10 +164,10 @@ const PasoChip: React.FC<{ label: string; pasoKey: string; estado: api.PasoEstad
     const Icon = meta.icon;
     return (
         <button onClick={onClick} title={`${label}: ${pasoLabel(pasoKey, estado)}`}
-            className="inline-flex items-center gap-1.5 rounded-lg px-2 py-1 text-xs font-semibold text-gray-800 hover:ring-1 hover:ring-gray-300"
+            className="inline-flex items-center gap-1.5 rounded-lg px-2 py-1 text-xs font-semibold text-white hover:ring-1 hover:ring-line"
             style={{ background: `${meta.color}1F` }}>
             <Icon size={12} style={{ color: meta.color }} strokeWidth={2.5} />
-            {label}: <span className="font-normal text-gray-600">{pasoLabel(pasoKey, estado)}</span>
+            {label}: <span className="font-normal text-text-2">{pasoLabel(pasoKey, estado)}</span>
         </button>
     );
 };
@@ -177,13 +177,13 @@ const BrandRow: React.FC<{ marca: api.AdminMarca; onOpen: (tab: Tab) => void }> 
     const client = marca.acciones.filter((a) => a.quien === 'cliente');
     const c = marca.contenido;
     return (
-        <article className="bg-white rounded-3xl border border-gray-100 shadow-sm p-5">
+        <article className="bg-card rounded-3xl border border-edge shadow-sm p-5">
             <div className="flex flex-wrap items-start justify-between gap-3">
                 <button onClick={() => onOpen('resumen')} className="flex items-center gap-3 text-left group">
-                    <span className="w-11 h-11 rounded-2xl bg-gray-900 text-white flex items-center justify-center text-lg font-bold">{marca.nombre.charAt(0).toUpperCase()}</span>
+                    <span className="w-11 h-11 rounded-2xl bg-raised text-white flex items-center justify-center text-lg font-bold">{marca.nombre.charAt(0).toUpperCase()}</span>
                     <span>
-                        <span className="block text-lg font-bold text-gray-900 group-hover:underline underline-offset-2">{marca.nombre}</span>
-                        <span className="text-xs text-gray-500 inline-flex items-center gap-1"><Users size={12} /> {marca.usuarios} {marca.usuarios === 1 ? 'usuario' : 'usuarios'}</span>
+                        <span className="block text-lg font-bold text-white group-hover:underline underline-offset-2">{marca.nombre}</span>
+                        <span className="text-xs text-text-3 inline-flex items-center gap-1"><Users size={12} /> {marca.usuarios} {marca.usuarios === 1 ? 'usuario' : 'usuarios'}</span>
                     </span>
                 </button>
                 <div className="flex flex-wrap gap-1.5">
@@ -193,27 +193,27 @@ const BrandRow: React.FC<{ marca: api.AdminMarca; onOpen: (tab: Tab) => void }> 
 
             <ConfigLine config={marca.config} onClick={() => onOpen('configuracion')} />
 
-            <div className="mt-1.5 flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-500">
-                <span>Plan de {monthLabel(c.mes).split(' ')[0].toLowerCase()}: <strong className="text-gray-800">{c.plan_mes}</strong></span>
-                <span>Próximo mes: <strong className="text-gray-800">{c.plan_siguiente}</strong></span>
-                <span>En producción: <strong className="text-gray-800">{c.en_produccion}</strong></span>
-                <span>Por revisar (cliente): <strong className="text-gray-800">{c.por_revisar}</strong></span>
-                <span>Por programar: <strong className="text-gray-800">{c.por_programar}</strong></span>
+            <div className="mt-1.5 flex flex-wrap gap-x-4 gap-y-1 text-xs text-text-3">
+                <span>Plan de {monthLabel(c.mes).split(' ')[0].toLowerCase()}: <strong className="text-white">{c.plan_mes}</strong></span>
+                <span>Próximo mes: <strong className="text-white">{c.plan_siguiente}</strong></span>
+                <span>En producción: <strong className="text-white">{c.en_produccion}</strong></span>
+                <span>Por revisar (cliente): <strong className="text-white">{c.por_revisar}</strong></span>
+                <span>Por programar: <strong className="text-white">{c.por_programar}</strong></span>
             </div>
 
             {team.length > 0 && (
-                <ul className="mt-4 divide-y divide-gray-100 rounded-2xl border border-gray-100 overflow-hidden">
+                <ul className="mt-4 divide-y divide-edge rounded-2xl border border-edge overflow-hidden">
                     {team.map((a, i) => <ActionRow key={i} accion={a} onGo={() => a.destino && onOpen(a.destino)} />)}
                 </ul>
             )}
-            {team.length === 0 && <p className="mt-4 text-sm text-gray-500 inline-flex items-center gap-1.5"><Check size={14} style={{ color: PASO_META.listo.color }} /> Nada pendiente para el equipo.</p>}
+            {team.length === 0 && <p className="mt-4 text-sm text-text-3 inline-flex items-center gap-1.5"><Check size={14} style={{ color: PASO_META.listo.color }} /> Nada pendiente para el equipo.</p>}
             {client.length > 0 && (
-                <p className="mt-3 text-xs text-gray-500">
-                    <span className="font-semibold text-gray-700">Esperando al cliente:</span>{' '}
+                <p className="mt-3 text-xs text-text-3">
+                    <span className="font-semibold text-text-2">Esperando al cliente:</span>{' '}
                     {client.map((a, i) => (
                         <React.Fragment key={i}>
                             {i > 0 && ' · '}
-                            <button onClick={() => a.destino && onOpen(a.destino)} className="underline underline-offset-2 hover:text-gray-800">{a.texto}{a.n ? ` (${a.n})` : ''}</button>
+                            <button onClick={() => a.destino && onOpen(a.destino)} className="underline underline-offset-2 hover:text-white">{a.texto}{a.n ? ` (${a.n})` : ''}</button>
                         </React.Fragment>
                     ))}
                 </p>
@@ -223,15 +223,15 @@ const BrandRow: React.FC<{ marca: api.AdminMarca; onOpen: (tab: Tab) => void }> 
 };
 
 const ConfigLine: React.FC<{ config: api.AdminMarca['config']; onClick: () => void }> = ({ config, onClick }) => (
-    <button onClick={onClick} className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-gray-600 hover:text-gray-900 text-left">
-        <Settings size={12} className="text-gray-400" />
+    <button onClick={onClick} className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-text-2 hover:text-white text-left">
+        <Settings size={12} className="text-text-3" />
         {config.completa ? (
             <>
-                <span><strong className="text-gray-800">{config.plan ?? 'Plan sin nombre'}</strong> · {(config.fotos_mes ?? 0) + (config.reels_mes ?? 0)} piezas al mes ({config.fotos_mes} fotos, {config.reels_mes} reels)</span>
+                <span><strong className="text-white">{config.plan ?? 'Plan sin nombre'}</strong> · {(config.fotos_mes ?? 0) + (config.reels_mes ?? 0)} piezas al mes ({config.fotos_mes} fotos, {config.reels_mes} reels)</span>
                 <span>· {config.redes.map((r) => RED_LABEL[r]).join(', ')}</span>
                 <span>· Metricool {config.metricool ? '✓' : 'sin conectar'}</span>
             </>
-        ) : <span className="font-semibold text-gray-800 underline underline-offset-2">Sin configurar: plan, volumen y redes</span>}
+        ) : <span className="font-semibold text-white underline underline-offset-2">Sin configurar: plan, volumen y redes</span>}
     </button>
 );
 
@@ -243,17 +243,17 @@ const ActionRow: React.FC<{ accion: api.AdminAccion; onGo: () => void }> = ({ ac
     };
     return (
         <li className="flex flex-wrap items-center gap-x-3 gap-y-2 px-4 py-2.5">
-            <span className="flex-1 min-w-[200px] text-sm text-gray-800">
-                {accion.texto}{accion.n ? <strong className="text-gray-900"> ({accion.n})</strong> : null}
+            <span className="flex-1 min-w-[200px] text-sm text-white">
+                {accion.texto}{accion.n ? <strong className="text-white"> ({accion.n})</strong> : null}
             </span>
             {accion.receta && (
                 <button onClick={copy} title="Copiar para pegar en Claude Desktop"
-                    className="inline-flex items-center gap-1.5 rounded-lg bg-gray-900 text-white px-2.5 py-1 font-mono text-xs hover:bg-gray-800">
+                    className="inline-flex items-center gap-1.5 rounded-lg bg-raised text-white px-2.5 py-1 font-mono text-xs hover:bg-edge">
                     {copied ? <Check size={12} /> : <Copy size={12} />} {copied ? 'Copiado' : accion.receta}
                 </button>
             )}
             {accion.destino && (
-                <button onClick={onGo} className="inline-flex items-center gap-1 text-xs font-bold text-gray-600 hover:text-gray-900">
+                <button onClick={onGo} className="inline-flex items-center gap-1 text-xs font-bold text-text-2 hover:text-white">
                     Abrir <ChevronRight size={14} />
                 </button>
             )}
@@ -272,22 +272,22 @@ const BrandDetail: React.FC<{ marca: api.AdminMarca; tab: Tab; onTab: (t: Tab) =
     const navigate = (view: string) => { const t = VIEW_TO_TAB[view]; if (t) onTab(t); };
 
     return (
-        <div className="h-full flex flex-col bg-brand-bg">
-            <header className="bg-white border-b border-gray-200 px-4 md:px-6 pt-4 shrink-0">
+        <div className="h-full flex flex-col bg-ink">
+            <header className="bg-card border-b border-edge px-4 md:px-6 pt-4 shrink-0">
                 <div className="flex items-center gap-3 mb-3">
-                    <button onClick={onBack} className="p-2 rounded-xl hover:bg-gray-100" aria-label="Volver al tablero"><ArrowLeft size={20} className="text-gray-600" /></button>
+                    <button onClick={onBack} className="p-2 rounded-xl hover:bg-raised" aria-label="Volver al tablero"><ArrowLeft size={20} className="text-text-2" /></button>
                     <div className="min-w-0">
-                        <p className="text-[11px] font-bold uppercase tracking-wider text-gray-400">Panel del equipo</p>
-                        <h1 className="text-xl font-bold text-gray-900 truncate">{marca.nombre}</h1>
+                        <p className="text-[11px] font-bold uppercase tracking-wider text-text-3">Panel del equipo</p>
+                        <h1 className="text-xl font-bold text-white truncate">{marca.nombre}</h1>
                     </div>
                 </div>
                 <nav className="flex gap-1 overflow-x-auto -mb-px" aria-label="Páginas de la marca">
                     <TabButton active={tab === 'resumen'} onClick={() => onTab('resumen')} icon={LayoutDashboard} label="Resumen" />
                     <TabButton active={tab === 'configuracion'} onClick={() => onTab('configuracion')} icon={Settings} label="Configuración" />
-                    <span className="w-px bg-gray-200 my-2 mx-1 shrink-0" />
+                    <span className="w-px bg-edge my-2 mx-1 shrink-0" />
                     {PAGES.map((p, i) => (
                         <React.Fragment key={p.key}>
-                            {i > 0 && PAGES[i - 1].group !== p.group && <span className="w-px bg-gray-200 my-2 mx-1 shrink-0" />}
+                            {i > 0 && PAGES[i - 1].group !== p.group && <span className="w-px bg-edge my-2 mx-1 shrink-0" />}
                             <TabButton active={tab === p.key} onClick={() => onTab(p.key)} icon={p.icon} label={p.label} />
                         </React.Fragment>
                     ))}
@@ -297,13 +297,13 @@ const BrandDetail: React.FC<{ marca: api.AdminMarca; tab: Tab; onTab: (t: Tab) =
             {tab === 'configuracion' ? (
                 <div className="flex-1 overflow-y-auto custom-scrollbar p-4 md:p-8">
                     <div className="max-w-4xl mx-auto">
-                        <p className="text-sm text-gray-500 mb-4">Solo la ve el equipo. Es lo que leen las recetas de Claude Desktop para esta marca.</p>
+                        <p className="text-sm text-text-3 mb-4">Solo la ve el equipo. Es lo que leen las recetas de Claude Desktop para esta marca.</p>
                         <BrandSettingsForm clientId={marca.id} onSaved={onChanged} />
                     </div>
                 </div>
             ) : page ? (
                 <div className="flex-1 min-h-0 flex flex-col">
-                    <p className="shrink-0 px-4 md:px-6 py-2 text-xs text-gray-600 bg-amber-50 border-b border-amber-100">
+                    <p className="shrink-0 px-4 md:px-6 py-2 text-xs text-text-2 bg-raised border-b border-pink/40">
                         Ves lo mismo que ve el cliente en <strong>{page.label}</strong>. Si apruebas o pides cambios aquí, cuenta como si lo hiciera el cliente.
                     </p>
                     <div className="flex-1 min-h-0 overflow-hidden">
@@ -319,7 +319,7 @@ const BrandDetail: React.FC<{ marca: api.AdminMarca; tab: Tab; onTab: (t: Tab) =
 
 const TabButton: React.FC<{ active: boolean; onClick: () => void; icon: React.ElementType; label: string }> = ({ active, onClick, icon: Icon, label }) => (
     <button onClick={onClick} aria-current={active ? 'page' : undefined}
-        className={`shrink-0 inline-flex items-center gap-1.5 px-3 py-2.5 text-sm font-semibold border-b-2 transition-colors ${active ? 'border-gray-900 text-gray-900' : 'border-transparent text-gray-500 hover:text-gray-800'}`}>
+        className={`shrink-0 inline-flex items-center gap-1.5 px-3 py-2.5 text-sm font-semibold border-b-2 transition-colors ${active ? 'border-text-3 text-white' : 'border-transparent text-text-3 hover:text-white'}`}>
         <Icon size={15} /> {label}
     </button>
 );
@@ -343,48 +343,48 @@ const BrandSummary: React.FC<{ marca: api.AdminMarca; onTab: (t: Tab) => void }>
     return (
         <div className="flex-1 overflow-y-auto custom-scrollbar p-4 md:p-8">
             <div className="max-w-5xl mx-auto space-y-6">
-                <section className="bg-white rounded-3xl border border-gray-100 shadow-sm p-6">
+                <section className="bg-card rounded-3xl border border-edge shadow-sm p-6">
                     <div className="flex items-center justify-between gap-3">
-                        <h2 className="text-lg font-bold text-gray-900">Configuración</h2>
-                        <button onClick={() => onTab('configuracion')} className="text-sm font-bold text-gray-600 hover:text-gray-900 inline-flex items-center gap-1">Editar <ChevronRight size={14} /></button>
+                        <h2 className="text-lg font-bold text-white">Configuración</h2>
+                        <button onClick={() => onTab('configuracion')} className="text-sm font-bold text-text-2 hover:text-white inline-flex items-center gap-1">Editar <ChevronRight size={14} /></button>
                     </div>
                     <ConfigLine config={marca.config} onClick={() => onTab('configuracion')} />
                 </section>
 
-                <section className="bg-white rounded-3xl border border-gray-100 shadow-sm p-6">
-                    <h2 className="text-lg font-bold text-gray-900 mb-3">Dónde está</h2>
+                <section className="bg-card rounded-3xl border border-edge shadow-sm p-6">
+                    <h2 className="text-lg font-bold text-white mb-3">Dónde está</h2>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                         {PASOS.map((p) => {
                             const estado = marca.pasos[p.key];
                             const meta = PASO_META[estado];
                             return (
-                                <button key={p.key} onClick={() => onTab(p.destino)} className="text-left rounded-2xl border border-gray-100 p-4 hover:shadow-sm" style={{ background: `${meta.color}12` }}>
-                                    <p className="text-sm font-bold text-gray-900">{p.label}</p>
-                                    <p className="text-xs text-gray-600 mt-1 inline-flex items-center gap-1"><meta.icon size={12} style={{ color: meta.color }} strokeWidth={2.5} /> {pasoLabel(p.key, estado)}</p>
+                                <button key={p.key} onClick={() => onTab(p.destino)} className="text-left rounded-2xl border border-edge p-4 hover:shadow-sm" style={{ background: `${meta.color}12` }}>
+                                    <p className="text-sm font-bold text-white">{p.label}</p>
+                                    <p className="text-xs text-text-2 mt-1 inline-flex items-center gap-1"><meta.icon size={12} style={{ color: meta.color }} strokeWidth={2.5} /> {pasoLabel(p.key, estado)}</p>
                                 </button>
                             );
                         })}
                     </div>
-                    <p className="text-xs text-gray-500 mt-3">
+                    <p className="text-xs text-text-3 mt-3">
                         Última vigilancia de mercado: {marca.ultima_vigilancia ? new Date(`${marca.ultima_vigilancia}T12:00:00`).toLocaleDateString('es-PE', { day: 'numeric', month: 'long' }) : 'nunca'}
                         {' · '}Últimos resultados de Metricool: {marca.ultimos_resultados ? new Date(marca.ultimos_resultados).toLocaleDateString('es-PE', { day: 'numeric', month: 'long' }) : 'nunca'}
                     </p>
                 </section>
 
-                <section className="bg-white rounded-3xl border border-gray-100 shadow-sm p-6">
-                    <h2 className="text-lg font-bold text-gray-900 mb-3">Qué toca</h2>
-                    {team.length === 0 ? <p className="text-sm text-gray-500">Nada pendiente para el equipo.</p> : (
-                        <ul className="divide-y divide-gray-100 rounded-2xl border border-gray-100 overflow-hidden">
+                <section className="bg-card rounded-3xl border border-edge shadow-sm p-6">
+                    <h2 className="text-lg font-bold text-white mb-3">Qué toca</h2>
+                    {team.length === 0 ? <p className="text-sm text-text-3">Nada pendiente para el equipo.</p> : (
+                        <ul className="divide-y divide-edge rounded-2xl border border-edge overflow-hidden">
                             {team.map((a, i) => <ActionRow key={i} accion={a} onGo={() => a.destino && onTab(a.destino)} />)}
                         </ul>
                     )}
                     {client.length > 0 && (
                         <>
-                            <h3 className="text-sm font-bold text-gray-900 mt-5 mb-2">Esperando al cliente</h3>
+                            <h3 className="text-sm font-bold text-white mt-5 mb-2">Esperando al cliente</h3>
                             <ul className="space-y-1">
                                 {client.map((a, i) => (
                                     <li key={i}>
-                                        <button onClick={() => a.destino && onTab(a.destino)} className="text-sm text-gray-700 underline underline-offset-2 hover:text-gray-900">{a.texto}{a.n ? ` (${a.n})` : ''}</button>
+                                        <button onClick={() => a.destino && onTab(a.destino)} className="text-sm text-text-2 underline underline-offset-2 hover:text-white">{a.texto}{a.n ? ` (${a.n})` : ''}</button>
                                     </li>
                                 ))}
                             </ul>
@@ -392,20 +392,20 @@ const BrandSummary: React.FC<{ marca: api.AdminMarca; onTab: (t: Tab) => void }>
                     )}
                 </section>
 
-                <section className="bg-white rounded-3xl border border-gray-100 shadow-sm p-6">
+                <section className="bg-card rounded-3xl border border-edge shadow-sm p-6">
                     <div className="flex items-center justify-between mb-3">
-                        <h2 className="text-lg font-bold text-gray-900">Usuarios del cliente</h2>
-                        <button onClick={() => setAdding(true)} className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gray-900 text-white text-sm font-bold hover:bg-gray-800"><Plus size={16} /> Agregar usuario</button>
+                        <h2 className="text-lg font-bold text-white">Usuarios del cliente</h2>
+                        <button onClick={() => setAdding(true)} className="flex items-center gap-2 px-4 py-2 rounded-xl bg-raised text-white text-sm font-bold hover:bg-edge"><Plus size={16} /> Agregar usuario</button>
                     </div>
-                    {error && <p className="mb-3 text-sm text-red-600">{error}</p>}
-                    {users.length === 0 ? <p className="text-sm text-gray-500">Esta marca aún no tiene usuarios: el cliente no puede entrar a Partners.</p> : (
-                        <ul className="divide-y divide-gray-100">
+                    {error && <p className="mb-3 text-sm text-pink-text">{error}</p>}
+                    {users.length === 0 ? <p className="text-sm text-text-3">Esta marca aún no tiene usuarios: el cliente no puede entrar a Partners.</p> : (
+                        <ul className="divide-y divide-edge">
                             {users.map((u) => (
                                 <li key={u.id} className="flex items-center gap-3 py-3">
-                                    <span className="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center text-gray-500"><UserRound size={18} /></span>
+                                    <span className="w-9 h-9 rounded-full bg-raised flex items-center justify-center text-text-3"><UserRound size={18} /></span>
                                     <span>
-                                        <span className="block text-sm font-bold text-gray-900">{u.full_name || u.email.split('@')[0]}</span>
-                                        <span className="block text-xs text-gray-500">{u.email}</span>
+                                        <span className="block text-sm font-bold text-white">{u.full_name || u.email.split('@')[0]}</span>
+                                        <span className="block text-xs text-text-3">{u.email}</span>
                                     </span>
                                 </li>
                             ))}
@@ -424,11 +424,11 @@ const BrandSummary: React.FC<{ marca: api.AdminMarca; onTab: (t: Tab) => void }>
 
 const Modal: React.FC<{ title: string; onClose: () => void; children: React.ReactNode }> = ({ title, onClose, children }) =>
     createPortal(
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4" onClick={onClose}>
-            <div className="bg-white rounded-3xl p-7 w-full max-w-md shadow-2xl" onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true" aria-label={title}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-raised/50 backdrop-blur-sm p-4" onClick={onClose}>
+            <div className="bg-card rounded-3xl p-7 w-full max-w-md shadow-2xl" onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true" aria-label={title}>
                 <div className="flex items-center justify-between mb-5">
-                    <h2 className="text-xl font-bold text-gray-900">{title}</h2>
-                    <button onClick={onClose} className="p-2 -m-2 rounded-full hover:bg-gray-100 text-gray-400" aria-label="Cerrar"><X size={20} /></button>
+                    <h2 className="text-xl font-bold text-white">{title}</h2>
+                    <button onClick={onClose} className="p-2 -m-2 rounded-full hover:bg-raised text-text-3" aria-label="Cerrar"><X size={20} /></button>
                 </div>
                 {children}
             </div>
@@ -438,11 +438,11 @@ const Modal: React.FC<{ title: string; onClose: () => void; children: React.Reac
 
 const Field: React.FC<{ label: string; children: React.ReactNode }> = ({ label, children }) => (
     <label className="block">
-        <span className="block text-xs font-bold text-gray-700 uppercase mb-1.5">{label}</span>
+        <span className="block text-xs font-bold text-text-2 uppercase mb-1.5">{label}</span>
         {children}
     </label>
 );
-const inputCls = 'w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20 outline-none';
+const inputCls = 'w-full px-4 py-3 rounded-xl border border-edge focus:border-pink focus:ring-2 focus:ring-pink/20 outline-none';
 
 const CreateBrandModal: React.FC<{ onClose: () => void; onCreated: () => void }> = ({ onClose, onCreated }) => {
     const [nombre, setNombre] = useState('');
@@ -460,8 +460,8 @@ const CreateBrandModal: React.FC<{ onClose: () => void; onCreated: () => void }>
         <Modal title="Nueva marca" onClose={onClose}>
             <form onSubmit={submit} className="space-y-4">
                 <Field label="Nombre de la marca"><input value={nombre} onChange={(e) => setNombre(e.target.value)} className={inputCls} placeholder="Ej. Café Andino" autoFocus required /></Field>
-                <p className="text-xs text-gray-500">Después agrega su usuario desde el resumen de la marca, para que el cliente pueda entrar.</p>
-                {error && <p className="text-sm text-red-600">{error}</p>}
+                <p className="text-xs text-text-3">Después agrega su usuario desde el resumen de la marca, para que el cliente pueda entrar.</p>
+                {error && <p className="text-sm text-pink-text">{error}</p>}
                 <button type="submit" disabled={saving || !nombre.trim()} className="w-full py-3 rounded-xl bg-gradient-to-r from-pink-500 to-rose-500 text-white font-bold disabled:opacity-50">
                     {saving ? <Loader2 className="animate-spin mx-auto" size={20} /> : 'Crear marca'}
                 </button>
@@ -491,8 +491,8 @@ const AddUserModal: React.FC<{ brandId: string; onClose: () => void; onCreated: 
                 <Field label="Email"><input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className={inputCls} required autoFocus /></Field>
                 <Field label="Contraseña"><input type="password" value={password} onChange={(e) => setPassword(e.target.value)} className={inputCls} required minLength={6} /></Field>
                 <Field label="Nombre (opcional)"><input value={fullName} onChange={(e) => setFullName(e.target.value)} className={inputCls} /></Field>
-                {error && <p className="text-sm text-red-600">{error}</p>}
-                <button type="submit" disabled={saving} className="w-full py-3 rounded-xl bg-gray-900 text-white font-bold hover:bg-gray-800 disabled:opacity-50">
+                {error && <p className="text-sm text-pink-text">{error}</p>}
+                <button type="submit" disabled={saving} className="w-full py-3 rounded-xl bg-raised text-white font-bold hover:bg-edge disabled:opacity-50">
                     {saving ? <Loader2 className="animate-spin mx-auto" size={20} /> : 'Crear usuario'}
                 </button>
             </form>

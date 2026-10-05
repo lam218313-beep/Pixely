@@ -12,7 +12,7 @@ import { OTHER_COLOR, pieceConceptIds, type StrategyIndex } from './strategyLink
 
 const PILARES: api.ContentPilar[] = ['Problema', 'Identidad', 'Prueba'];
 const FORMATOS: api.ContentFormato[] = ['Imagen', 'Carrusel', 'Estado', 'Reel'];
-const NEUTRAL_BAR = '#52514e';
+const NEUTRAL_BAR = '#4A4A55';
 
 const PILAR_EXPLAIN: Record<api.ContentPilar, string> = {
     Problema: 'habla de un dolor o una fricción del cliente',
@@ -98,11 +98,11 @@ function useTip() {
     });
     const node = tip && (
         <div
-            className="pointer-events-none absolute z-10 max-w-[260px] rounded-xl bg-gray-900 px-3 py-2 text-xs text-white shadow-lg"
+            className="pointer-events-none absolute z-10 max-w-[260px] rounded-xl bg-raised px-3 py-2 text-xs text-white shadow-lg"
             style={{ left: tip.x, top: tip.y, transform: 'translate(-50%, calc(-100% - 12px))' }}
         >
             <p className="font-bold leading-snug">{tip.title}</p>
-            <p className="text-gray-300 mt-0.5">{tip.detail}</p>
+            <p className="text-mute mt-0.5">{tip.detail}</p>
         </div>
     );
     return { ref, bind, node };
@@ -122,20 +122,20 @@ export const PlanOverview: React.FC<{ pieces: api.ContentPiece[]; index: Strateg
     return (
         <section className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6" aria-label="El plan de un vistazo">
             <div className="space-y-6">
-                <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-6">
-                    <p className="text-sm text-gray-500 mb-1">Plan de {monthName}</p>
-                    <p className="text-5xl font-bold text-gray-900 leading-none">
-                        {total} <span className="text-lg font-semibold text-gray-400">{total === 1 ? 'pieza' : 'piezas'}</span>
+                <div className="bg-card rounded-3xl border border-edge shadow-sm p-6">
+                    <p className="text-sm text-text-3 mb-1">Plan de {monthName}</p>
+                    <p className="text-5xl font-bold text-white leading-none">
+                        {total} <span className="text-lg font-semibold text-text-3">{total === 1 ? 'pieza' : 'piezas'}</span>
                     </p>
-                    <ul className="mt-4 space-y-1.5 text-sm text-gray-600">
+                    <ul className="mt-4 space-y-1.5 text-sm text-text-2">
                         {main && (
                             <li className="flex items-center gap-2">
                                 <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: main.color }} />
-                                <span><strong className="text-gray-900">{main.n} de {total}</strong> van al objetivo principal</span>
+                                <span><strong className="text-white">{main.n} de {total}</strong> van al objetivo principal</span>
                             </li>
                         )}
-                        <li><strong className="text-gray-900">{research}</strong> con dato de mercado · <strong className="text-gray-900">{total - research}</strong> ideas creativas</li>
-                        {data.combined > 0 && <li><strong className="text-gray-900">{data.combined}</strong> combinan más de un concepto</li>}
+                        <li><strong className="text-white">{research}</strong> con dato de mercado · <strong className="text-white">{total - research}</strong> ideas creativas</li>
+                        {data.combined > 0 && <li><strong className="text-white">{data.combined}</strong> combinan más de un concepto</li>}
                     </ul>
                 </div>
                 <FormatChart pieces={pieces} />
@@ -162,20 +162,20 @@ const StrategyIcicle: React.FC<{ data: Breakdown; total: number }> = ({ data, to
             className="relative min-h-0 overflow-hidden rounded-lg px-2.5 py-1.5 flex items-start justify-between gap-2 border-l-4 cursor-default"
             style={{ flex: `${b.n} 1 0px`, borderLeftColor: b.color, backgroundColor: `${b.color}${['40', '26', '14'][level]}` }}
         >
-            <span className={`text-gray-900 leading-tight line-clamp-3 ${level === 0 ? 'text-xs font-bold' : 'text-[11px] font-semibold'}`}>
-                {level === 0 && b.principal && <span className="block text-[10px] uppercase tracking-wider text-gray-600">Principal</span>}
+            <span className={`text-white leading-tight line-clamp-3 ${level === 0 ? 'text-xs font-bold' : 'text-[11px] font-semibold'}`}>
+                {level === 0 && b.principal && <span className="block text-[10px] uppercase tracking-wider text-text-2">Principal</span>}
                 {b.label}
             </span>
-            <span className="text-xs font-bold text-gray-900 tabular-nums shrink-0">{b.n}</span>
+            <span className="text-xs font-bold text-white tabular-nums shrink-0">{b.n}</span>
         </div>
     );
 
     return (
-        <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-6 h-full flex flex-col">
-            <h2 className="text-lg font-bold text-gray-900">Del objetivo al concepto</h2>
-            <p className="text-sm text-gray-500 mb-4">Cómo se reparten las piezas del mes en tu estrategia. El tamaño de cada franja muestra cuántas piezas tiene.</p>
+        <div className="bg-card rounded-3xl border border-edge shadow-sm p-6 h-full flex flex-col">
+            <h2 className="text-lg font-bold text-white">Del objetivo al concepto</h2>
+            <p className="text-sm text-text-3 mb-4">Cómo se reparten las piezas del mes en tu estrategia. El tamaño de cada franja muestra cuántas piezas tiene.</p>
 
-            <div className="hidden sm:grid grid-cols-3 gap-2 text-[11px] font-bold uppercase tracking-wider text-gray-400 mb-2">
+            <div className="hidden sm:grid grid-cols-3 gap-2 text-[11px] font-bold uppercase tracking-wider text-text-3 mb-2">
                 <span>Objetivo</span><span>Estrategia</span><span>Concepto</span>
             </div>
             <div ref={ref} className="relative hidden sm:grid grid-cols-3 gap-2 flex-1" style={{ minHeight }} role="img"
@@ -187,10 +187,10 @@ const StrategyIcicle: React.FC<{ data: Breakdown; total: number }> = ({ data, to
             </div>
             <TreeList tree={data.tree} total={total} />
 
-            <div className="mt-4 space-y-1 text-xs text-gray-500">
+            <div className="mt-4 space-y-1 text-xs text-text-3">
                 {data.combined > 0 && <p>Las piezas que combinan varios conceptos se cuentan una sola vez, en su concepto principal.</p>}
                 {data.idle.length > 0 && (
-                    <p><span className="font-semibold text-gray-700">Sin piezas este mes:</span> {data.idle.join(', ')}.</p>
+                    <p><span className="font-semibold text-text-2">Sin piezas este mes:</span> {data.idle.join(', ')}.</p>
                 )}
             </div>
         </div>
@@ -202,13 +202,13 @@ const TreeList: React.FC<{ tree: ObjectiveBand[]; total: number }> = ({ tree, to
     const row = (b: Band, level: 0 | 1 | 2) => (
         <div className={level === 0 ? '' : level === 1 ? 'ml-3' : 'ml-6'}>
             <div className="flex items-baseline justify-between gap-3">
-                <span className={`text-gray-900 leading-snug ${level === 0 ? 'text-sm font-bold' : level === 1 ? 'text-xs font-semibold' : 'text-xs text-gray-700'}`}>
-                    {level === 0 && b.principal && <span className="text-[10px] uppercase tracking-wider text-gray-500 mr-1">Principal</span>}
+                <span className={`text-white leading-snug ${level === 0 ? 'text-sm font-bold' : level === 1 ? 'text-xs font-semibold' : 'text-xs text-text-2'}`}>
+                    {level === 0 && b.principal && <span className="text-[10px] uppercase tracking-wider text-text-3 mr-1">Principal</span>}
                     {b.label}
                 </span>
-                <span className="text-xs font-bold text-gray-900 tabular-nums">{b.n}</span>
+                <span className="text-xs font-bold text-white tabular-nums">{b.n}</span>
             </div>
-            <div className="h-1.5 rounded-full bg-gray-100 overflow-hidden mt-1">
+            <div className="h-1.5 rounded-full bg-raised overflow-hidden mt-1">
                 <div className="h-full rounded-full" style={{ width: `${(b.n / Math.max(total, 1)) * 100}%`, backgroundColor: b.color, opacity: [1, 0.7, 0.45][level] }} />
             </div>
         </div>
@@ -237,18 +237,18 @@ const FormatChart: React.FC<{ pieces: api.ContentPiece[] }> = ({ pieces }) => {
     const rows = FORMATOS.map((k) => ({ key: k, n: pieces.filter((p) => p.formato === k).length })).filter((r) => r.n > 0);
     const max = Math.max(1, ...rows.map((r) => r.n));
     return (
-        <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-6">
-            <h3 className="text-sm font-bold text-gray-900 mb-3">Por formato</h3>
+        <div className="bg-card rounded-3xl border border-edge shadow-sm p-6">
+            <h3 className="text-sm font-bold text-white mb-3">Por formato</h3>
             <div ref={ref} className="relative space-y-2.5">
                 {rows.map(({ key, n }) => {
                     const Icon = FORMATO_ICON[key];
                     return (
                         <div key={key} {...bind(key, `${piezas(n)} (${pct(n, pieces.length)} del mes)`)} className="grid grid-cols-[88px_1fr_24px] items-center gap-3 py-0.5 cursor-default">
-                            <span className="flex items-center gap-1.5 text-sm text-gray-700"><Icon size={14} className="text-gray-400" />{key}</span>
-                            <span className="h-3 rounded-r bg-gray-100 overflow-hidden">
+                            <span className="flex items-center gap-1.5 text-sm text-text-2"><Icon size={14} className="text-text-3" />{key}</span>
+                            <span className="h-3 rounded-r bg-raised overflow-hidden">
                                 <span className="block h-full rounded-r" style={{ width: `${(n / max) * 100}%`, backgroundColor: NEUTRAL_BAR }} />
                             </span>
-                            <span className="text-sm font-bold text-gray-900 tabular-nums text-right">{n}</span>
+                            <span className="text-sm font-bold text-white tabular-nums text-right">{n}</span>
                         </div>
                     );
                 })}
@@ -265,9 +265,9 @@ const PilarChart: React.FC<{ pieces: api.ContentPiece[] }> = ({ pieces }) => {
     const rows = PILARES.map((k) => ({ key: k, n: pieces.filter((p) => p.pilar === k).length }));
     const counted = rows.reduce((s, r) => s + r.n, 0);
     return (
-        <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-6">
-            <h3 className="text-sm font-bold text-gray-900">Por pilar</h3>
-            <p className="text-xs text-gray-500 mb-3">El tono de cada pieza, para que el mes no hable siempre de lo mismo.</p>
+        <div className="bg-card rounded-3xl border border-edge shadow-sm p-6">
+            <h3 className="text-sm font-bold text-white">Por pilar</h3>
+            <p className="text-xs text-text-3 mb-3">El tono de cada pieza, para que el mes no hable siempre de lo mismo.</p>
             <div ref={ref} className="relative">
                 <div className="flex h-4 gap-0.5 rounded-md overflow-hidden" role="img" aria-label={rows.map((r) => `${r.key}: ${r.n}`).join(', ')}>
                     {rows.filter((r) => r.n > 0).map(({ key, n }) => (
@@ -280,11 +280,11 @@ const PilarChart: React.FC<{ pieces: api.ContentPiece[] }> = ({ pieces }) => {
             <ul className="mt-3 space-y-1.5">
                 {rows.map(({ key, n }) => (
                     <li key={key} className="flex items-start justify-between gap-3 text-sm">
-                        <span className="flex items-start gap-2 text-gray-700 min-w-0">
+                        <span className="flex items-start gap-2 text-text-2 min-w-0">
                             <span className="w-2.5 h-2.5 rounded-full shrink-0 mt-1.5" style={{ backgroundColor: PILAR_META[key].color }} />
-                            <span><strong className="text-gray-900 font-semibold">{key}</strong> <span className="text-gray-500 text-xs">{PILAR_EXPLAIN[key]}</span></span>
+                            <span><strong className="text-white font-semibold">{key}</strong> <span className="text-text-3 text-xs">{PILAR_EXPLAIN[key]}</span></span>
                         </span>
-                        <span className="font-bold text-gray-900 tabular-nums">{n}</span>
+                        <span className="font-bold text-white tabular-nums">{n}</span>
                     </li>
                 ))}
             </ul>

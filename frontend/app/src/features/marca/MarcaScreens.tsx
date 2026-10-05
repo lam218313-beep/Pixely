@@ -53,7 +53,7 @@ export const MarcaScreen: React.FC = () => {
   };
 
   return (
-    <Screen title="Marca" action={<Link to="/cuenta" aria-label="Tu cuenta" className="w-11 h-11 rounded-full border border-line bg-card flex items-center justify-center font-display font-bold text-[15px] text-white no-underline">{business.charAt(0).toUpperCase()}</Link>}>
+    <Screen title="Marca" action={<Link to="/cuenta" aria-label="Tu cuenta" className="lg:hidden w-11 h-11 rounded-full border border-line bg-card flex items-center justify-center font-display font-bold text-[15px] text-white no-underline">{business.charAt(0).toUpperCase()}</Link>}>
       <section className="relative overflow-hidden bg-card border border-edge rounded-[28px] p-[22px] flex flex-col gap-3">
         <span aria-hidden className="absolute -right-[70px] -top-[70px] w-[220px] h-[220px] rounded-full border border-edge" />
         <span aria-hidden className="absolute -right-5 -top-5 w-[120px] h-[120px] rounded-full border border-edge" />
@@ -82,7 +82,7 @@ export const MarcaScreen: React.FC = () => {
         </Link>
       )}
 
-      <div className="grid grid-cols-2 gap-2.5">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5">
         <Tile to="/marca/voz" icon={<MessageSquare size={20} />} accent={voiceReady && voiceState === 'Pendiente'} title="Voz" detail="Cómo habla tu marca"
           badge={voiceReady ? revisionChip(voiceState) : <span className="text-[11px] font-bold text-text-3">En preparación</span>} />
         <Tile to="/marca/estrategia" icon={<Target size={20} />} accent={objectives > 0 && review.data?.estado === 'Pendiente'} title="Estrategia"

@@ -27,3 +27,7 @@ dist-ssr
 .env*.local
 .env
 .env.vercel
+dist-e2e/
+test-results/
+playwright-report/
+e2e-capturas/

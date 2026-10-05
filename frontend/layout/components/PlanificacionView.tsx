@@ -38,7 +38,7 @@ export const PlanificacionView: React.FC<{ onNavigate?: (view: string) => void; 
     };
 
     return (
-        <div className="p-4 md:p-8 h-full overflow-y-auto custom-scrollbar animate-fade-in-up bg-brand-bg">
+        <div className="p-4 md:p-8 h-full overflow-y-auto custom-scrollbar animate-fade-in-up bg-ink">
             <div className="max-w-7xl mx-auto">
                 {onNavigate && <WorkflowStepper currentStep={1} onNavigate={onNavigate} />}
                 <AnimatedHeaderCard supertitle="Contenido" title="Planificación" subtitle="Las ideas del mes, a qué objetivo sirve cada una y tu aprobación antes de producirlas." />
@@ -49,7 +49,7 @@ export const PlanificacionView: React.FC<{ onNavigate?: (view: string) => void; 
                             <MonthSwitcher month={month} onChange={setMonth} />
                         </div>
 
-                        {error && <p className="mb-4 text-sm text-red-600">{error}</p>}
+                        {error && <p className="mb-4 text-sm text-pink-text">{error}</p>}
 
                         {loading && pieces.length === 0 ? <LoadingBlock /> : pieces.length === 0 ? (
                             <EmptyPlan month={month} />
@@ -74,12 +74,12 @@ export const PlanificacionView: React.FC<{ onNavigate?: (view: string) => void; 
 };
 
 const EmptyPlan: React.FC<{ month: string }> = ({ month }) => (
-    <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-12 flex flex-col items-center text-center">
-        <div className="w-14 h-14 rounded-2xl bg-gray-50 flex items-center justify-center mb-4">
-            <CalendarRange size={26} className="text-gray-300" />
+    <div className="bg-card rounded-3xl border border-edge shadow-sm p-12 flex flex-col items-center text-center">
+        <div className="w-14 h-14 rounded-2xl bg-raised flex items-center justify-center mb-4">
+            <CalendarRange size={26} className="text-mute" />
         </div>
-        <h3 className="text-lg font-bold text-gray-900 mb-1">Aún no hay plan para {monthLabel(month).toLowerCase()}</h3>
-        <p className="text-sm text-gray-500 max-w-sm">El equipo de Pixely arma el plan de cada mes a partir de tu estrategia y de lo que está pasando en tu mercado. Aparecerá aquí para que lo apruebes antes de producirlo.</p>
+        <h3 className="text-lg font-bold text-white mb-1">Aún no hay plan para {monthLabel(month).toLowerCase()}</h3>
+        <p className="text-sm text-text-3 max-w-sm">El equipo de Pixely arma el plan de cada mes a partir de tu estrategia y de lo que está pasando en tu mercado. Aparecerá aquí para que lo apruebes antes de producirlo.</p>
     </div>
 );
 
@@ -108,13 +108,13 @@ const MonthCalendar: React.FC<{ month: string; pieces: api.ContentPiece[]; index
     const cells = [...Array(lead).fill(null), ...Array.from({ length: days }, (_, i) => i + 1)];
 
     return (
-        <section className="bg-white rounded-3xl border border-gray-100 shadow-sm p-6 mb-6" aria-label="Calendario del mes">
+        <section className="bg-card rounded-3xl border border-edge shadow-sm p-6 mb-6" aria-label="Calendario del mes">
             <div className="flex flex-wrap items-end justify-between gap-3 mb-4">
                 <div>
-                    <h2 className="text-lg font-bold text-gray-900">Calendario de {monthLabel(month).toLowerCase()}</h2>
-                    <p className="text-sm text-gray-500">Qué sale cada día. Haz clic en una idea para verla y aprobarla.</p>
+                    <h2 className="text-lg font-bold text-white">Calendario de {monthLabel(month).toLowerCase()}</h2>
+                    <p className="text-sm text-text-3">Qué sale cada día. Haz clic en una idea para verla y aprobarla.</p>
                 </div>
-                <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-600 max-w-xl">
+                <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-text-2 max-w-xl">
                     {(index?.objectives ?? []).map((o) => (
                         <span key={o.id} className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: o.color }} />{o.principal ? 'Principal: ' : ''}{o.label}</span>
                     ))}
@@ -122,20 +122,20 @@ const MonthCalendar: React.FC<{ month: string; pieces: api.ContentPiece[]; index
             </div>
 
             {/* Grid on tablet and up */}
-            <div className="hidden md:grid grid-cols-7 gap-px bg-gray-100 rounded-2xl overflow-hidden border border-gray-100">
-                {WEEKDAYS.map((d) => <div key={d} className="bg-gray-50 px-2 py-1.5 text-[11px] font-bold uppercase tracking-wider text-gray-400">{d}</div>)}
+            <div className="hidden md:grid grid-cols-7 gap-px bg-raised rounded-2xl overflow-hidden border border-edge">
+                {WEEKDAYS.map((d) => <div key={d} className="bg-raised px-2 py-1.5 text-[11px] font-bold uppercase tracking-wider text-text-3">{d}</div>)}
                 {cells.map((day, i) => (
-                    <div key={i} className={`bg-white min-h-[92px] p-1.5 ${day ? '' : 'bg-gray-50/60'}`}>
-                        {day && <p className="text-xs font-semibold text-gray-400 mb-1">{day}</p>}
+                    <div key={i} className={`bg-card min-h-[92px] p-1.5 ${day ? '' : 'bg-raised/60'}`}>
+                        {day && <p className="text-xs font-semibold text-text-3 mb-1">{day}</p>}
                         <div className="space-y-1">
                             {(day ? byDay.get(day) ?? [] : []).map((p) => {
                                 const Icon = p.formato ? FORMATO_ICON[p.formato] : CalendarRange;
                                 return (
                                     <button key={p.id} onClick={() => onOpen(p)} title={`${p.topico_angulo ?? ''} · ${PLAN_META[planEstado(p)].label}`}
-                                        className="w-full text-left flex items-start gap-1 rounded-md bg-gray-50 hover:bg-gray-100 px-1.5 py-1 border-l-[3px]"
+                                        className="w-full text-left flex items-start gap-1 rounded-md bg-raised hover:bg-raised px-1.5 py-1 border-l-[3px]"
                                         style={{ borderLeftColor: objectiveColor(p, index) }}>
-                                        <Icon size={11} className="text-gray-400 shrink-0 mt-0.5" />
-                                        <span className="text-[11px] leading-tight text-gray-800 line-clamp-2 flex-1">{p.topico_angulo || 'Pieza'}</span>
+                                        <Icon size={11} className="text-text-3 shrink-0 mt-0.5" />
+                                        <span className="text-[11px] leading-tight text-white line-clamp-2 flex-1">{p.topico_angulo || 'Pieza'}</span>
                                         <StatusIcon piece={p} />
                                     </button>
                                 );
@@ -146,17 +146,17 @@ const MonthCalendar: React.FC<{ month: string; pieces: api.ContentPiece[]; index
             </div>
 
             {/* Phone: the same month as a list */}
-            <ul className="md:hidden divide-y divide-gray-100">
+            <ul className="md:hidden divide-y divide-edge">
                 {pieces.map((p) => (
                     <li key={p.id}>
                         <button onClick={() => onOpen(p)} className="w-full text-left py-3 flex gap-3 items-start">
                             <span className="w-10 shrink-0 text-center">
-                                <span className="block text-lg font-bold text-gray-900 leading-none">{Number(p.fecha.slice(8, 10))}</span>
-                                <span className="block text-[10px] font-semibold uppercase text-gray-400 mt-0.5">{formatFecha(p.fecha, { weekday: 'short' })}</span>
+                                <span className="block text-lg font-bold text-white leading-none">{Number(p.fecha.slice(8, 10))}</span>
+                                <span className="block text-[10px] font-semibold uppercase text-text-3 mt-0.5">{formatFecha(p.fecha, { weekday: 'short' })}</span>
                             </span>
                             <span className="min-w-0 border-l-[3px] pl-3" style={{ borderLeftColor: objectiveColor(p, index) }}>
-                                <span className="block text-sm font-semibold text-gray-900 leading-snug line-clamp-2">{p.topico_angulo || 'Pieza sin tópico'}</span>
-                                <span className="flex items-center gap-1.5 text-xs text-gray-500 mt-0.5"><StatusIcon piece={p} />{PLAN_META[planEstado(p)].label} · {p.formato}</span>
+                                <span className="block text-sm font-semibold text-white leading-snug line-clamp-2">{p.topico_angulo || 'Pieza sin tópico'}</span>
+                                <span className="flex items-center gap-1.5 text-xs text-text-3 mt-0.5"><StatusIcon piece={p} />{PLAN_META[planEstado(p)].label} · {p.formato}</span>
                             </span>
                         </button>
                     </li>

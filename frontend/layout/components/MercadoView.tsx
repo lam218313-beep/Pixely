@@ -23,11 +23,11 @@ import { PILAR_META, NoClientSelected, LoadingBlock, safeUrl, formatFecha, parse
 
 // Magnitude marks share one brand hue; pilar identity uses PILAR_META; confidence is ordinal → one hue, light→dark.
 const ACCENT = '#D90B66';
-const INK_2 = '#52514e';
-const MUTED = '#898781';
-const GRID = '#eeede8';
-const BASELINE = '#c3c2b7';
-const TRACK = '#f1f0ec';
+const INK_2 = '#4A4A55';
+const MUTED = '#8A8A96';
+const GRID = '#26262E';
+const BASELINE = '#4A4A55';
+const TRACK = '#26262E';
 // Validated with the dataviz validator (--ordinal: monotone lightness, single hue, light end clears the surface).
 const CONF_RAMP: Record<api.MarketFindingConfianza, string> = { Alta: '#6E0535', Media: '#D90B66', Baja: '#FF85C3' };
 // Same rules /03_mercado_vigilancia uses to assign confidence.
@@ -140,20 +140,20 @@ export const MercadoView: React.FC<{ onNavigate?: (view: string) => void; client
     const ticketAvg = withAvg.length ? withAvg.reduce((s, r) => s + (r.avg as number), 0) / withAvg.length : null;
 
     return (
-        <div className="p-4 md:p-8 h-full overflow-y-auto custom-scrollbar animate-fade-in-up bg-brand-bg">
+        <div className="p-4 md:p-8 h-full overflow-y-auto custom-scrollbar animate-fade-in-up bg-ink">
             <div className="max-w-7xl mx-auto">
                 {!clientId ? <NoClientSelected /> : loading ? <LoadingBlock /> : !study && findings.length === 0 ? <EmptyState /> : (
                     <div className="space-y-6">
                         {/* Header */}
                         <header className="flex flex-wrap items-end justify-between gap-4 pt-14 md:pt-0">
                             <div>
-                                <p className="text-xs font-bold uppercase tracking-[0.2em] text-primary-600 mb-2">Inteligencia de mercado</p>
-                                <h1 className="text-4xl md:text-5xl font-bold text-gray-900 leading-tight">
+                                <p className="text-xs font-bold uppercase tracking-[0.2em] text-pink-text mb-2">Inteligencia de mercado</p>
+                                <h1 className="text-4xl md:text-5xl font-bold text-white leading-tight">
                                     {study?.rubro ? study.rubro : 'Mercado'}
-                                    {study?.ciudad && <span className="text-gray-400"> en {study.ciudad}</span>}
+                                    {study?.ciudad && <span className="text-text-3"> en {study.ciudad}</span>}
                                 </h1>
                                 {study?.fecha_estudio && (
-                                    <p className="mt-2 text-sm text-gray-500">
+                                    <p className="mt-2 text-sm text-text-3">
                                         Estudio fundacional del {formatFecha(study.fecha_estudio, { day: 'numeric', month: 'long', year: 'numeric' })}
                                         {findings.length > 0 && ` · vigilancia actualizada el ${formatFecha(latestFecha(findings)!, { day: 'numeric', month: 'long' })}`}
                                     </p>
@@ -161,17 +161,17 @@ export const MercadoView: React.FC<{ onNavigate?: (view: string) => void; client
                             </div>
                             <div className="flex flex-col items-start sm:items-end gap-2">
                                 <div className="flex flex-wrap gap-2">
-                                    <button onClick={downloadPdf} disabled={downloading} className="flex items-center gap-2 px-5 py-3 bg-gray-900 text-white font-bold rounded-xl hover:bg-gray-800 transition-colors disabled:opacity-60">
+                                    <button onClick={downloadPdf} disabled={downloading} className="flex items-center gap-2 px-5 py-3 bg-raised text-white font-bold rounded-xl hover:bg-edge transition-colors disabled:opacity-60">
                                         {downloading ? <Loader2 size={18} className="animate-spin" /> : <Download size={18} />} Descargar PDF
                                     </button>
                                     {safeUrl(study?.pdf_url) && (
                                         <a href={safeUrl(study?.pdf_url)!} target="_blank" rel="noopener noreferrer" title="El informe largo del estudio fundacional"
-                                            className="flex items-center gap-2 px-5 py-3 bg-white border border-gray-200 text-gray-800 font-bold rounded-xl hover:bg-gray-50 transition-colors">
+                                            className="flex items-center gap-2 px-5 py-3 bg-card border border-edge text-white font-bold rounded-xl hover:bg-raised transition-colors">
                                             <FileText size={18} /> Estudio completo <ExternalLink size={14} />
                                         </a>
                                     )}
                                 </div>
-                                {pdfError && <p className="text-sm text-red-600">{pdfError}</p>}
+                                {pdfError && <p className="text-sm text-pink-text">{pdfError}</p>}
                             </div>
                         </header>
 
@@ -193,8 +193,8 @@ export const MercadoView: React.FC<{ onNavigate?: (view: string) => void; client
                         {/* Row 2: what the market talks about, by content pillar */}
                         {findings.length > 0 && (
                             <section aria-labelledby="pilares-title">
-                                <h2 id="pilares-title" className="text-lg font-bold text-gray-900 mb-1">¿De qué habla tu mercado?</h2>
-                                <p className="text-sm text-gray-500 mb-4">Los hallazgos de la vigilancia, repartidos entre los 3 pilares de tu contenido.</p>
+                                <h2 id="pilares-title" className="text-lg font-bold text-white mb-1">¿De qué habla tu mercado?</h2>
+                                <p className="text-sm text-text-3 mb-4">Los hallazgos de la vigilancia, repartidos entre los 3 pilares de tu contenido.</p>
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                                     {PILARES.map((p, i) => (
                                         <PilarRing key={p} pilar={p} items={findings.filter((f) => f.cluster === p)} total={findings.length} delay={i * 150} />
@@ -244,13 +244,13 @@ function latestFecha(findings: api.MarketFinding[]): string | null {
 // --- Card shell: the question-titled card of the old Análisis page ---
 
 const QCard: React.FC<{ icon: React.ElementType; title: string; subtitle?: string; action?: React.ReactNode; className?: string; children: React.ReactNode }> = ({ icon: Icon, title, subtitle, action, className = '', children }) => (
-    <section className={`bg-white rounded-3xl border border-gray-100 shadow-sm p-6 flex flex-col ${className}`}>
+    <section className={`bg-card rounded-3xl border border-edge shadow-sm p-6 flex flex-col ${className}`}>
         <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-3 mb-5">
             <div className="flex items-center gap-3 min-w-0">
-                <div className="p-2.5 bg-primary-50 rounded-xl text-primary-500 shrink-0"><Icon size={20} /></div>
+                <div className="p-2.5 bg-pink/15 rounded-xl text-pink-text shrink-0"><Icon size={20} /></div>
                 <div>
-                    <h2 className="text-lg font-bold text-gray-900 leading-tight">{title}</h2>
-                    {subtitle && <p className="text-xs text-gray-400 font-medium mt-0.5">{subtitle}</p>}
+                    <h2 className="text-lg font-bold text-white leading-tight">{title}</h2>
+                    {subtitle && <p className="text-xs text-text-3 font-medium mt-0.5">{subtitle}</p>}
                 </div>
             </div>
             {action}
@@ -269,10 +269,10 @@ const MarketSizeHero: React.FC<{ tamano: api.MarketStudy['tamano_mercado'] }> = 
     const periodo = typeof rango?.periodo === 'string' ? rango.periodo : 'anual';
 
     return (
-        <section className="relative overflow-hidden bg-primary-600 rounded-3xl p-6 shadow-xl text-white flex flex-col min-h-[260px]">
+        <section className="relative overflow-hidden bg-pink-fill rounded-3xl p-6 shadow-xl text-white flex flex-col min-h-[260px]">
             <div className="absolute -right-20 -bottom-24 w-56 h-56 rounded-full bg-white/10 pointer-events-none" aria-hidden="true" />
             <div className="relative flex items-center gap-3 mb-6">
-                <div className="p-2.5 bg-white/20 rounded-xl border border-white/10"><Coins size={20} /></div>
+                <div className="p-2.5 bg-white/20 rounded-xl border border-edge"><Coins size={20} /></div>
                 <div>
                     <h2 className="text-lg font-bold leading-tight">¿Cuánto mueve tu mercado?</h2>
                     <p className="text-xs text-white/85 font-medium">Estimación {periodo}</p>
@@ -325,11 +325,11 @@ const RatingGauge: React.FC<{ rated: api.CompetitorEntry[]; avg: number }> = ({ 
                     })}
                     <text x={100 - R} y={116} textAnchor="middle" fill={MUTED} fontSize={11}>{floorScale}</text>
                     <text x={100 + R} y={116} textAnchor="middle" fill={MUTED} fontSize={11}>5</text>
-                    <text x={100} y={88} textAnchor="middle" fill="#141418" fontSize={34} fontWeight={700}>★ {avg.toFixed(1)}</text>
+                    <text x={100} y={88} textAnchor="middle" fill="#FFFFFF" fontSize={34} fontWeight={700}>★ {avg.toFixed(1)}</text>
                     <text x={100} y={106} textAnchor="middle" fill={MUTED} fontSize={11}>de 5</text>
                 </svg>
-                <p className="text-sm text-gray-600 text-center mt-3">Para destacar, tu negocio necesita superar <strong className="text-gray-900">★ {avg.toFixed(1)}</strong>.</p>
-                <p className="flex items-center gap-1.5 text-xs text-gray-400 mt-1">
+                <p className="text-sm text-text-2 text-center mt-3">Para destacar, tu negocio necesita superar <strong className="text-white">★ {avg.toFixed(1)}</strong>.</p>
+                <p className="flex items-center gap-1.5 text-xs text-text-3 mt-1">
                     <span className="w-2 h-2 rounded-full" style={{ backgroundColor: INK_2 }} /> cada punto es un competidor · de ★ {lo} a ★ {hi}
                 </p>
             </div>
@@ -344,14 +344,14 @@ const KpiStack: React.FC<{ competidores: number; detectados?: number; resenas: n
         { icon: Antenna, label: 'Hallazgos de vigilancia', value: hallazgos.toLocaleString('es-PE'), sub: ultimo ? `el último del ${formatFecha(ultimo, { day: 'numeric', month: 'long' })}` : 'aún sin vigilancia' },
     ];
     return (
-        <section className="bg-white rounded-3xl border border-gray-100 shadow-sm p-6 flex flex-col justify-between gap-4">
+        <section className="bg-card rounded-3xl border border-edge shadow-sm p-6 flex flex-col justify-between gap-4">
             {rows.map(({ icon: Icon, label, value, sub }) => (
                 <div key={label} className="flex items-center gap-4">
-                    <div className="p-2.5 bg-primary-50 rounded-xl text-primary-500 shrink-0"><Icon size={20} /></div>
+                    <div className="p-2.5 bg-pink/15 rounded-xl text-pink-text shrink-0"><Icon size={20} /></div>
                     <div className="min-w-0">
-                        <p className="text-xs text-gray-500">{label}</p>
-                        <p className="text-2xl font-bold text-gray-900 leading-tight tabular-nums">{value}</p>
-                        {sub && <p className="text-xs text-gray-400 truncate">{sub}</p>}
+                        <p className="text-xs text-text-3">{label}</p>
+                        <p className="text-2xl font-bold text-white leading-tight tabular-nums">{value}</p>
+                        {sub && <p className="text-xs text-text-3 truncate">{sub}</p>}
                     </div>
                 </div>
             ))}
@@ -376,13 +376,13 @@ const PilarRing: React.FC<{ pilar: api.MarketFindingCluster; items: api.MarketFi
     const ultimo = latestFecha(items);
 
     return (
-        <section className="bg-white rounded-3xl border border-gray-100 shadow-sm p-6 flex flex-col">
+        <section className="bg-card rounded-3xl border border-edge shadow-sm p-6 flex flex-col">
             <div className="flex items-start justify-between gap-3 mb-4">
                 <div className="flex items-center gap-3">
                     <div className="p-2.5 rounded-xl shrink-0" style={{ backgroundColor: `${color}14`, color }}><Hash size={20} /></div>
                     <div>
-                        <h3 className="text-lg font-bold text-gray-900 leading-tight">{pilar}</h3>
-                        <p className="text-xs text-gray-400 font-medium">{CLUSTER_DESC[pilar]}</p>
+                        <h3 className="text-lg font-bold text-white leading-tight">{pilar}</h3>
+                        <p className="text-xs text-text-3 font-medium">{CLUSTER_DESC[pilar]}</p>
                     </div>
                 </div>
             </div>
@@ -394,31 +394,31 @@ const PilarRing: React.FC<{ pilar: api.MarketFindingCluster; items: api.MarketFi
                         <circle cx="50" cy="50" r={RADIUS} stroke={color} strokeWidth={10} fill="none" strokeDasharray={C} strokeDashoffset={C - (progress / 100) * C} strokeLinecap="round" className="transition-all duration-1000 ease-out" />
                     </svg>
                     <div className="absolute inset-0 flex items-center justify-center">
-                        <span className="text-2xl font-bold text-gray-900">{Math.round(share)}%</span>
+                        <span className="text-2xl font-bold text-white">{Math.round(share)}%</span>
                     </div>
                 </div>
                 <dl className="space-y-2 text-sm">
                     <div>
-                        <dt className="text-[11px] font-bold uppercase tracking-wider text-gray-400">Hallazgos</dt>
-                        <dd className="font-semibold text-gray-800">{items.length} de {total}</dd>
+                        <dt className="text-[11px] font-bold uppercase tracking-wider text-text-3">Hallazgos</dt>
+                        <dd className="font-semibold text-white">{items.length} de {total}</dd>
                     </div>
                     <div>
-                        <dt className="text-[11px] font-bold uppercase tracking-wider text-gray-400">Confianza alta</dt>
-                        <dd className="font-semibold text-gray-800">{altas}</dd>
+                        <dt className="text-[11px] font-bold uppercase tracking-wider text-text-3">Confianza alta</dt>
+                        <dd className="font-semibold text-white">{altas}</dd>
                     </div>
                     <div>
-                        <dt className="text-[11px] font-bold uppercase tracking-wider text-gray-400">Más reciente</dt>
-                        <dd className="font-semibold text-gray-800">{ultimo ? formatFecha(ultimo, { day: 'numeric', month: 'short' }) : '—'}</dd>
+                        <dt className="text-[11px] font-bold uppercase tracking-wider text-text-3">Más reciente</dt>
+                        <dd className="font-semibold text-white">{ultimo ? formatFecha(ultimo, { day: 'numeric', month: 'short' }) : '—'}</dd>
                     </div>
                 </dl>
             </div>
 
-            <div className="mt-auto pt-4 border-t border-gray-100">
-                <p className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-gray-400 mb-2"><Tags size={12} /> Temas detectados</p>
-                {temas.length === 0 ? <p className="text-xs text-gray-400">Sin hallazgos en este pilar todavía.</p> : (
+            <div className="mt-auto pt-4 border-t border-edge">
+                <p className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-text-3 mb-2"><Tags size={12} /> Temas detectados</p>
+                {temas.length === 0 ? <p className="text-xs text-text-3">Sin hallazgos en este pilar todavía.</p> : (
                     <div className="flex flex-wrap gap-1.5">
-                        {temas.slice(0, 4).map((t) => <span key={t} className="text-xs font-semibold bg-gray-50 border border-gray-100 rounded-lg px-2 py-1 text-gray-700">{t}</span>)}
-                        {temas.length > 4 && <span className="text-xs text-gray-400 px-1 py-1">+{temas.length - 4}</span>}
+                        {temas.slice(0, 4).map((t) => <span key={t} className="text-xs font-semibold bg-raised border border-edge rounded-lg px-2 py-1 text-text-2">{t}</span>)}
+                        {temas.length > 4 && <span className="text-xs text-text-3 px-1 py-1">+{temas.length - 4}</span>}
                     </div>
                 )}
             </div>
@@ -436,24 +436,24 @@ const CompetitorRanking: React.FC<{ rated: api.CompetitorEntry[] }> = ({ rated }
             <ol className="space-y-3">
                 {top.map((c, i) => (
                     <li key={c.nombre} className="flex items-center gap-3" title={`${c.nombre}: ${(c.reseñas as number).toLocaleString('es-PE')} reseñas · ★ ${c.rating}`}>
-                        <span className="relative w-10 h-10 shrink-0 rounded-full bg-gray-100 text-gray-600 text-xs font-bold flex items-center justify-center">
+                        <span className="relative w-10 h-10 shrink-0 rounded-full bg-raised text-text-2 text-xs font-bold flex items-center justify-center">
                             {initials(c.nombre)}
-                            {i === 0 && <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-primary-600 text-white text-[9px] flex items-center justify-center ring-2 ring-white">1</span>}
+                            {i === 0 && <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-pink-fill text-white text-[9px] flex items-center justify-center ring-2 ring-edge">1</span>}
                         </span>
                         <div className="flex-1 min-w-0">
                             <div className="flex items-baseline justify-between gap-2">
-                                <span className="text-sm font-bold text-gray-900 truncate">{c.nombre}</span>
-                                <span className="text-xs font-semibold text-gray-700 tabular-nums shrink-0">{(c.reseñas as number).toLocaleString('es-PE')}</span>
+                                <span className="text-sm font-bold text-white truncate">{c.nombre}</span>
+                                <span className="text-xs font-semibold text-text-2 tabular-nums shrink-0">{(c.reseñas as number).toLocaleString('es-PE')}</span>
                             </div>
-                            <div className="mt-1.5 h-2 rounded-full bg-gray-100 overflow-hidden">
+                            <div className="mt-1.5 h-2 rounded-full bg-raised overflow-hidden">
                                 <div className="h-full rounded-full transition-all duration-700" style={{ width: `${((c.reseñas as number) / max) * 100}%`, backgroundColor: ACCENT }} />
                             </div>
-                            <span className="text-[11px] text-gray-400">★ {c.rating}</span>
+                            <span className="text-[11px] text-text-3">★ {c.rating}</span>
                         </div>
                     </li>
                 ))}
             </ol>
-            <p className="mt-auto pt-4 text-xs text-gray-400">Más reseñas = más clientes reales pasando por el local.</p>
+            <p className="mt-auto pt-4 text-xs text-text-3">Más reseñas = más clientes reales pasando por el local.</p>
         </QCard>
     );
 };
@@ -480,9 +480,9 @@ const CompetitiveMap: React.FC<{ competidores: api.CompetitorEntry[]; avgRating:
     const yMax = Math.ceil((maxReviews * 1.15) / 50) * 50 || 50;
 
     const toggle = (
-        <div className="inline-flex bg-gray-100 rounded-lg p-0.5" role="group" aria-label="Vista">
+        <div className="inline-flex bg-raised rounded-lg p-0.5" role="group" aria-label="Vista">
             {([['mapa', MapIcon, 'Mapa'], ['tabla', Table2, 'Tabla']] as const).map(([key, Icon, label]) => (
-                <button key={key} onClick={() => setView(key)} aria-pressed={view === key} className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-bold ${view === key ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'}`}>
+                <button key={key} onClick={() => setView(key)} aria-pressed={view === key} className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-bold ${view === key ? 'bg-card text-white shadow-sm' : 'text-text-3'}`}>
                     <Icon size={13} /> {label}
                 </button>
             ))}
@@ -496,13 +496,13 @@ const CompetitiveMap: React.FC<{ competidores: api.CompetitorEntry[]; avgRating:
             ) : (
                 <div className="relative">
                     {/* Offsets sit just inside the plot area: chart margins + recharts' default 60px Y-axis / 30px X-axis. */}
-                    <QuadrantLabel className="top-[30px] right-8 text-primary-600/70">Líderes</QuadrantLabel>
+                    <QuadrantLabel className="top-[30px] right-8 text-pink-text/70">Líderes</QuadrantLabel>
                     <QuadrantLabel className="top-[30px] left-[72px]">Mucho volumen, poca calidad</QuadrantLabel>
                     <QuadrantLabel className="bottom-[64px] right-8">Joyas por descubrir</QuadrantLabel>
                     <QuadrantLabel className="bottom-[64px] left-[72px]">Rezagados</QuadrantLabel>
                     <ResponsiveContainer width="100%" height={360}>
                         <ScatterChart margin={{ top: 24, right: 24, bottom: 28, left: 4 }}>
-                            {avgRating !== null && <ReferenceArea x1={avgRating} x2={5} y1={medianReviews} y2={yMax} fill="#FFF0F7" fillOpacity={1} stroke="none" />}
+                            {avgRating !== null && <ReferenceArea x1={avgRating} x2={5} y1={medianReviews} y2={yMax} fill="#1F1F26" fillOpacity={1} stroke="none" />}
                             <CartesianGrid stroke={GRID} />
                             <XAxis
                                 type="number" dataKey="rating" domain={[xMin, 5]} tickCount={6}
@@ -528,7 +528,7 @@ const CompetitiveMap: React.FC<{ competidores: api.CompetitorEntry[]; avgRating:
 };
 
 const QuadrantLabel: React.FC<{ className: string; children: React.ReactNode }> = ({ className, children }) => (
-    <span className={`absolute z-10 hidden sm:block text-[11px] font-bold uppercase tracking-wider text-gray-300 pointer-events-none ${className}`}>{children}</span>
+    <span className={`absolute z-10 hidden sm:block text-[11px] font-bold uppercase tracking-wider text-mute pointer-events-none ${className}`}>{children}</span>
 );
 
 const CompetitorDot: React.FC<any> = ({ cx, cy, payload }) => {
@@ -548,9 +548,9 @@ const MapTooltip: React.FC<any> = ({ active, payload }) => {
     if (!active || !payload?.[0]) return null;
     const p: MapPoint = payload[0].payload;
     return (
-        <div className="bg-white rounded-xl shadow-lg border border-gray-100 px-3 py-2">
-            <p className="text-sm font-bold text-gray-900">★ {p.rating} · {p.resenas.toLocaleString('es-PE')} reseñas</p>
-            <p className="text-xs text-gray-500">{p.nombre}</p>
+        <div className="bg-card rounded-xl shadow-lg border border-edge px-3 py-2">
+            <p className="text-sm font-bold text-white">★ {p.rating} · {p.resenas.toLocaleString('es-PE')} reseñas</p>
+            <p className="text-xs text-text-3">{p.nombre}</p>
         </div>
     );
 };
@@ -559,7 +559,7 @@ const CompetitorTable: React.FC<{ competidores: api.CompetitorEntry[] }> = ({ co
     <div className="overflow-x-auto">
         <table className="w-full text-sm">
             <thead>
-                <tr className="text-left text-xs uppercase tracking-wider text-gray-400 border-b border-gray-100">
+                <tr className="text-left text-xs uppercase tracking-wider text-text-3 border-b border-edge">
                     <th className="py-2 pr-4 font-bold">Competidor</th>
                     <th className="py-2 pr-4 font-bold text-right">Rating</th>
                     <th className="py-2 pr-4 font-bold text-right">Reseñas</th>
@@ -569,14 +569,14 @@ const CompetitorTable: React.FC<{ competidores: api.CompetitorEntry[] }> = ({ co
             </thead>
             <tbody className="tabular-nums">
                 {[...competidores].sort((a, b) => (b.reseñas ?? 0) - (a.reseñas ?? 0)).map((c, i) => (
-                    <tr key={c.place_id || i} className="border-b border-gray-50">
-                        <td className="py-2.5 pr-4 font-semibold text-gray-900">{c.nombre}</td>
-                        <td className="py-2.5 pr-4 text-right text-gray-700">{typeof c.rating === 'number' ? `★ ${c.rating}` : '—'}</td>
-                        <td className="py-2.5 pr-4 text-right text-gray-700">{typeof c.reseñas === 'number' ? c.reseñas.toLocaleString('es-PE') : '—'}</td>
-                        <td className="py-2.5 pr-4 text-gray-500">{c.direccion || '—'}</td>
+                    <tr key={c.place_id || i} className="border-b border-edge">
+                        <td className="py-2.5 pr-4 font-semibold text-white">{c.nombre}</td>
+                        <td className="py-2.5 pr-4 text-right text-text-2">{typeof c.rating === 'number' ? `★ ${c.rating}` : '—'}</td>
+                        <td className="py-2.5 pr-4 text-right text-text-2">{typeof c.reseñas === 'number' ? c.reseñas.toLocaleString('es-PE') : '—'}</td>
+                        <td className="py-2.5 pr-4 text-text-3">{c.direccion || '—'}</td>
                         <td className="py-2.5">
                             {safeUrl(c.website) && (
-                                <a href={safeUrl(c.website)!} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-gray-700" aria-label={`Sitio web de ${c.nombre}`}>
+                                <a href={safeUrl(c.website)!} target="_blank" rel="noopener noreferrer" className="text-text-3 hover:text-text-2" aria-label={`Sitio web de ${c.nombre}`}>
                                     <ExternalLink size={15} />
                                 </a>
                             )}
@@ -600,20 +600,20 @@ const PriceCard: React.FC<{ rows: PriceRow[]; ticketAvg: number | null }> = ({ r
         <QCard icon={Banknote} title="¿Cuánto cobra tu competencia?" subtitle="Rango de cada carta, del plato más barato al más caro. El punto marca su promedio." className="lg:col-span-2">
             {ticketAvg !== null && (
                 <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1 mb-5">
-                    <span className="text-5xl font-bold text-gray-900 leading-none">{money(ticketAvg)}</span>
-                    <span className="text-sm text-gray-500">ticket promedio del mercado · cartas de {money(lo)} a {money(hi)}</span>
+                    <span className="text-5xl font-bold text-white leading-none">{money(ticketAvg)}</span>
+                    <span className="text-sm text-text-3">ticket promedio del mercado · cartas de {money(lo)} a {money(hi)}</span>
                 </div>
             )}
             <div className="space-y-3">
                 {rows.map((r) => (
                     <div key={r.name} className="grid grid-cols-[1fr_auto] sm:grid-cols-[minmax(100px,170px)_1fr_auto] items-center gap-x-4 gap-y-1">
-                        <span className="text-sm font-semibold text-gray-800 truncate" title={r.name}>{r.name}</span>
+                        <span className="text-sm font-semibold text-white truncate" title={r.name}>{r.name}</span>
                         <div className="relative h-6 col-span-2 sm:col-span-1 order-last sm:order-none" title={`${money(r.min)} – ${money(r.max)}${r.avg !== null ? ` · promedio ${money(r.avg)}` : ''}`}>
-                            <div className="absolute inset-x-0 top-1/2 h-px bg-gray-100" />
+                            <div className="absolute inset-x-0 top-1/2 h-px bg-raised" />
                             <div className="absolute top-1/2 -translate-y-1/2 h-1.5 rounded-full" style={{ left: pos(r.min), width: `calc(${pos(r.max)} - ${pos(r.min)})`, backgroundColor: ACCENT }} />
-                            {r.avg !== null && <div className="absolute top-1/2 -translate-x-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-gray-900 ring-2 ring-white" style={{ left: pos(r.avg) }} />}
+                            {r.avg !== null && <div className="absolute top-1/2 -translate-x-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-raised ring-2 ring-edge" style={{ left: pos(r.avg) }} />}
                         </div>
-                        <span className="text-sm text-gray-500 tabular-nums whitespace-nowrap">{money(r.min)} – {money(r.max)}</span>
+                        <span className="text-sm text-text-3 tabular-nums whitespace-nowrap">{money(r.min)} – {money(r.max)}</span>
                     </div>
                 ))}
             </div>
@@ -650,8 +650,8 @@ const ConfidenceDonut: React.FC<{ findings: api.MarketFinding[] }> = ({ findings
                         })}
                     </svg>
                     <div className="absolute inset-0 flex flex-col items-center justify-center">
-                        <span className="text-3xl font-bold text-gray-900 leading-none">{total}</span>
-                        <span className="text-[11px] text-gray-500 mt-1">hallazgos</span>
+                        <span className="text-3xl font-bold text-white leading-none">{total}</span>
+                        <span className="text-[11px] text-text-3 mt-1">hallazgos</span>
                     </div>
                 </div>
                 <ul className="space-y-3 w-full">
@@ -660,10 +660,10 @@ const ConfidenceDonut: React.FC<{ findings: api.MarketFinding[] }> = ({ findings
                             <span className="w-3 h-3 rounded-sm mt-1 shrink-0" style={{ backgroundColor: CONF_RAMP[level] }} />
                             <div className="flex-1 min-w-0">
                                 <div className="flex items-baseline justify-between gap-2">
-                                    <span className="text-sm font-bold text-gray-900">{level}</span>
-                                    <span className="text-sm font-semibold text-gray-700 tabular-nums">{n} <span className="text-xs text-gray-400">({total ? Math.round((n / total) * 100) : 0}%)</span></span>
+                                    <span className="text-sm font-bold text-white">{level}</span>
+                                    <span className="text-sm font-semibold text-text-2 tabular-nums">{n} <span className="text-xs text-text-3">({total ? Math.round((n / total) * 100) : 0}%)</span></span>
                                 </div>
-                                <p className="text-xs text-gray-500">{CONF_DESC[level]}</p>
+                                <p className="text-xs text-text-3">{CONF_DESC[level]}</p>
                             </div>
                         </li>
                     ))}
@@ -681,19 +681,19 @@ const StrongestSignal: React.FC<{ findings: api.MarketFinding[] }> = ({ findings
         ?? findings[0];
     if (!signal) return null;
     return (
-        <section className="relative bg-white rounded-3xl border border-gray-100 shadow-sm p-6 overflow-hidden">
+        <section className="relative bg-card rounded-3xl border border-edge shadow-sm p-6 overflow-hidden">
             <span className="absolute left-0 top-0 bottom-0 w-1.5" style={{ backgroundColor: ACCENT }} />
             <div className="flex items-center gap-3 mb-4">
-                <div className="p-2.5 bg-primary-50 rounded-xl text-primary-500 shrink-0"><Zap size={20} /></div>
+                <div className="p-2.5 bg-pink/15 rounded-xl text-pink-text shrink-0"><Zap size={20} /></div>
                 <div>
-                    <h2 className="text-lg font-bold text-gray-900 leading-tight">La señal más fuerte</h2>
-                    <p className="text-xs text-gray-400 font-medium">El hallazgo con más respaldo</p>
+                    <h2 className="text-lg font-bold text-white leading-tight">La señal más fuerte</h2>
+                    <p className="text-xs text-text-3 font-medium">El hallazgo con más respaldo</p>
                 </div>
             </div>
-            <p className="text-lg font-bold text-gray-900 leading-snug mb-2">{signal.tema}</p>
-            <p className="text-sm text-gray-600 leading-relaxed">{signal.dato_o_angulo}</p>
+            <p className="text-lg font-bold text-white leading-snug mb-2">{signal.tema}</p>
+            <p className="text-sm text-text-2 leading-relaxed">{signal.dato_o_angulo}</p>
             <div className="flex flex-wrap items-center gap-3 mt-4">
-                {signal.competidor && <span className="text-xs font-semibold bg-gray-100 rounded-lg px-2 py-1 text-gray-700">{signal.competidor}</span>}
+                {signal.competidor && <span className="text-xs font-semibold bg-raised rounded-lg px-2 py-1 text-text-2">{signal.competidor}</span>}
                 {signal.confianza && <Confidence level={signal.confianza} />}
             </div>
         </section>
@@ -709,7 +709,7 @@ const Promotions: React.FC<{ panorama: any }> = ({ panorama }) => {
     return (
         <QCard icon={Tags} title="¿Qué promociones ya usa tu competencia?" subtitle="Lo que el cliente del rubro ya espera — y lo que no te diferencia">
             <div className="flex flex-wrap gap-2">
-                {promos.map((p) => <span key={p} className="text-sm bg-gray-50 border border-gray-100 rounded-xl px-3 py-2 text-gray-700">{p}</span>)}
+                {promos.map((p) => <span key={p} className="text-sm bg-raised border border-edge rounded-xl px-3 py-2 text-text-2">{p}</span>)}
             </div>
         </QCard>
     );
@@ -726,10 +726,10 @@ const SignalSources: React.FC<{ findings: api.MarketFinding[] }> = ({ findings }
                 {rows.map(([fuente, n]) => (
                     <li key={fuente} title={`${fuente}: ${n} ${n === 1 ? 'hallazgo' : 'hallazgos'}`}>
                         <div className="flex items-baseline justify-between text-sm mb-1">
-                            <span className="font-semibold text-gray-800">{fuente}</span>
-                            <span className="font-semibold text-gray-700 tabular-nums">{n}</span>
+                            <span className="font-semibold text-white">{fuente}</span>
+                            <span className="font-semibold text-text-2 tabular-nums">{n}</span>
                         </div>
-                        <div className="h-2 rounded-full bg-gray-100 overflow-hidden">
+                        <div className="h-2 rounded-full bg-raised overflow-hidden">
                             <div className="h-full rounded-full" style={{ width: `${(n / max) * 100}%`, backgroundColor: ACCENT }} />
                         </div>
                     </li>
@@ -773,10 +773,10 @@ const SignalsTimeline: React.FC<{ findings: api.MarketFinding[] }> = ({ findings
 // --- The evidence behind every chart ---
 
 const Confidence: React.FC<{ level: api.MarketFindingConfianza }> = ({ level }) => (
-    <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-gray-600" aria-label={`Confianza ${level}`}>
+    <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-text-2" aria-label={`Confianza ${level}`}>
         <span className="flex gap-0.5" aria-hidden="true">
             {[1, 2, 3].map((i) => (
-                <span key={i} className={`w-1.5 h-3 rounded-sm ${i <= CONFIANZA_LEVEL[level] ? 'bg-gray-800' : 'bg-gray-200'}`} />
+                <span key={i} className={`w-1.5 h-3 rounded-sm ${i <= CONFIANZA_LEVEL[level] ? 'bg-edge' : 'bg-edge'}`} />
             ))}
         </span>
         Confianza {level.toLowerCase()}
@@ -788,12 +788,12 @@ const Surveillance: React.FC<{ findings: api.MarketFinding[] }> = ({ findings })
     return (
         <section>
             <div className="flex items-center gap-2 mb-1">
-                <Radar size={18} className="text-gray-400" />
-                <h2 className="text-lg font-bold text-gray-900">¿Qué está pasando en tu mercado?</h2>
+                <Radar size={18} className="text-text-3" />
+                <h2 className="text-lg font-bold text-white">¿Qué está pasando en tu mercado?</h2>
             </div>
-            <p className="text-sm text-gray-500 mb-4">Cada hallazgo de la vigilancia, con su evidencia y su fuente.</p>
+            <p className="text-sm text-text-3 mb-4">Cada hallazgo de la vigilancia, con su evidencia y su fuente.</p>
             {findings.length === 0 ? (
-                <div className="bg-white rounded-3xl border border-gray-100 p-8 text-center text-sm text-gray-500">Todavía no hay hallazgos de la vigilancia.</div>
+                <div className="bg-card rounded-3xl border border-edge p-8 text-center text-sm text-text-3">Todavía no hay hallazgos de la vigilancia.</div>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     {PILARES.map((cluster) => (
@@ -807,52 +807,52 @@ const Surveillance: React.FC<{ findings: api.MarketFinding[] }> = ({ findings })
 };
 
 const FindingColumn: React.FC<{ title: string; description: string; color: string; items: api.MarketFinding[] }> = ({ title, description, color, items }) => (
-    <div className="bg-gray-100/70 rounded-3xl p-3">
+    <div className="bg-raised/70 rounded-3xl p-3">
         <div className="px-2 pt-1 pb-3">
             <div className="flex items-center justify-between">
-                <span className="inline-flex items-center gap-2 text-sm font-bold text-gray-900">
+                <span className="inline-flex items-center gap-2 text-sm font-bold text-white">
                     <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: color }} />
                     {title}
                 </span>
-                <span className="text-xs font-bold text-gray-500 bg-white rounded-full px-2 py-0.5">{items.length}</span>
+                <span className="text-xs font-bold text-text-3 bg-card rounded-full px-2 py-0.5">{items.length}</span>
             </div>
-            <p className="text-xs text-gray-500 mt-1">{description}</p>
+            <p className="text-xs text-text-3 mt-1">{description}</p>
         </div>
         <div className="space-y-3">
             {items.map((f) => (
-                <article key={f.id} className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4">
-                    <p className="text-sm font-bold text-gray-900 leading-snug mb-1">{f.tema}</p>
-                    {f.dato_o_angulo && <p className="text-sm text-gray-600 leading-relaxed">{f.dato_o_angulo}</p>}
-                    {f.evidencia && <p className="text-xs text-gray-500 italic mt-2 border-l-2 border-gray-200 pl-2">“{f.evidencia}”</p>}
+                <article key={f.id} className="bg-card rounded-2xl border border-edge shadow-sm p-4">
+                    <p className="text-sm font-bold text-white leading-snug mb-1">{f.tema}</p>
+                    {f.dato_o_angulo && <p className="text-sm text-text-2 leading-relaxed">{f.dato_o_angulo}</p>}
+                    {f.evidencia && <p className="text-xs text-text-3 italic mt-2 border-l-2 border-edge pl-2">“{f.evidencia}”</p>}
                     <div className="flex flex-wrap items-center gap-x-3 gap-y-2 mt-3">
                         {f.confianza && <Confidence level={f.confianza} />}
-                        {f.competidor && <span className="text-xs font-semibold bg-gray-100 rounded-lg px-2 py-0.5 text-gray-700">{f.competidor}</span>}
+                        {f.competidor && <span className="text-xs font-semibold bg-raised rounded-lg px-2 py-0.5 text-text-2">{f.competidor}</span>}
                     </div>
-                    <div className="flex items-center justify-between mt-3 text-xs text-gray-400">
+                    <div className="flex items-center justify-between mt-3 text-xs text-text-3">
                         <span className="inline-flex items-center gap-1">
                             {f.fuente && <MapPin size={11} />}
                             {[f.fuente, formatFecha(f.fecha)].filter(Boolean).join(' · ')}
                         </span>
                         {safeUrl(f.link) && (
-                            <a href={safeUrl(f.link)!} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-gray-500 hover:text-gray-800 font-semibold">
+                            <a href={safeUrl(f.link)!} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-text-3 hover:text-white font-semibold">
                                 Fuente <ExternalLink size={11} />
                             </a>
                         )}
                     </div>
                 </article>
             ))}
-            {items.length === 0 && <p className="px-2 py-4 text-center text-xs text-gray-400">Sin hallazgos este ciclo</p>}
+            {items.length === 0 && <p className="px-2 py-4 text-center text-xs text-text-3">Sin hallazgos este ciclo</p>}
         </div>
     </div>
 );
 
 const EmptyState: React.FC = () => (
-    <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-12 flex flex-col items-center justify-center text-center">
-        <div className="w-16 h-16 rounded-2xl bg-gray-50 flex items-center justify-center mb-4">
-            <Radar size={32} className="text-gray-300" />
+    <div className="bg-card rounded-3xl border border-edge shadow-sm p-12 flex flex-col items-center justify-center text-center">
+        <div className="w-16 h-16 rounded-2xl bg-raised flex items-center justify-center mb-4">
+            <Radar size={32} className="text-mute" />
         </div>
-        <h3 className="text-lg font-bold text-gray-900 mb-2">Tu estudio de mercado está en preparación</h3>
-        <p className="text-sm text-gray-500 max-w-md">
+        <h3 className="text-lg font-bold text-white mb-2">Tu estudio de mercado está en preparación</h3>
+        <p className="text-sm text-text-3 max-w-md">
             El equipo de Pixely está mapeando tu mercado y competencia. Cuando esté listo, verás aquí cuánto mueve tu mercado, quién lo lidera, sus precios y la vigilancia de tus competidores.
         </p>
     </div>

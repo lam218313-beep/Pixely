@@ -11,8 +11,8 @@ import * as api from '../../services/api';
 
 // Objective identity. Validated all-pairs with the dataviz palette validator (light); kept apart
 // from the pilar hues so the two never read as the same thing. Always shown beside a text label.
-const OBJECTIVE_COLORS = ['#1baf7a', '#4a3aa7', '#eda100'];
-export const OTHER_COLOR = '#898781';
+const OBJECTIVE_COLORS = ['#E4E4EA', '#B4B4BE', '#EB0C6E'];
+export const OTHER_COLOR = '#8A8A96';
 
 const GENERIC_OBJECTIVE = /^objetivo (principal|secundario)$/i;
 

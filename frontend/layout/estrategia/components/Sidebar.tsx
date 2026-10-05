@@ -20,11 +20,11 @@ const navItems: NavItem[] = [
 export const Sidebar: React.FC<{ isOpen: boolean, toggle: () => void }> = ({ isOpen, toggle }) => {
   return (
     <aside 
-      className={`fixed inset-y-0 left-0 z-50 w-20 lg:w-64 bg-edu-dark text-white transition-all duration-300 ease-in-out flex flex-col h-screen shadow-2xl z-[100]`}
+      className={`fixed inset-y-0 left-0 z-50 w-20 lg:w-64 bg-raised text-white transition-all duration-300 ease-in-out flex flex-col h-screen shadow-2xl z-[100]`}
     >
       {/* Logo */}
-      <div className="h-20 flex items-center justify-center lg:justify-start lg:px-8 border-b border-white/10">
-        <div className="w-8 h-8 rounded-lg bg-primary-500 flex items-center justify-center shrink-0">
+      <div className="h-20 flex items-center justify-center lg:justify-start lg:px-8 border-b border-edge">
+        <div className="w-8 h-8 rounded-lg bg-pink-fill flex items-center justify-center shrink-0">
            <Zap className="text-white" size={18} fill="currentColor" />
         </div>
         <span className="ml-3 font-bold text-xl tracking-tight hidden lg:block">StratMap</span>
@@ -37,8 +37,8 @@ export const Sidebar: React.FC<{ isOpen: boolean, toggle: () => void }> = ({ isO
             key={item.label}
             className={`w-full flex items-center justify-center lg:justify-start px-0 lg:px-4 py-3 rounded-xl transition-all duration-200 group relative ${
               item.active 
-                ? 'bg-primary-500 text-white shadow-lg shadow-primary-500/30' 
-                : 'text-gray-400 hover:text-white hover:bg-white/5'
+                ? 'bg-pink-fill text-white shadow-lg shadow-primary-500/30' 
+                : 'text-text-3 hover:text-white hover:bg-white/5'
             }`}
           >
             <item.icon size={22} strokeWidth={item.active ? 2.5 : 2} />
@@ -46,7 +46,7 @@ export const Sidebar: React.FC<{ isOpen: boolean, toggle: () => void }> = ({ isO
             
             {/* Tooltip for small screen */}
             {!item.active && (
-                <div className="absolute left-full ml-4 px-2 py-1 bg-gray-800 text-xs rounded opacity-0 group-hover:opacity-100 pointer-events-none lg:hidden whitespace-nowrap z-50">
+                <div className="absolute left-full ml-4 px-2 py-1 bg-edge text-xs rounded opacity-0 group-hover:opacity-100 pointer-events-none lg:hidden whitespace-nowrap z-50">
                     {item.label}
                 </div>
             )}
@@ -55,12 +55,12 @@ export const Sidebar: React.FC<{ isOpen: boolean, toggle: () => void }> = ({ isO
       </nav>
 
       {/* User */}
-      <div className="p-4 border-t border-white/10">
+      <div className="p-4 border-t border-edge">
         <div className="flex items-center gap-3 justify-center lg:justify-start">
-            <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-primary-400 to-primary-600 border-2 border-white/20"></div>
+            <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-primary-400 to-primary-600 border-2 border-edge"></div>
             <div className="hidden lg:block">
                 <p className="text-sm font-bold text-white">Admin User</p>
-                <p className="text-xs text-gray-400">Pro Plan</p>
+                <p className="text-xs text-text-3">Pro Plan</p>
             </div>
         </div>
       </div>

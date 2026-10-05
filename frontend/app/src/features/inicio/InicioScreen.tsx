@@ -56,13 +56,13 @@ export const InicioScreen: React.FC = () => {
   const [first, ...rest] = tasks;
 
   return (
-    <div className="min-h-full px-5 pt-safe pb-36 flex flex-col gap-[18px]">
-      <header className="pt-4 flex items-center justify-between gap-3">
+    <div className="min-h-full px-5 pt-safe pb-36 lg:pb-14 flex flex-col gap-[18px]">
+      <header className="pt-4 lg:pt-10 flex items-center justify-between gap-3">
         <div className="min-w-0">
           <p className="m-0 text-sm text-text-2 truncate">Hola{name ? `, ${name}` : ''}</p>
           <h1 className="m-0 mt-0.5 font-display font-bold text-2xl truncate">{business ?? 'Tu marca'}<Dot /></h1>
         </div>
-        <Link to="/cuenta" aria-label="Tu cuenta" className="w-11 h-11 shrink-0 rounded-full border border-line bg-card flex items-center justify-center font-display font-bold text-[15px] text-white no-underline">
+        <Link to="/cuenta" aria-label="Tu cuenta" className="lg:hidden w-11 h-11 shrink-0 rounded-full border border-line bg-card flex items-center justify-center font-display font-bold text-[15px] text-white no-underline">
           {(business ?? session?.email ?? '?').charAt(0).toUpperCase()}
         </Link>
       </header>

@@ -33,14 +33,14 @@ export function daysUntil(fecha: string, today = new Date()): number {
 export const DueBadge: React.FC<{ fecha: string }> = ({ fecha }) => {
     const days = daysUntil(fecha);
     const [label, color] =
-        days < 0 ? ['Su fecha ya pasó', '#d03b3b']
-        : days === 0 ? ['Sale hoy', '#d03b3b']
-        : days === 1 ? ['Sale mañana', '#ec835a']
-        : days <= 3 ? [`Sale en ${days} días`, '#ec835a']
+        days < 0 ? ['Su fecha ya pasó', '#EB0C6E']
+        : days === 0 ? ['Sale hoy', '#EB0C6E']
+        : days === 1 ? ['Sale mañana', '#FF85C3']
+        : days <= 3 ? [`Sale en ${days} días`, '#FF85C3']
         : [`Sale el ${formatFecha(fecha)}`, null];
-    if (!color) return <span className="text-xs font-semibold text-gray-500">{label}</span>;
+    if (!color) return <span className="text-xs font-semibold text-text-3">{label}</span>;
     return (
-        <span className="inline-flex items-center gap-1.5 rounded-lg px-2 py-0.5 text-xs font-bold text-gray-800" style={{ background: `${color}1F` }}>
+        <span className="inline-flex items-center gap-1.5 rounded-lg px-2 py-0.5 text-xs font-bold text-white" style={{ background: `${color}1F` }}>
             <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: color }} />{label}
         </span>
     );
@@ -51,36 +51,36 @@ export const DueBadge: React.FC<{ fecha: string }> = ({ fecha }) => {
 export const DeliveryQueue: React.FC<{ pieces: api.ContentPiece[]; onOpen: (p: api.ContentPiece) => void }> = ({ pieces, onOpen }) => {
     const queue = awaitingDelivery(pieces);
     return (
-        <section className="mb-8 rounded-3xl border border-dashed border-gray-300 bg-white/60 p-5" aria-label="Por entregar">
+        <section className="mb-8 rounded-3xl border border-dashed border-line bg-card/60 p-5" aria-label="Por entregar">
             <div className="flex flex-wrap items-end justify-between gap-3 mb-4">
                 <div>
-                    <p className="text-[11px] font-bold uppercase tracking-wider text-primary-600">Solo equipo Pixely · el cliente no ve esto</p>
-                    <h2 className="text-lg font-bold text-gray-900">Por entregar ({queue.length})</h2>
-                    <p className="text-sm text-gray-500">Ideas aprobadas que esperan su pieza final. Al subirla, aparece en "Por revisar" para el cliente.</p>
+                    <p className="text-[11px] font-bold uppercase tracking-wider text-pink-text">Solo equipo Pixely · el cliente no ve esto</p>
+                    <h2 className="text-lg font-bold text-white">Por entregar ({queue.length})</h2>
+                    <p className="text-sm text-text-3">Ideas aprobadas que esperan su pieza final. Al subirla, aparece en "Por revisar" para el cliente.</p>
                 </div>
             </div>
             {queue.length === 0 ? (
-                <p className="text-sm text-gray-400 py-2">No hay piezas esperando entrega.</p>
+                <p className="text-sm text-text-3 py-2">No hay piezas esperando entrega.</p>
             ) : (
-                <ul className="bg-white rounded-2xl border border-gray-100 divide-y divide-gray-100 overflow-hidden">
+                <ul className="bg-card rounded-2xl border border-edge divide-y divide-edge overflow-hidden">
                     {queue.map((p) => {
                         const noCopy = p.estado_copy !== 'Listo';
                         return (
                             <li key={p.id} className="flex flex-wrap items-center gap-x-4 gap-y-2 px-4 py-3">
-                                <span className="w-16 shrink-0 text-xs font-semibold uppercase tracking-wider text-gray-400">{formatFecha(p.fecha, { day: 'numeric', month: 'short' })}</span>
+                                <span className="w-16 shrink-0 text-xs font-semibold uppercase tracking-wider text-text-3">{formatFecha(p.fecha, { day: 'numeric', month: 'short' })}</span>
                                 <span className="min-w-0 flex-1">
-                                    <span className="block text-sm font-bold text-gray-900 leading-snug line-clamp-1">{p.topico_angulo || 'Pieza sin tópico'}</span>
+                                    <span className="block text-sm font-bold text-white leading-snug line-clamp-1">{p.topico_angulo || 'Pieza sin tópico'}</span>
                                     <span className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1">
                                         <FormatoBadge formato={p.formato} />
                                         <DueBadge fecha={p.fecha} />
-                                        {isCorrection(p) && <span className="text-xs font-semibold text-gray-700">Corrección: {CAMBIO_LABEL[p.cambio_tipo ?? 'imagen'].toLowerCase()}</span>}
-                                        {noCopy ? <span className="text-xs text-gray-500">Falta el copy (/03_generar)</span>
-                                            : p.guia_produccion ? <span className="text-xs text-gray-500">Guía lista</span>
-                                            : <span className="text-xs text-gray-500">Sin guía (/04_ensamblar)</span>}
+                                        {isCorrection(p) && <span className="text-xs font-semibold text-text-2">Corrección: {CAMBIO_LABEL[p.cambio_tipo ?? 'imagen'].toLowerCase()}</span>}
+                                        {noCopy ? <span className="text-xs text-text-3">Falta el copy (/03_generar)</span>
+                                            : p.guia_produccion ? <span className="text-xs text-text-3">Guía lista</span>
+                                            : <span className="text-xs text-text-3">Sin guía (/04_ensamblar)</span>}
                                     </span>
                                 </span>
                                 <button onClick={() => onOpen(p)} disabled={noCopy}
-                                    className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-gray-900 text-white text-xs font-bold hover:bg-gray-800 disabled:opacity-40 disabled:cursor-not-allowed">
+                                    className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-raised text-white text-xs font-bold hover:bg-edge disabled:opacity-40 disabled:cursor-not-allowed">
                                     <Upload size={14} /> {isCorrection(p) ? 'Subir corrección' : 'Subir final'}
                                 </button>
                             </li>
@@ -131,40 +131,40 @@ export const DeliveryModal: React.FC<{
     };
 
     return createPortal(
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4" onClick={() => !saving && onClose()}>
-            <div className="bg-white rounded-3xl shadow-2xl w-full max-w-2xl max-h-[92vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-raised/50 backdrop-blur-sm p-4" onClick={() => !saving && onClose()}>
+            <div className="bg-card rounded-3xl shadow-2xl w-full max-w-2xl max-h-[92vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}
                 role="dialog" aria-modal="true" aria-label="Subir pieza final">
-                <div className="p-6 border-b border-gray-100 flex items-start justify-between gap-4">
+                <div className="p-6 border-b border-edge flex items-start justify-between gap-4">
                     <div>
-                        <p className="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1">
+                        <p className="text-xs font-semibold uppercase tracking-wider text-text-3 mb-1">
                             {formatFecha(piece.fecha, { weekday: 'long', day: 'numeric', month: 'long' })} · {formato}
                         </p>
-                        <h3 className="text-xl font-bold text-gray-900 leading-snug">{piece.topico_angulo || 'Pieza sin tópico'}</h3>
+                        <h3 className="text-xl font-bold text-white leading-snug">{piece.topico_angulo || 'Pieza sin tópico'}</h3>
                     </div>
-                    <button onClick={onClose} disabled={saving} className="p-2 -m-2 rounded-full hover:bg-gray-100 text-gray-400" aria-label="Cerrar"><X size={20} /></button>
+                    <button onClick={onClose} disabled={saving} className="p-2 -m-2 rounded-full hover:bg-raised text-text-3" aria-label="Cerrar"><X size={20} /></button>
                 </div>
 
                 {isCorrection(piece) && piece.comentario_cliente && (
-                    <div className="mx-6 mt-6 p-4 rounded-2xl bg-orange-50 border border-orange-100">
-                        <p className="text-xs font-bold uppercase tracking-wider text-gray-500 mb-1">
+                    <div className="mx-6 mt-6 p-4 rounded-2xl bg-raised border border-pink/40">
+                        <p className="text-xs font-bold uppercase tracking-wider text-text-3 mb-1">
                             El cliente pidió cambiar {CAMBIO_LABEL[piece.cambio_tipo ?? 'imagen'].toLowerCase()}
                         </p>
-                        <p className="text-sm text-gray-800 whitespace-pre-line">{piece.comentario_cliente}</p>
-                        {piece.cambio_tipo === 'ambos' && <p className="text-xs text-gray-500 mt-2">El texto lo corrige /03_generar; aquí solo va la imagen nueva.</p>}
+                        <p className="text-sm text-white whitespace-pre-line">{piece.comentario_cliente}</p>
+                        {piece.cambio_tipo === 'ambos' && <p className="text-xs text-text-3 mt-2">El texto lo corrige /03_generar; aquí solo va la imagen nueva.</p>}
                     </div>
                 )}
 
-                <div className="p-6 border-b border-gray-100 space-y-3">
-                    <p className="text-xs font-bold uppercase tracking-wider text-gray-400">Guía para el diseño</p>
+                <div className="p-6 border-b border-edge space-y-3">
+                    <p className="text-xs font-bold uppercase tracking-wider text-text-3">Guía para el diseño</p>
                     {piece.guia_produccion
-                        ? <p className="text-sm text-gray-700 whitespace-pre-line leading-relaxed">{piece.guia_produccion}</p>
-                        : <p className="text-sm text-gray-500">Esta pieza aún no tiene guía. Córrela con /04_ensamblar.</p>}
-                    {piece.descripcion_visual && <p className="text-sm text-gray-700"><span className="font-semibold text-gray-900">Qué debe mostrar: </span>{piece.descripcion_visual}</p>}
+                        ? <p className="text-sm text-text-2 whitespace-pre-line leading-relaxed">{piece.guia_produccion}</p>
+                        : <p className="text-sm text-text-3">Esta pieza aún no tiene guía. Córrela con /04_ensamblar.</p>}
+                    {piece.descripcion_visual && <p className="text-sm text-text-2"><span className="font-semibold text-white">Qué debe mostrar: </span>{piece.descripcion_visual}</p>}
                     {formato === 'Reel' && piece.prompt_visual && (
-                        <details className="text-sm text-gray-700"><summary className="cursor-pointer font-semibold text-gray-900">Guion del reel</summary><p className="whitespace-pre-line mt-2">{piece.prompt_visual}</p></details>
+                        <details className="text-sm text-text-2"><summary className="cursor-pointer font-semibold text-white">Guion del reel</summary><p className="whitespace-pre-line mt-2">{piece.prompt_visual}</p></details>
                     )}
                     {canva && (
-                        <a href={canva} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-sm font-bold text-gray-900 underline underline-offset-2">
+                        <a href={canva} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-sm font-bold text-white underline underline-offset-2">
                             <ExternalLink size={14} /> Abrir el borrador en Canva
                         </a>
                     )}
@@ -172,19 +172,19 @@ export const DeliveryModal: React.FC<{
 
                 <div className="p-6 space-y-4">
                     <div>
-                        <label htmlFor="finals" className="block text-sm font-bold text-gray-800 mb-1">Archivo final</label>
-                        <p className="text-xs text-gray-500 mb-2">{HOW_MANY[formato] ?? HOW_MANY.default} Máximo 50 MB por archivo.</p>
+                        <label htmlFor="finals" className="block text-sm font-bold text-white mb-1">Archivo final</label>
+                        <p className="text-xs text-text-3 mb-2">{HOW_MANY[formato] ?? HOW_MANY.default} Máximo 50 MB por archivo.</p>
                         <input id="finals" type="file" accept={ACCEPT[formato] ?? ACCEPT.default} multiple={formato === 'Carrusel'}
                             onChange={(e) => setFiles(Array.from(e.target.files ?? []))}
-                            className="block w-full text-sm text-gray-700 file:mr-3 file:rounded-xl file:border-0 file:bg-gray-100 file:px-4 file:py-2 file:text-sm file:font-bold file:text-gray-800 hover:file:bg-gray-200" />
+                            className="block w-full text-sm text-text-2 file:mr-3 file:rounded-xl file:border-0 file:bg-raised file:px-4 file:py-2 file:text-sm file:font-bold file:text-white hover:file:bg-edge" />
                         {files.length > 1 && (
                             <ol className="mt-3 space-y-1.5">
                                 {files.map((f, i) => (
-                                    <li key={`${f.name}-${i}`} className="flex items-center gap-2 text-sm text-gray-700 bg-gray-50 rounded-lg px-3 py-1.5">
-                                        <span className="w-5 text-xs font-bold text-gray-400 tabular-nums">{i + 1}</span>
+                                    <li key={`${f.name}-${i}`} className="flex items-center gap-2 text-sm text-text-2 bg-raised rounded-lg px-3 py-1.5">
+                                        <span className="w-5 text-xs font-bold text-text-3 tabular-nums">{i + 1}</span>
                                         <span className="flex-1 truncate">{f.name}</span>
-                                        <button onClick={() => move(i, -1)} disabled={i === 0} className="p-1 text-gray-400 hover:text-gray-800 disabled:opacity-30" aria-label="Subir en el orden"><ArrowUp size={14} /></button>
-                                        <button onClick={() => move(i, 1)} disabled={i === files.length - 1} className="p-1 text-gray-400 hover:text-gray-800 disabled:opacity-30" aria-label="Bajar en el orden"><ArrowDown size={14} /></button>
+                                        <button onClick={() => move(i, -1)} disabled={i === 0} className="p-1 text-text-3 hover:text-white disabled:opacity-30" aria-label="Subir en el orden"><ArrowUp size={14} /></button>
+                                        <button onClick={() => move(i, 1)} disabled={i === files.length - 1} className="p-1 text-text-3 hover:text-white disabled:opacity-30" aria-label="Bajar en el orden"><ArrowDown size={14} /></button>
                                     </li>
                                 ))}
                             </ol>
@@ -192,19 +192,19 @@ export const DeliveryModal: React.FC<{
                     </div>
 
                     <fieldset>
-                        <legend className="text-sm font-bold text-gray-800 mb-1">¿La pieza final incluye imágenes o video hechos con IA?</legend>
-                        <p className="text-xs text-gray-500 mb-2">Instagram y Facebook piden etiquetar el contenido hecho con IA; Metricool lo marca al publicar.</p>
+                        <legend className="text-sm font-bold text-white mb-1">¿La pieza final incluye imágenes o video hechos con IA?</legend>
+                        <p className="text-xs text-text-3 mb-2">Instagram y Facebook piden etiquetar el contenido hecho con IA; Metricool lo marca al publicar.</p>
                         <div className="grid grid-cols-2 gap-2 max-w-xs" role="radiogroup">
                             {[true, false].map((v) => (
                                 <button key={String(v)} type="button" role="radio" aria-checked={ia === v} onClick={() => setIa(v)}
-                                    className={`py-2.5 rounded-xl border text-sm font-bold ${ia === v ? 'border-gray-900 bg-gray-900 text-white' : 'border-gray-200 text-gray-700 hover:bg-gray-50'}`}>
+                                    className={`py-2.5 rounded-xl border text-sm font-bold ${ia === v ? 'border-text-3 bg-raised text-white' : 'border-edge text-text-2 hover:bg-raised'}`}>
                                     {v ? 'Sí, incluye IA' : 'No, es real'}
                                 </button>
                             ))}
                         </div>
                     </fieldset>
 
-                    {error && <p className="text-sm font-medium text-red-600">{error}</p>}
+                    {error && <p className="text-sm font-medium text-pink-text">{error}</p>}
                     <button onClick={submit} disabled={saving}
                         className="w-full py-3 rounded-xl bg-gradient-to-r from-pink-500 to-rose-500 text-white text-sm font-bold shadow-lg shadow-pink-500/20 disabled:opacity-60 flex items-center justify-center gap-2">
                         {saving ? <Loader2 size={16} className="animate-spin" /> : <Upload size={16} />} Subir y enviar al cliente

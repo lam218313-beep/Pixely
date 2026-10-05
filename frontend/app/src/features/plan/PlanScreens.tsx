@@ -120,7 +120,7 @@ export const PlanScreen: React.FC = () => {
 
       {counts.waiting > 0 && <div aria-hidden className="h-16" />}
       {counts.waiting > 0 && (
-        <div className="fixed inset-x-0 bottom-[96px] z-30 px-5 flex justify-center pointer-events-none">
+        <div className="fixed inset-x-0 lg:left-[260px] bottom-[96px] lg:bottom-8 z-30 px-5 flex justify-center pointer-events-none">
           <div className="w-full max-w-[440px] pointer-events-auto">
             <Button block icon={<Check size={18} strokeWidth={3} />} onClick={() => setConfirm(true)}>
               Aprobar {counts.waiting === 1 ? 'la pendiente' : `las ${counts.waiting} pendientes`}

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es" class="noche">
 
 <head>
   <meta charset="UTF-8" />
@@ -19,129 +19,9 @@
   <link rel="icon" type="image/png" href="/src/assets/logo.png" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Pixely Partners</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link
-    href="https://fonts.googleapis.com/css2?family=Albert+Sans:wght@300;400;500;600;700;800&family=Bricolage+Grotesque:wght@400;500;600;700;800&display=swap"
-    rel="stylesheet">
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          fontFamily: {
-            sans: ['"Albert Sans"', 'Arial', 'sans-serif'],
-            display: ['"Bricolage Grotesque"', 'Arial', 'sans-serif'],
-          },
-          colors: {
-            brand: {
-              dark: '#465362',
-              bg: '#F4F7FE',
-            },
-            gray: {
-              800: '#465362',
-              900: '#465362',
-            },
-            // THEME COLOR: Magenta (Pixely brand identity)
-            primary: {
-              50: '#FFF0F7',
-              100: '#FFE0F0',
-              200: '#FFC2E1',
-              300: '#FFA3D2',
-              400: '#FF85C3',
-              500: '#EB0C6E',
-              600: '#D90B66',
-              700: '#B00957',
-            },
-            accent: {
-              50: '#FFF0F7',
-              100: '#FFE0F0',
-              200: '#FFC2E1',
-              300: '#FFA3D2',
-              400: '#FF85C3',
-              500: '#EB0C6E',
-              600: '#D90B66',
-              700: '#B00957',
-            },
-            ink: '#0A0A0C',
-            carbon: '#141418',
-            'carbon-2': '#1C1C22',
-            paper: '#FFFFFF',
-            mist: '#F3F3F5',
-            // The app uses stock Tailwind pink/rose for gradients and accents
-            // throughout (bg-gradient-to-r from-pink-500 to-rose-500, etc).
-            // Remapped to the brand magenta ramp so every existing usage
-            // picks up the real Pixely color without touching each file.
-            pink: {
-              50: '#FFF0F7',
-              100: '#FFE0F0',
-              200: '#FFC2E1',
-              300: '#FFA3D2',
-              400: '#FF85C3',
-              500: '#EB0C6E',
-              600: '#D90B66',
-              700: '#B00957',
-              800: '#8F0746',
-              900: '#6E0535',
-            },
-            rose: {
-              50: '#FFF0F7',
-              100: '#FFE0F0',
-              200: '#FFC2E1',
-              300: '#FFA3D2',
-              400: '#FF85C3',
-              500: '#D90B66',
-              600: '#B00957',
-              700: '#8F0746',
-              800: '#6E0535',
-              900: '#52032A',
-            },
-            // STRICT CHART PALETTE
-            chart: {
-              yellow: '#f3dfa2',
-              green: '#41ead4',
-              red: '#ee4266',
-              blue: '#63ADF2',
-            },
-            edu: {
-              dark: '#465362',
-              bg: '#F4F7FE',
-            }
-          },
-          // Pixely brand identity only defines two radii: 8px for buttons/
-          // controls, 12px for cards. Collapsed onto Tailwind's default
-          // scale so every existing rounded-xl/2xl/3xl in the app inherits
-          // the real shape language without editing each component.
-          borderRadius: {
-            lg: '8px',
-            xl: '8px',
-            '2xl': '12px',
-            '3xl': '12px',
-          },
-          animation: {
-            'draw': 'draw-check 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards',
-            'scale-up-center': 'scale-up-center 0.5s cubic-bezier(0.390, 0.575, 0.565, 1.000) both',
-            'fade-out': 'fade-out 0.5s ease-out both',
-            'rotate-in': 'rotate-in 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) both',
-            'fade-in-up': 'fade-in-up 0.8s ease-out both',
-            'orbit-slow': 'orbit 60s linear infinite',
-            'orbit-medium': 'orbit 45s linear infinite reverse',
-            'orbit-fast': 'orbit 30s linear infinite',
-            'reverse-orbit-slow': 'orbit 60s linear infinite reverse',
-            'reverse-orbit-medium': 'orbit 45s linear infinite',
-            'reverse-orbit-fast': 'orbit 30s linear infinite reverse',
-            'float': 'float 3s ease-in-out infinite',
-            'wave-bar': 'wave-bar 2s ease-in-out infinite',
-            'needle-sweep': 'needle-sweep 4s ease-in-out infinite',
-            'draw-path': 'draw-path 2s ease-out forwards',
-          },
-        }
-      }
-    }
-  </script>
   <style>
     body {
-      background-color: #F4F7FE;
+      background-color: #0A0A0C;
     }
 
     /* Hide scrollbar but keep scroll functionality */

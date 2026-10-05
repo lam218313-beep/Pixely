@@ -13,7 +13,7 @@ export const InteractiveHeader: React.FC<InteractiveHeaderProps> = ({
     subtitle,
     supertitle,
     particleCount = 130,
-    colors = ['#F20F79', '#465362']
+    colors = ['#F20F79', '#E4E4EA']
 }) => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const containerRef = useRef<HTMLDivElement>(null);
@@ -166,22 +166,22 @@ export const InteractiveHeader: React.FC<InteractiveHeaderProps> = ({
 
             <div className="absolute inset-0 z-10 flex flex-col justify-center items-center text-center px-8 pointer-events-none">
                 <div className="relative">
-                    <div className="absolute -inset-10 bg-white/40 blur-[80px] rounded-full -z-10"></div>
+                    <div className="absolute -inset-10 bg-card/40 blur-[80px] rounded-full -z-10"></div>
 
                     {supertitle && (
-                        <span className="block text-primary-500 font-bold tracking-[0.2em] uppercase text-sm mb-4 animate-fade-in">
+                        <span className="block text-pink-text font-bold tracking-[0.2em] uppercase text-sm mb-4 animate-fade-in">
                             {supertitle}
                         </span>
                     )}
 
-                    <h1 className="text-7xl md:text-9xl font-extrabold text-brand-dark tracking-tighter drop-shadow-sm mb-2">
+                    <h1 className="text-7xl md:text-9xl font-extrabold text-white tracking-tighter drop-shadow-sm mb-2">
                         {title}
                     </h1>
 
                     {subtitle && (
                         <div className="flex items-center gap-4 justify-center">
-                            {!supertitle && <div className="h-0.5 w-12 bg-primary-500 rounded-full"></div>}
-                            <p className="text-xl md:text-2xl text-gray-500 font-light tracking-wide max-w-2xl">
+                            {!supertitle && <div className="h-0.5 w-12 bg-pink-fill rounded-full"></div>}
+                            <p className="text-xl md:text-2xl text-text-3 font-light tracking-wide max-w-2xl">
                                 {subtitle}
                             </p>
                         </div>
