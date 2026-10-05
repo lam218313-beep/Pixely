@@ -1,7 +1,6 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { Mail, Lock, ArrowRight, Eye, EyeOff, Loader2, AlertCircle, Database, Target, Sparkles } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
-import pixelyLogo from '../src/assets/logo.png';
 
 // --- 1. Interactive Workflow Card ---
 export const WorkflowVisual: React.FC = () => {
@@ -180,9 +179,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onLogin }) => {
     return (
         <div className="w-full max-w-sm mx-auto animate-fade-in-up scale-[0.85] origin-center flex flex-col justify-center min-h-[500px]">
             <div className="mb-2 text-left">
-                <div className="w-32 h-32 rounded-3xl flex items-center justify-center mb-4 overflow-hidden">
-                    <img src={pixelyLogo} alt="Pixely Logo" className="w-full h-full object-contain" />
-                </div>
+                <div className="font-display font-extrabold text-[40px] leading-none text-white mb-8" aria-label="Pixely">pixely<span className="text-pink">.</span></div>
                 <h1 className="text-3xl font-bold text-white mb-2">Bienvenido!</h1>
                 <p className="text-text-3 text-sm">Ingresa tus credenciales para acceder a tu workspace.</p>
             </div>
