@@ -5,6 +5,7 @@ import { useAuth } from '@/lib/auth';
 import { checkBiometry, isNative, verifyIdentity, type Biometry } from '@/lib/native';
 import { getBiometryChoice, setBiometryChoice } from '@/lib/session';
 import { DESKTOP_URL } from '@/lib/web';
+import { InstallCard } from '../shared/InstallCard';
 import { Button, Card, DetailScreen, ListRow } from '@/ui';
 
 export const CuentaScreen: React.FC = () => {
@@ -35,6 +36,7 @@ export const CuentaScreen: React.FC = () => {
         </button>
       )}
 
+      <InstallCard />
       <ListRow href="https://wa.me/51949268607" icon={<MessageCircle size={20} />} accent title="Tu equipo Pixely" detail="Escríbenos por WhatsApp" />
       <ListRow to="/privacidad" icon={<Shield size={20} />} title="Privacidad" detail="Qué datos usamos y para qué" />
       <ListRow to="/eliminar-cuenta" icon={<Trash2 size={20} />} title="Eliminar mi cuenta" detail="Pide que borremos tu cuenta y tus datos" />

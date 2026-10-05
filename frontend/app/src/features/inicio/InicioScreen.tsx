@@ -8,6 +8,7 @@ import { daysUntil, formatDay, todayISO } from '@/lib/dates';
 import { useStrategyIndex } from '@/lib/strategy';
 import { Dot, ErrorState, ListRow, Loading, Section } from '@/ui';
 import { networksOf } from '../validar/ValidarScreen';
+import { InstallCard } from '../shared/InstallCard';
 
 interface Task { key: string; to: string; eyebrow: string; title: string; detail: string; icon: React.ReactNode; cta: string }
 
@@ -93,6 +94,8 @@ export const InicioScreen: React.FC = () => {
               {fresh.length > 0 && <ListRow to="/marca/mercado" icon={<Search size={22} />} title="Mercado actualizado" detail={`${plural(fresh.length, 'hallazgo nuevo', 'hallazgos nuevos')} de tu competencia`} />}
             </div>
           )}
+
+          <InstallCard dismissible />
 
           <Section title="Lo próximo en salir" action={<Link to="/resultados" className="text-[13px] font-bold text-pink-text no-underline">Agenda</Link>}>
             {upcoming.length === 0 ? (
