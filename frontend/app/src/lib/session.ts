@@ -3,6 +3,7 @@
  * storage (Keychain on iPhone, Keystore on Android), which other apps can't read.
  * The session is loaded once before the app draws (`hydrateSession`), then read from memory.
  */
+import { SecureStorage } from '@aparajita/capacitor-secure-storage';
 import { isNative } from './native';
 
 export interface Session {
@@ -21,9 +22,8 @@ const BIOMETRY_KEY = 'pixely_app_biometria';
 let memory: Session | null = null;
 let biometry: 'si' | 'no' | null = null;
 
-async function secure() {
-  return (await import('@aparajita/capacitor-secure-storage')).SecureStorage;
-}
+// Imported directly: a Capacitor plugin must never be returned from an async function or awaited
+// (the promise machinery asks it for ".then", which the plugin doesn't have, and it hangs).
 
 /** Never lets a slow or broken storage keep the app from opening. */
 function withTimeout<T>(p: Promise<T>, ms: number, fallback: T): Promise<T> {
@@ -31,13 +31,13 @@ function withTimeout<T>(p: Promise<T>, ms: number, fallback: T): Promise<T> {
 }
 
 async function readRaw(key: string): Promise<string | null> {
-  if (isNative) return withTimeout(secure().then((s) => s.getItem(key)), 2500, null);
+  if (isNative) return withTimeout(SecureStorage.getItem(key), 2500, null);
   try { return localStorage.getItem(key); } catch { return null; }
 }
 
 function writeRaw(key: string, value: string | null): void {
   if (isNative) {
-    void secure().then((s) => (value == null ? s.removeItem(key) : s.setItem(key, value))).catch(() => {});
+    void (value == null ? SecureStorage.removeItem(key) : SecureStorage.setItem(key, value)).catch((e) => console.error('[pixely] guardar sesión', e));
     return;
   }
   try { if (value == null) localStorage.removeItem(key); else localStorage.setItem(key, value); } catch { /* private mode */ }
