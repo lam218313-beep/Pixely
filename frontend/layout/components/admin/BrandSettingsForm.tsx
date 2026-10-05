@@ -20,20 +20,20 @@ const REDES: { key: api.BrandRed; label: string }[] = [
 ];
 export const RED_LABEL = Object.fromEntries(REDES.map((r) => [r.key, r.label])) as Record<api.BrandRed, string>;
 
-const inputCls = 'w-full px-3.5 py-2.5 rounded-xl border border-gray-200 bg-white text-sm focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20 outline-none';
+const inputCls = 'w-full px-3.5 py-2.5 rounded-xl border border-edge bg-card text-sm focus:border-pink focus:ring-2 focus:ring-pink/20 outline-none';
 
 const Field: React.FC<{ label: string; hint?: string; children: React.ReactNode }> = ({ label, hint, children }) => (
     <label className="block">
-        <span className="block text-xs font-bold text-gray-700 mb-1.5">{label}</span>
+        <span className="block text-xs font-bold text-text-2 mb-1.5">{label}</span>
         {children}
-        {hint && <span className="block text-[11px] text-gray-400 mt-1">{hint}</span>}
+        {hint && <span className="block text-[11px] text-text-3 mt-1">{hint}</span>}
     </label>
 );
 
 const Card: React.FC<{ title: string; text: string; children: React.ReactNode }> = ({ title, text, children }) => (
-    <section className="bg-white rounded-3xl border border-gray-100 shadow-sm p-6">
-        <h2 className="text-lg font-bold text-gray-900">{title}</h2>
-        <p className="text-sm text-gray-500 mb-4">{text}</p>
+    <section className="bg-card rounded-3xl border border-edge shadow-sm p-6">
+        <h2 className="text-lg font-bold text-white">{title}</h2>
+        <p className="text-sm text-text-3 mb-4">{text}</p>
         {children}
     </section>
 );
@@ -53,7 +53,7 @@ export const BrandSettingsForm: React.FC<{ clientId: string; onSaved?: () => voi
     }, [clientId]);
 
     if (!form) {
-        return error ? <p className="text-sm text-red-600">{error}</p> : <div className="flex justify-center py-16"><Loader2 className="animate-spin text-gray-300" size={32} /></div>;
+        return error ? <p className="text-sm text-pink-text">{error}</p> : <div className="flex justify-center py-16"><Loader2 className="animate-spin text-mute" size={32} /></div>;
     }
 
     const set = <K extends keyof api.BrandSettings>(key: K, value: api.BrandSettings[K]) => { setSaved(false); setForm({ ...form, [key]: value }); };
@@ -86,7 +86,7 @@ export const BrandSettingsForm: React.FC<{ clientId: string; onSaved?: () => voi
                         <input type="number" min={0} max={100} value={form.reels_mes ?? ''} onChange={(e) => set('reels_mes', num(e.target.value))} className={inputCls} />
                     </Field>
                 </div>
-                <p className="text-xs text-gray-500 mt-3">Total: <strong className="text-gray-900">{total}</strong> piezas al mes.</p>
+                <p className="text-xs text-text-3 mt-3">Total: <strong className="text-white">{total}</strong> piezas al mes.</p>
             </Card>
 
             <Card title="Redes" text="Dónde publica la marca. /03_generar solo escribe textos para estas redes y /05_publicar solo programa en ellas.">
@@ -95,7 +95,7 @@ export const BrandSettingsForm: React.FC<{ clientId: string; onSaved?: () => voi
                         const on = form.redes.includes(key);
                         return (
                             <button key={key} type="button" aria-pressed={on} onClick={() => toggleRed(key)}
-                                className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border text-sm font-bold transition-colors ${on ? 'border-gray-900 bg-gray-900 text-white' : 'border-gray-200 text-gray-600 hover:bg-gray-50'}`}>
+                                className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border text-sm font-bold transition-colors ${on ? 'border-text-3 bg-raised text-white' : 'border-edge text-text-2 hover:bg-raised'}`}>
                                 {on && <Check size={14} strokeWidth={3} />} {label}
                             </button>
                         );
@@ -125,10 +125,10 @@ export const BrandSettingsForm: React.FC<{ clientId: string; onSaved?: () => voi
                 <button type="submit" disabled={saving} className="flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-pink-500 to-rose-500 text-white text-sm font-bold shadow-lg shadow-pink-500/20 disabled:opacity-60">
                     {saving ? <Loader2 size={16} className="animate-spin" /> : <Check size={16} />} Guardar configuración
                 </button>
-                {saved && <span className="text-sm font-semibold" style={{ color: '#006300' }}>Guardado. Las recetas usarán estos datos desde ahora.</span>}
-                {error && <span className="text-sm text-red-600">{error}</span>}
+                {saved && <span className="text-sm font-semibold" style={{ color: '#E4E4EA' }}>Guardado. Las recetas usarán estos datos desde ahora.</span>}
+                {error && <span className="text-sm text-pink-text">{error}</span>}
                 {form.actualizado_at && !saved && (
-                    <span className="text-xs text-gray-400">Última edición: {new Date(form.actualizado_at).toLocaleDateString('es-PE', { day: 'numeric', month: 'long' })}{form.actualizado_por ? ` por ${form.actualizado_por}` : ''}</span>
+                    <span className="text-xs text-text-3">Última edición: {new Date(form.actualizado_at).toLocaleDateString('es-PE', { day: 'numeric', month: 'long' })}{form.actualizado_por ? ` por ${form.actualizado_por}` : ''}</span>
                 )}
             </div>
         </form>

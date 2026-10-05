@@ -6,9 +6,9 @@ import { useAuth } from '../contexts/AuthContext';
 import * as api from '../services/api';
 
 const ESTADO_META: Record<api.EstrategiaEstado, { label: string; color: string; icon: React.ElementType }> = {
-    Pendiente: { label: 'Por revisar', color: '#fab219', icon: Sparkles },
-    'Cambios solicitados': { label: 'Cambios pedidos', color: '#ec835a', icon: MessageSquareWarning },
-    Aprobada: { label: 'Aprobada', color: '#0ca30c', icon: Check },
+    Pendiente: { label: 'Por revisar', color: '#EB0C6E', icon: Sparkles },
+    'Cambios solicitados': { label: 'Cambios pedidos', color: '#FF85C3', icon: MessageSquareWarning },
+    Aprobada: { label: 'Aprobada', color: '#E4E4EA', icon: Check },
 };
 
 export const StrategyView: React.FC<{ onNavigate?: (view: string) => void; clientId?: string }> = ({ clientId: clientIdProp }) => {
@@ -27,7 +27,7 @@ export const StrategyView: React.FC<{ onNavigate?: (view: string) => void; clien
     }, [clientId]);
 
     return (
-        <div className='p-4 md:p-8 h-full overflow-y-auto custom-scrollbar animate-fade-in-up bg-brand-bg'>
+        <div className='p-4 md:p-8 h-full overflow-y-auto custom-scrollbar animate-fade-in-up bg-ink'>
             <div className="max-w-7xl mx-auto space-y-6">
 
                 <AnimatedHeaderCard
@@ -39,7 +39,7 @@ export const StrategyView: React.FC<{ onNavigate?: (view: string) => void; clien
                 {clientId && hasStrategy && review && <StrategyReviewBar clientId={clientId} review={review} onChange={setReview} />}
 
                 {/* Strategy Map Module */}
-                <div className='h-[600px] rounded-[30px] overflow-hidden border border-gray-200 shadow-sm bg-white'>
+                <div className='h-[600px] rounded-[30px] overflow-hidden border border-edge shadow-sm bg-card'>
                     <StrategyMap overrideClientId={clientId ?? undefined} />
                 </div>
             </div>
@@ -70,13 +70,13 @@ const StrategyReviewBar: React.FC<{ clientId: string; review: api.StrategyReview
     };
 
     return (
-        <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-5">
+        <div className="bg-card rounded-3xl border border-edge shadow-sm p-5">
             <div className="flex flex-wrap items-center justify-between gap-4">
                 <div className="flex items-center gap-3">
-                    <span className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-sm font-semibold text-gray-800 shrink-0" style={{ background: `${meta.color}1F` }}>
+                    <span className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-sm font-semibold text-white shrink-0" style={{ background: `${meta.color}1F` }}>
                         <meta.icon size={15} style={{ color: meta.color }} strokeWidth={2.5} /> {meta.label}
                     </span>
-                    <p className="text-sm text-gray-500">
+                    <p className="text-sm text-text-3">
                         {review.estado === 'Aprobada'
                             ? `Aprobada${review.revisada_at ? ` el ${new Date(review.revisada_at).toLocaleDateString('es-PE', { day: 'numeric', month: 'long' })}` : ''}. Planificamos cada mes con esta estrategia.`
                             : review.estado === 'Cambios solicitados'
@@ -86,7 +86,7 @@ const StrategyReviewBar: React.FC<{ clientId: string; review: api.StrategyReview
                 </div>
                 <div className="flex gap-2">
                     {!asking && (
-                        <button onClick={() => setAsking(true)} className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-gray-200 text-sm font-bold text-gray-700 hover:bg-gray-50">
+                        <button onClick={() => setAsking(true)} className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-edge text-sm font-bold text-text-2 hover:bg-raised">
                             <MessageSquareWarning size={15} /> Pedir cambios
                         </button>
                     )}
@@ -99,25 +99,25 @@ const StrategyReviewBar: React.FC<{ clientId: string; review: api.StrategyReview
             </div>
 
             {review.comentario && !asking && (
-                <p className="mt-3 text-sm text-gray-600 italic border-l-2 border-orange-200 pl-3">“{review.comentario}”</p>
+                <p className="mt-3 text-sm text-text-2 italic border-l-2 border-pink/40 pl-3">“{review.comentario}”</p>
             )}
 
             {asking && (
                 <div className="mt-4 space-y-3">
-                    <label htmlFor="strategy-comment" className="text-sm font-bold text-gray-800">¿Qué cambiarías?</label>
+                    <label htmlFor="strategy-comment" className="text-sm font-bold text-white">¿Qué cambiarías?</label>
                     <textarea id="strategy-comment" value={comment} onChange={(e) => setComment(e.target.value)} rows={3} autoFocus
                         placeholder="Ej. Lo más urgente para nosotros es vender delivery, no llenar el local…"
-                        className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-pink-500/20 focus:border-pink-500" />
-                    {error && <p className="text-sm text-red-600">{error}</p>}
+                        className="w-full rounded-xl border border-edge px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-pink/20 focus:border-pink" />
+                    {error && <p className="text-sm text-pink-text">{error}</p>}
                     <div className="flex gap-2">
-                        <button onClick={() => { setAsking(false); setError(null); }} disabled={saving} className="px-4 py-2.5 rounded-xl border border-gray-200 text-sm font-bold text-gray-600 hover:bg-gray-50">Volver</button>
-                        <button onClick={() => submit('Cambios solicitados')} disabled={saving} className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gray-900 text-white text-sm font-bold hover:bg-gray-800 disabled:opacity-60">
+                        <button onClick={() => { setAsking(false); setError(null); }} disabled={saving} className="px-4 py-2.5 rounded-xl border border-edge text-sm font-bold text-text-2 hover:bg-raised">Volver</button>
+                        <button onClick={() => submit('Cambios solicitados')} disabled={saving} className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-raised text-white text-sm font-bold hover:bg-edge disabled:opacity-60">
                             {saving && <Loader2 size={15} className="animate-spin" />} Enviar cambios
                         </button>
                     </div>
                 </div>
             )}
-            {error && !asking && <p className="mt-2 text-sm text-red-600">{error}</p>}
+            {error && !asking && <p className="mt-2 text-sm text-pink-text">{error}</p>}
         </div>
     );
 };

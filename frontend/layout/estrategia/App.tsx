@@ -121,24 +121,24 @@ const layoutTree = (nodes: NodeData[]): NodeData[] => {
 const ConceptMeta: React.FC<{ node: NodeData }> = ({ node }) => (
     <div className="flex flex-wrap items-center gap-1.5">
         {node.suggested_format && (
-            <span className="text-[11px] font-semibold px-2 py-0.5 rounded-md bg-gray-100 text-gray-600">{FORMAT_ES[node.suggested_format] ?? node.suggested_format}</span>
+            <span className="text-[11px] font-semibold px-2 py-0.5 rounded-md bg-raised text-text-2">{FORMAT_ES[node.suggested_format] ?? node.suggested_format}</span>
         )}
         {node.suggested_frequency && FREQ_ES[node.suggested_frequency] && (
-            <span className="text-[11px] font-semibold px-2 py-0.5 rounded-md bg-primary-50 text-primary-700">{FREQ_ES[node.suggested_frequency]}</span>
+            <span className="text-[11px] font-semibold px-2 py-0.5 rounded-md bg-pink/15 text-pink-text">{FREQ_ES[node.suggested_frequency]}</span>
         )}
     </div>
 );
 
 const Section: React.FC<{ title: string; children: React.ReactNode }> = ({ title, children }) => (
     <section className="space-y-2">
-        <h4 className="text-[11px] font-bold uppercase tracking-wider text-gray-400">{title}</h4>
+        <h4 className="text-[11px] font-bold uppercase tracking-wider text-text-3">{title}</h4>
         {children}
     </section>
 );
 
 const Bullets: React.FC<{ items?: string[] }> = ({ items }) => (
     <ul className="space-y-1.5">
-        {(items || []).map((it, i) => <li key={i} className="text-sm text-gray-700 leading-relaxed pl-4 relative before:content-['•'] before:absolute before:left-0 before:text-primary-400">{it}</li>)}
+        {(items || []).map((it, i) => <li key={i} className="text-sm text-text-2 leading-relaxed pl-4 relative before:content-['•'] before:absolute before:left-0 before:text-pink-text">{it}</li>)}
     </ul>
 );
 
@@ -575,19 +575,19 @@ const App: React.FC<{ overrideClientId?: string }> = ({ overrideClientId }) => {
         let iconClasses = "";
 
         if (isMain) {
-            typeClasses = `w-[280px] glass-dark text-white border-white/10 ${isSelected ? 'ring-2 ring-accent-500 shadow-glow' : 'hover:border-white/20'}`;
-            iconClasses = "bg-accent-500 text-white shadow-lg shadow-accent-600/30";
+            typeClasses = `w-[280px] glass-dark text-white border-edge ${isSelected ? 'ring-2 ring-pink shadow-glow' : 'hover:border-edge'}`;
+            iconClasses = "bg-pink-fill text-white shadow-lg shadow-accent-600/30";
         } else if (isSec) {
-            typeClasses = `w-[240px] glass-panel text-gray-800 border-white/60 ${isSelected ? 'ring-2 ring-accent-500 shadow-lg' : 'hover:shadow-float'}`;
-            iconClasses = "bg-accent-50 text-accent-600";
+            typeClasses = `w-[240px] glass-panel text-white border-edge ${isSelected ? 'ring-2 ring-pink shadow-lg' : 'hover:shadow-float'}`;
+            iconClasses = "bg-pink/15 text-pink-text";
         } else if (isConcept || isPost) {
             // Strategy v2 Concept Styling - Wider cards for full title visibility
-            typeClasses = `w-[280px] bg-white text-gray-700 border-gray-100 shadow-sm ${isSelected ? 'ring-2 ring-brand-primary' : 'hover:shadow-md'}`;
-            iconClasses = "bg-brand-primary/10 text-brand-primary";
+            typeClasses = `w-[280px] bg-card text-text-2 border-edge shadow-sm ${isSelected ? 'ring-2 ring-pink' : 'hover:shadow-md'}`;
+            iconClasses = "bg-pink/15 text-pink-text";
         } else {
             // Fallback
-            typeClasses = `w-[200px] bg-white text-gray-600 border-gray-100 shadow-sm ${isSelected ? 'ring-2 ring-accent-400' : 'hover:shadow-md'}`;
-            iconClasses = "bg-gray-50 text-gray-400";
+            typeClasses = `w-[200px] bg-card text-text-2 border-edge shadow-sm ${isSelected ? 'ring-2 ring-pink' : 'hover:shadow-md'}`;
+            iconClasses = "bg-raised text-text-3";
         }
 
         // Determine label text based on type
@@ -608,11 +608,11 @@ const App: React.FC<{ overrideClientId?: string }> = ({ overrideClientId }) => {
                     </div>
                     <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between mb-0.5">
-                            <p className={`text-[10px] font-bold uppercase tracking-wider ${isMain ? 'text-gray-400' : 'text-gray-400'}`}>
+                            <p className={`text-[10px] font-bold uppercase tracking-wider ${isMain ? 'text-text-3' : 'text-text-3'}`}>
                                 {typeLabel}
                             </p>
                             {isConcept && node.suggested_format && (
-                                <span className="text-[9px] px-1.5 py-0.5 bg-gray-100 rounded text-gray-500 uppercase font-bold tracking-tight">
+                                <span className="text-[9px] px-1.5 py-0.5 bg-raised rounded text-text-3 uppercase font-bold tracking-tight">
                                     {FORMAT_ES[node.suggested_format] ?? node.suggested_format}
                                 </span>
                             )}
@@ -630,7 +630,7 @@ const App: React.FC<{ overrideClientId?: string }> = ({ overrideClientId }) => {
                                     e.stopPropagation();
                                 }}
                                 onMouseDown={(e) => e.stopPropagation()}
-                                className="w-full bg-transparent border-b border-white/30 focus:border-accent-500 outline-none text-current font-bold"
+                                className="w-full bg-transparent border-b border-edge/30 focus:border-pink outline-none text-current font-bold"
                             />
                         ) : (
                             <div className="flex flex-col gap-1">
@@ -648,12 +648,12 @@ const App: React.FC<{ overrideClientId?: string }> = ({ overrideClientId }) => {
                                 {isConcept && (
                                     <div className="flex flex-wrap gap-1 mt-1">
                                         {node.suggested_frequency && (
-                                            <span className="text-[9px] px-1.5 py-0.5 bg-blue-50 text-blue-600 rounded-full font-medium">
+                                            <span className="text-[9px] px-1.5 py-0.5 bg-raised text-text-2 rounded-full font-medium">
                                                 {node.suggested_frequency === 'high' ? 'Alta' : node.suggested_frequency === 'medium' ? 'Media' : 'Baja'}
                                             </span>
                                         )}
                                         {node.tags && node.tags.slice(0, 2).map((tag, i) => (
-                                            <span key={i} className="text-[9px] px-1.5 py-0.5 bg-gray-50 text-gray-500 rounded-full">
+                                            <span key={i} className="text-[9px] px-1.5 py-0.5 bg-raised text-text-3 rounded-full">
                                                 #{tag}
                                             </span>
                                         ))}
@@ -667,7 +667,7 @@ const App: React.FC<{ overrideClientId?: string }> = ({ overrideClientId }) => {
                         <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                             <button
                                 onClick={(e) => { e.stopPropagation(); setEditingNodeId(node.id); }}
-                                className={`p-1.5 rounded-lg hover:bg-black/10 transition-colors ${isMain ? 'text-gray-400 hover:text-white' : 'text-gray-400 hover:text-gray-800'}`}
+                                className={`p-1.5 rounded-lg hover:bg-raised/10 transition-colors ${isMain ? 'text-text-3 hover:text-white' : 'text-text-3 hover:text-white'}`}
                             >
                                 <Edit2 size={12} />
                             </button>
@@ -678,7 +678,7 @@ const App: React.FC<{ overrideClientId?: string }> = ({ overrideClientId }) => {
                         <button
                             onClick={(e) => { e.stopPropagation(); addChildNode(node.id); }}
                             className={`absolute -bottom-3 left-1/2 -translate-x-1/2 w-8 h-8 rounded-full flex items-center justify-center shadow-lg transition-all duration-300 opacity-0 group-hover:opacity-100 transform translate-y-2 group-hover:translate-y-0
-                    ${isMain ? 'bg-white text-brand-dark hover:bg-gray-50' : 'bg-brand-dark text-white hover:bg-gray-800'}`}
+                    ${isMain ? 'bg-card text-white hover:bg-raised' : 'bg-raised text-white hover:bg-edge'}`}
                         >
                             <Plus size={16} strokeWidth={3} />
                         </button>
@@ -694,12 +694,12 @@ const App: React.FC<{ overrideClientId?: string }> = ({ overrideClientId }) => {
         const mainNodes = nodes.filter(n => n.type === 'main');
 
         if (mainNodes.length === 0) return (
-            <div className="flex flex-col items-center justify-center h-full text-gray-400">
-                <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
-                    <Layers size={32} className="opacity-30 text-gray-900" />
+            <div className="flex flex-col items-center justify-center h-full text-text-3">
+                <div className="w-16 h-16 bg-raised rounded-full flex items-center justify-center mb-4">
+                    <Layers size={32} className="opacity-30 text-white" />
                 </div>
-                <p className="text-xl font-bold text-gray-900">Tu plan está vacío</p>
-                <p className="text-sm text-gray-500 mt-2">Cambia a la vista de Mapa para empezar.</p>
+                <p className="text-xl font-bold text-white">Tu plan está vacío</p>
+                <p className="text-sm text-text-3 mt-2">Cambia a la vista de Mapa para empezar.</p>
             </div>
         );
 
@@ -717,16 +717,16 @@ const App: React.FC<{ overrideClientId?: string }> = ({ overrideClientId }) => {
                 <div className="max-w-5xl mx-auto px-4 md:px-6 pt-24 pb-16 space-y-8">
                     {/* How to read it */}
                     <section aria-label="Cómo leer tu estrategia">
-                        <p className="text-xs font-bold uppercase tracking-[0.2em] text-primary-600 mb-3">Cómo leer tu estrategia</p>
+                        <p className="text-xs font-bold uppercase tracking-[0.2em] text-pink-text mb-3">Cómo leer tu estrategia</p>
                         <ol className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                             {steps.map((st, i) => (
-                                <li key={st.name} className="relative bg-white rounded-2xl border border-gray-100 p-4 flex gap-3">
-                                    <div className="w-9 h-9 rounded-xl bg-primary-50 text-primary-600 flex items-center justify-center shrink-0"><st.icon size={18} /></div>
+                                <li key={st.name} className="relative bg-card rounded-2xl border border-edge p-4 flex gap-3">
+                                    <div className="w-9 h-9 rounded-xl bg-pink/15 text-pink-text flex items-center justify-center shrink-0"><st.icon size={18} /></div>
                                     <div>
-                                        <p className="font-bold text-gray-900">{i + 1}. {st.name} <span className="text-gray-400 font-semibold">· {st.n}</span></p>
-                                        <p className="text-sm text-gray-500 leading-snug">{st.text}</p>
+                                        <p className="font-bold text-white">{i + 1}. {st.name} <span className="text-text-3 font-semibold">· {st.n}</span></p>
+                                        <p className="text-sm text-text-3 leading-snug">{st.text}</p>
                                     </div>
-                                    {i < 2 && <ArrowRight size={16} className="hidden sm:block absolute -right-3 top-1/2 -translate-y-1/2 text-gray-300 bg-brand-bg rounded-full" />}
+                                    {i < 2 && <ArrowRight size={16} className="hidden sm:block absolute -right-3 top-1/2 -translate-y-1/2 text-mute bg-ink rounded-full" />}
                                 </li>
                             ))}
                         </ol>
@@ -740,32 +740,32 @@ const App: React.FC<{ overrideClientId?: string }> = ({ overrideClientId }) => {
                                     const priority = priorityOf(objective);
                                     const why = descriptionOf(objective);
                                     return (
-                                        <article key={objective.id} className={`bg-white rounded-3xl border shadow-sm overflow-hidden ${priority === 'principal' ? 'border-primary-200' : 'border-gray-100'}`}>
+                                        <article key={objective.id} className={`bg-card rounded-3xl border shadow-sm overflow-hidden ${priority === 'principal' ? 'border-pink' : 'border-edge'}`}>
                                             {/* 1. The objective */}
-                                            <button onClick={() => openDetail(objective.id)} className="w-full text-left p-6 hover:bg-gray-50/60 transition-colors">
+                                            <button onClick={() => openDetail(objective.id)} className="w-full text-left p-6 hover:bg-raised/60 transition-colors">
                                                 <div className="flex items-center gap-2 mb-2">
-                                                    <span className={`text-[11px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md ${priority === 'principal' ? 'bg-primary-600 text-white' : 'bg-gray-100 text-gray-600'}`}>
+                                                    <span className={`text-[11px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md ${priority === 'principal' ? 'bg-pink-fill text-white' : 'bg-raised text-text-2'}`}>
                                                         {priority === 'principal' ? 'Objetivo principal' : priority === 'secundario' ? 'Objetivo secundario' : `Objetivo ${objIdx + 1}`}
                                                     </span>
                                                 </div>
-                                                <h3 className="text-xl md:text-2xl font-bold text-gray-900 leading-tight">{titleOf(objective, 'objective')}</h3>
-                                                {why && <p className="mt-2 text-sm text-gray-600 leading-relaxed line-clamp-3"><span className="font-semibold text-gray-800">Por qué: </span>{why}</p>}
+                                                <h3 className="text-xl md:text-2xl font-bold text-white leading-tight">{titleOf(objective, 'objective')}</h3>
+                                                {why && <p className="mt-2 text-sm text-text-2 leading-relaxed line-clamp-3"><span className="font-semibold text-white">Por qué: </span>{why}</p>}
                                             </button>
 
                                             {/* 2. The strategies, 3. their concepts */}
-                                            <div className="border-t border-gray-100 bg-gray-50/50 p-4 md:p-6 space-y-5">
-                                                {childrenOf(objective.id).length === 0 && <p className="text-sm text-gray-400">Todavía sin estrategias para este objetivo.</p>}
+                                            <div className="border-t border-edge bg-raised/50 p-4 md:p-6 space-y-5">
+                                                {childrenOf(objective.id).length === 0 && <p className="text-sm text-text-3">Todavía sin estrategias para este objetivo.</p>}
                                                 {childrenOf(objective.id).map((strategy) => {
                                                     const how = descriptionOf(strategy);
                                                     const kids = childrenOf(strategy.id);
                                                     return (
                                                         <div key={strategy.id}>
                                                             <button onClick={() => openDetail(strategy.id)} className="flex items-start gap-3 text-left w-full group">
-                                                                <div className="w-8 h-8 rounded-lg bg-white border border-gray-200 text-gray-600 flex items-center justify-center shrink-0 mt-0.5"><TrendingUp size={15} /></div>
+                                                                <div className="w-8 h-8 rounded-lg bg-card border border-edge text-text-2 flex items-center justify-center shrink-0 mt-0.5"><TrendingUp size={15} /></div>
                                                                 <div className="min-w-0">
-                                                                    <p className="text-[11px] font-bold uppercase tracking-wider text-gray-400">Cómo: estrategia</p>
-                                                                    <p className="font-bold text-gray-900 group-hover:text-primary-700 transition-colors">{titleOf(strategy, 'strategy')}</p>
-                                                                    {how && <p className="text-sm text-gray-500 leading-snug">{how}</p>}
+                                                                    <p className="text-[11px] font-bold uppercase tracking-wider text-text-3">Cómo: estrategia</p>
+                                                                    <p className="font-bold text-white group-hover:text-pink-text transition-colors">{titleOf(strategy, 'strategy')}</p>
+                                                                    {how && <p className="text-sm text-text-3 leading-snug">{how}</p>}
                                                                 </div>
                                                             </button>
                                                             <div className="mt-3 md:pl-11 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -773,23 +773,23 @@ const App: React.FC<{ overrideClientId?: string }> = ({ overrideClientId }) => {
                                                                     <button
                                                                         key={concept.id}
                                                                         onClick={() => openDetail(concept.id)}
-                                                                        className="text-left bg-white rounded-2xl border border-gray-100 p-4 hover:border-primary-300 hover:shadow-sm transition-all flex flex-col gap-2"
+                                                                        className="text-left bg-card rounded-2xl border border-edge p-4 hover:border-pink hover:shadow-sm transition-all flex flex-col gap-2"
                                                                     >
                                                                         <div className="flex items-center gap-2">
-                                                                            <Lightbulb size={14} className="text-primary-500 shrink-0" />
-                                                                            <p className="font-semibold text-gray-900 leading-snug">{concept.label}</p>
+                                                                            <Lightbulb size={14} className="text-pink-text shrink-0" />
+                                                                            <p className="font-semibold text-white leading-snug">{concept.label}</p>
                                                                         </div>
-                                                                        {concept.description && <p className="text-xs text-gray-500 leading-relaxed line-clamp-2">{concept.description}</p>}
+                                                                        {concept.description && <p className="text-xs text-text-3 leading-relaxed line-clamp-2">{concept.description}</p>}
                                                                         <div className="mt-auto flex items-center justify-between gap-2">
                                                                             <ConceptMeta node={concept} />
-                                                                            <span className="text-[11px] font-semibold text-primary-600 shrink-0">Ver detalle</span>
+                                                                            <span className="text-[11px] font-semibold text-pink-text shrink-0">Ver detalle</span>
                                                                         </div>
                                                                     </button>
                                                                 ))}
                                                                 {kids.length < MAX_POSTS_PER_SECONDARY && (
                                                                     <button
                                                                         onClick={() => addChildNode(strategy.id)}
-                                                                        className="flex items-center justify-center gap-2 p-4 rounded-2xl border-2 border-dashed border-gray-200 text-gray-400 hover:border-primary-300 hover:text-primary-600 transition-colors text-xs font-bold min-h-[88px]"
+                                                                        className="flex items-center justify-center gap-2 p-4 rounded-2xl border-2 border-dashed border-edge text-text-3 hover:border-pink hover:text-pink-text transition-colors text-xs font-bold min-h-[88px]"
                                                                     >
                                                                         <Plus size={16} /> Agregar concepto
                                                                     </button>
@@ -825,28 +825,28 @@ const App: React.FC<{ overrideClientId?: string }> = ({ overrideClientId }) => {
 
         return (
             <aside
-                className="absolute top-0 right-0 h-full w-full sm:w-[400px] bg-white border-l border-gray-200 shadow-2xl z-[60] flex flex-col animate-fade-in-up"
+                className="absolute top-0 right-0 h-full w-full sm:w-[400px] bg-card border-l border-edge shadow-2xl z-[60] flex flex-col animate-fade-in-up"
                 aria-label="Detalle del nodo"
                 onMouseDown={(e) => e.stopPropagation()}
             >
-                <div className="flex items-start justify-between gap-3 p-5 border-b border-gray-100">
+                <div className="flex items-start justify-between gap-3 p-5 border-b border-edge">
                     <div className="min-w-0">
                         {ancestors.length > 0 && (
-                            <nav className="flex flex-wrap items-center gap-1 text-xs text-gray-400 mb-2" aria-label="Ubicación en la estrategia">
+                            <nav className="flex flex-wrap items-center gap-1 text-xs text-text-3 mb-2" aria-label="Ubicación en la estrategia">
                                 {ancestors.map((a, i) => (
                                     <React.Fragment key={a.id}>
                                         {i > 0 && <span>›</span>}
-                                        <button onClick={() => setDetailId(a.id)} className="hover:text-primary-600 truncate max-w-[150px]">{titleOf(a, roleOf(a, byId))}</button>
+                                        <button onClick={() => setDetailId(a.id)} className="hover:text-pink-text truncate max-w-[150px]">{titleOf(a, roleOf(a, byId))}</button>
                                     </React.Fragment>
                                 ))}
                             </nav>
                         )}
-                        <p className="text-[11px] font-bold uppercase tracking-wider text-primary-600">
+                        <p className="text-[11px] font-bold uppercase tracking-wider text-pink-text">
                             {ROLE_INFO[role].name}{priority ? ` ${priority}` : ''}
                         </p>
-                        <p className="text-xs text-gray-500 mt-0.5">{ROLE_INFO[role].explain}</p>
+                        <p className="text-xs text-text-3 mt-0.5">{ROLE_INFO[role].explain}</p>
                     </div>
-                    <button onClick={() => setDetailId(null)} className="p-2 rounded-xl hover:bg-gray-100 text-gray-400 shrink-0" aria-label="Cerrar detalle">
+                    <button onClick={() => setDetailId(null)} className="p-2 rounded-xl hover:bg-raised text-text-3 shrink-0" aria-label="Cerrar detalle">
                         <X size={18} />
                     </button>
                 </div>
@@ -856,7 +856,7 @@ const App: React.FC<{ overrideClientId?: string }> = ({ overrideClientId }) => {
                         <input
                             value={role === 'objective' && GENERIC_OBJECTIVE.test(node.label.trim()) ? titleOf(node, role) : node.label}
                             onChange={(e) => updateNodeData(node.id, 'label', e.target.value)}
-                            className="w-full text-xl font-bold text-gray-900 bg-transparent border-b border-transparent hover:border-gray-200 focus:border-primary-400 outline-none pb-1"
+                            className="w-full text-xl font-bold text-white bg-transparent border-b border-transparent hover:border-edge focus:border-pink outline-none pb-1"
                             aria-label="Nombre"
                         />
                         {role === 'concept' && <ConceptMeta node={node} />}
@@ -869,19 +869,19 @@ const App: React.FC<{ overrideClientId?: string }> = ({ overrideClientId }) => {
                                 onChange={(e) => updateNodeData(node.id, 'description', e.target.value)}
                                 rows={4}
                                 placeholder={role === 'concept' ? 'Describe este tipo de contenido…' : 'Explica por qué importa…'}
-                                className="w-full text-sm text-gray-700 leading-relaxed bg-gray-50 rounded-xl p-3 border border-transparent focus:border-primary-300 outline-none resize-y"
+                                className="w-full text-sm text-text-2 leading-relaxed bg-raised rounded-xl p-3 border border-transparent focus:border-pink outline-none resize-y"
                             />
                         </Section>
                     )}
 
                     {role === 'concept' && node.strategic_rationale && (
-                        <Section title="Por qué funciona"><p className="text-sm text-gray-700 leading-relaxed">{node.strategic_rationale}</p></Section>
+                        <Section title="Por qué funciona"><p className="text-sm text-text-2 leading-relaxed">{node.strategic_rationale}</p></Section>
                     )}
                     {role === 'concept' && hooks.length > 0 && (
                         <Section title="Ganchos para empezar la publicación"><Bullets items={hooks} /></Section>
                     )}
                     {role === 'concept' && g.structure && (
-                        <Section title="Cómo armarlo"><p className="text-sm text-gray-700 leading-relaxed bg-gray-50 rounded-xl p-3">{g.structure}</p></Section>
+                        <Section title="Cómo armarlo"><p className="text-sm text-text-2 leading-relaxed bg-raised rounded-xl p-3">{g.structure}</p></Section>
                     )}
                     {role === 'concept' && (g.key_elements?.length ?? 0) > 0 && (
                         <Section title="No puede faltar"><Bullets items={g.key_elements} /></Section>
@@ -893,11 +893,11 @@ const App: React.FC<{ overrideClientId?: string }> = ({ overrideClientId }) => {
                         </div>
                     )}
                     {role === 'concept' && !node.strategic_rationale && hooks.length === 0 && !g.structure && (
-                        <p className="text-xs text-gray-400 leading-relaxed">Este concepto no tiene guía de ejecución todavía. Se completa al regenerar la estrategia.</p>
+                        <p className="text-xs text-text-3 leading-relaxed">Este concepto no tiene guía de ejecución todavía. Se completa al regenerar la estrategia.</p>
                     )}
                     {role === 'concept' && (node.tags?.length ?? 0) > 0 && (
                         <div className="flex flex-wrap gap-1.5">
-                            {node.tags!.map((t) => <span key={t} className="inline-flex items-center gap-1 text-[11px] px-2 py-0.5 rounded-md bg-gray-100 text-gray-500"><Tag size={10} />{t}</span>)}
+                            {node.tags!.map((t) => <span key={t} className="inline-flex items-center gap-1 text-[11px] px-2 py-0.5 rounded-md bg-raised text-text-3"><Tag size={10} />{t}</span>)}
                         </div>
                     )}
 
@@ -906,9 +906,9 @@ const App: React.FC<{ overrideClientId?: string }> = ({ overrideClientId }) => {
                             <ul className="space-y-2">
                                 {kids.map((k) => (
                                     <li key={k.id}>
-                                        <button onClick={() => setDetailId(k.id)} className="w-full text-left flex items-center justify-between gap-3 p-3 rounded-xl border border-gray-100 hover:border-primary-200 hover:bg-primary-50/40 transition-colors">
-                                            <span className="text-sm font-semibold text-gray-800 leading-snug">{titleOf(k, roleOf(k, byId))}</span>
-                                            <ArrowRight size={14} className="text-gray-400 shrink-0" />
+                                        <button onClick={() => setDetailId(k.id)} className="w-full text-left flex items-center justify-between gap-3 p-3 rounded-xl border border-edge hover:border-pink hover:bg-pink/15 transition-colors">
+                                            <span className="text-sm font-semibold text-white leading-snug">{titleOf(k, roleOf(k, byId))}</span>
+                                            <ArrowRight size={14} className="text-text-3 shrink-0" />
                                         </button>
                                     </li>
                                 ))}
@@ -951,19 +951,19 @@ const App: React.FC<{ overrideClientId?: string }> = ({ overrideClientId }) => {
     };
 
     return (
-        <div ref={containerRef} className="relative flex h-full min-h-[600px] bg-brand-bg font-sans overflow-hidden text-brand-dark selection:bg-accent-100 selection:text-accent-700">
+        <div ref={containerRef} className="relative flex h-full min-h-[600px] bg-ink font-sans overflow-hidden text-white selection:bg-pink/15 selection:text-pink-text">
             <main className="flex-1 relative overflow-hidden flex flex-col">
 
                 {/* Header Toggle */}
                 <header className="absolute top-6 left-1/2 -translate-x-1/2 h-16 glass-panel rounded-full shadow-float flex items-center gap-4 px-2 z-40">
-                    <div className="flex items-center bg-gray-100/50 p-1 rounded-full border border-gray-200/50">
-                        <button onClick={() => setViewMode('map')} className={`flex items-center gap-2 px-5 py-2 rounded-full text-xs font-bold transition-all ${viewMode === 'map' ? 'bg-white shadow-sm' : 'text-gray-400'}`}>Mapa</button>
-                        <button onClick={() => setViewMode('list')} className={`flex items-center gap-2 px-5 py-2 rounded-full text-xs font-bold transition-all ${viewMode === 'list' ? 'bg-white shadow-sm' : 'text-gray-400'}`}>Lista</button>
+                    <div className="flex items-center bg-raised/50 p-1 rounded-full border border-edge/50">
+                        <button onClick={() => setViewMode('map')} className={`flex items-center gap-2 px-5 py-2 rounded-full text-xs font-bold transition-all ${viewMode === 'map' ? 'bg-card shadow-sm' : 'text-text-3'}`}>Mapa</button>
+                        <button onClick={() => setViewMode('list')} className={`flex items-center gap-2 px-5 py-2 rounded-full text-xs font-bold transition-all ${viewMode === 'list' ? 'bg-card shadow-sm' : 'text-text-3'}`}>Lista</button>
                     </div>
                 </header>
 
                 {/* Content Area */}
-                <div className="flex-1 relative h-full bg-brand-bg">
+                <div className="flex-1 relative h-full bg-ink">
 
                     {/* MAP VIEW */}
                     <div
@@ -971,9 +971,9 @@ const App: React.FC<{ overrideClientId?: string }> = ({ overrideClientId }) => {
                         onMouseDown={handleCanvasMouseDown}
                         onDragOver={handleDragOver}
                         onDrop={handleDrop}
-                        className={`absolute inset-0 w-full h-full overflow-hidden bg-white ${viewMode === 'map' ? 'opacity-100 visible' : 'opacity-0 invisible pointer-events-none'} ${mode === 'pan' ? (isPanning ? 'cursor-grabbing' : 'cursor-grab') : 'cursor-default'}`}
+                        className={`absolute inset-0 w-full h-full overflow-hidden bg-card ${viewMode === 'map' ? 'opacity-100 visible' : 'opacity-0 invisible pointer-events-none'} ${mode === 'pan' ? (isPanning ? 'cursor-grabbing' : 'cursor-grab') : 'cursor-default'}`}
                         style={{
-                            backgroundImage: 'radial-gradient(#e5e7eb 1px, transparent 1px)',
+                            backgroundImage: 'radial-gradient(#26262E 1px, transparent 1px)',
                             backgroundSize: '24px 24px'
                         }}
                     >
@@ -986,7 +986,7 @@ const App: React.FC<{ overrideClientId?: string }> = ({ overrideClientId }) => {
                                     if (!node.parentId) return null;
                                     const parent = nodes.find(n => n.id === node.parentId);
                                     if (!parent) return null;
-                                    return <path key={`edge-${node.id}`} d={getPath(parent, node)} fill="none" stroke="#CBD5E1" strokeWidth="2" strokeLinecap="round" className="opacity-60" />;
+                                    return <path key={`edge-${node.id}`} d={getPath(parent, node)} fill="none" stroke="#33333C" strokeWidth="2" strokeLinecap="round" className="opacity-60" />;
                                 })}
                             </svg>
 
@@ -998,7 +998,7 @@ const App: React.FC<{ overrideClientId?: string }> = ({ overrideClientId }) => {
                             {/* Selection Box Overlay */}
                             {selectionBox && (
                                 <div
-                                    className="absolute border border-accent-500 bg-accent-500/10 pointer-events-none z-50 rounded-sm"
+                                    className="absolute border border-pink bg-pink-fill/10 pointer-events-none z-50 rounded-sm"
                                     style={{
                                         left: Math.min(selectionBox.startX, selectionBox.currentX),
                                         top: Math.min(selectionBox.startY, selectionBox.currentY),
@@ -1011,17 +1011,17 @@ const App: React.FC<{ overrideClientId?: string }> = ({ overrideClientId }) => {
                     </div>
 
                     {/* LIST VIEW */}
-                    <div className={`absolute inset-0 w-full h-full overflow-hidden bg-brand-bg ${viewMode === 'list' ? 'opacity-100 visible z-10' : 'opacity-0 invisible pointer-events-none'}`}>
+                    <div className={`absolute inset-0 w-full h-full overflow-hidden bg-ink ${viewMode === 'list' ? 'opacity-100 visible z-10' : 'opacity-0 invisible pointer-events-none'}`}>
                         {renderListView()}
                     </div>
                 </div>
 
                 {loaded && nodes.length === 0 && (
-                    <div className="absolute inset-0 z-40 flex items-center justify-center bg-brand-bg px-6">
+                    <div className="absolute inset-0 z-40 flex items-center justify-center bg-ink px-6">
                         <div className="text-center max-w-md">
-                            <div className="w-14 h-14 mx-auto mb-4 rounded-2xl bg-primary-50 text-primary-600 flex items-center justify-center"><Target size={26} /></div>
-                            <h2 className="text-xl font-bold text-gray-900">Tu estrategia está en preparación</h2>
-                            <p className="mt-2 text-sm text-gray-500 leading-relaxed">El equipo de Pixely la arma con tu Ficha y el estudio de tu mercado. Cuando esté lista, aparecerá aquí para que la revises y la apruebes.</p>
+                            <div className="w-14 h-14 mx-auto mb-4 rounded-2xl bg-pink/15 text-pink-text flex items-center justify-center"><Target size={26} /></div>
+                            <h2 className="text-xl font-bold text-white">Tu estrategia está en preparación</h2>
+                            <p className="mt-2 text-sm text-text-3 leading-relaxed">El equipo de Pixely la arma con tu Ficha y el estudio de tu mercado. Cuando esté lista, aparecerá aquí para que la revises y la apruebes.</p>
                         </div>
                     </div>
                 )}
@@ -1029,7 +1029,7 @@ const App: React.FC<{ overrideClientId?: string }> = ({ overrideClientId }) => {
                 {renderDetailPanel()}
 
                 {viewMode === 'map' && !detailId && (
-                    <p className="hidden md:block absolute bottom-4 left-4 z-30 text-xs text-gray-400 bg-white/90 px-3 py-1 rounded-full pointer-events-none">
+                    <p className="hidden md:block absolute bottom-4 left-4 z-30 text-xs text-text-3 bg-card/90 px-3 py-1 rounded-full pointer-events-none">
                         Clic en un nodo: ver detalle · Doble clic: renombrar · Arrastrar: mover
                     </p>
                 )}
@@ -1038,62 +1038,62 @@ const App: React.FC<{ overrideClientId?: string }> = ({ overrideClientId }) => {
                 {viewMode === 'map' && nodes.length > 0 && (
                     <div className="absolute bottom-12 left-1/2 -translate-x-1/2 z-50">
                         <div className="glass-panel rounded-2xl p-2 shadow-float flex items-center gap-3 pr-6">
-                            <div className="flex items-center gap-1 bg-gray-100/50 p-1 rounded-xl mr-2">
+                            <div className="flex items-center gap-1 bg-raised/50 p-1 rounded-xl mr-2">
                                 {/* Delete Button (Visible if selection) */}
                                 {selectedNodeIds.size > 0 && (
                                     <button
                                         onClick={deleteSelectedNodes}
-                                        className="p-2.5 rounded-lg transition-all text-red-400 hover:text-red-600 hover:bg-red-50"
+                                        className="p-2.5 rounded-lg transition-all text-pink-text hover:text-pink-text hover:bg-raised"
                                         title="Eliminar seleccionados"
                                     >
                                         <Trash2 size={18} />
                                     </button>
                                 )}
-                                <div className="w-px h-4 bg-gray-200 mx-1"></div>
+                                <div className="w-px h-4 bg-edge mx-1"></div>
                                 <button
                                     onClick={toggleFullScreen}
-                                    className={`p-2.5 rounded-lg transition-all ${isFullScreen ? 'bg-white shadow-sm text-brand-dark' : 'text-gray-400 hover:text-gray-600'}`}
+                                    className={`p-2.5 rounded-lg transition-all ${isFullScreen ? 'bg-card shadow-sm text-white' : 'text-text-3 hover:text-text-2'}`}
                                     title={isFullScreen ? "Salir de Pantalla Completa" : "Pantalla Completa"}
                                 >
                                     {isFullScreen ? <Minimize size={18} /> : <Maximize size={18} />}
                                 </button>
-                                <div className="w-px h-4 bg-gray-200 mx-1"></div>
+                                <div className="w-px h-4 bg-edge mx-1"></div>
                                 <button
                                     onClick={() => setMode('select')}
-                                    className={`p-2.5 rounded-lg transition-all ${mode === 'select' ? 'bg-white shadow-sm text-brand-dark' : 'text-gray-400 hover:text-gray-600'}`}
+                                    className={`p-2.5 rounded-lg transition-all ${mode === 'select' ? 'bg-card shadow-sm text-white' : 'text-text-3 hover:text-text-2'}`}
                                     title="Seleccionar (V)"
                                 >
                                     <MousePointer2 size={18} />
                                 </button>
                                 <button
                                     onClick={() => setMode('pan')}
-                                    className={`p-2.5 rounded-lg transition-all ${mode === 'pan' ? 'bg-white shadow-sm text-brand-dark' : 'text-gray-400 hover:text-gray-600'}`}
+                                    className={`p-2.5 rounded-lg transition-all ${mode === 'pan' ? 'bg-card shadow-sm text-white' : 'text-text-3 hover:text-text-2'}`}
                                     title="Mover Lienzo (H)"
                                 >
                                     <Hand size={18} />
                                 </button>
-                                <div className="w-px h-4 bg-gray-200 mx-1"></div>
-                                <button onClick={fitToView} className="p-2.5 text-gray-400 hover:text-gray-600 hover:bg-white rounded-lg transition-all" title="Encuadrar todo el mapa"><Network size={18} /></button>
-                                <button onClick={zoomOut} className="p-2.5 text-gray-400 hover:text-gray-600 hover:bg-white rounded-lg transition-all" title="Zoom Out"><Minus size={18} /></button>
-                                <span className="text-xs font-bold text-gray-400 w-8 text-center">{Math.round(scale * 100)}%</span>
-                                <button onClick={zoomIn} className="p-2.5 text-gray-400 hover:text-gray-600 hover:bg-white rounded-lg transition-all" title="Zoom In"><Plus size={18} /></button>
+                                <div className="w-px h-4 bg-edge mx-1"></div>
+                                <button onClick={fitToView} className="p-2.5 text-text-3 hover:text-text-2 hover:bg-card rounded-lg transition-all" title="Encuadrar todo el mapa"><Network size={18} /></button>
+                                <button onClick={zoomOut} className="p-2.5 text-text-3 hover:text-text-2 hover:bg-card rounded-lg transition-all" title="Zoom Out"><Minus size={18} /></button>
+                                <span className="text-xs font-bold text-text-3 w-8 text-center">{Math.round(scale * 100)}%</span>
+                                <button onClick={zoomIn} className="p-2.5 text-text-3 hover:text-text-2 hover:bg-card rounded-lg transition-all" title="Zoom In"><Plus size={18} /></button>
                             </div>
-                            <div className="w-px h-8 bg-gray-200 mx-2"></div>
+                            <div className="w-px h-8 bg-edge mx-2"></div>
                             {/* Save Button */}
                             <div className="flex items-center gap-2 px-3">
                                 {isSaving ? (
-                                    <div className="flex items-center gap-2 text-xs text-gray-400 font-medium">
+                                    <div className="flex items-center gap-2 text-xs text-text-3 font-medium">
                                         <Loader2 size={12} className="animate-spin" />
                                         Guardando...
                                     </div>
                                 ) : (
-                                    <div className="flex items-center gap-2 text-xs text-gray-400 font-medium">
-                                        <Check size={12} className="text-green-500" />
+                                    <div className="flex items-center gap-2 text-xs text-text-3 font-medium">
+                                        <Check size={12} className="text-text-2" />
                                         Guardado
                                     </div>
                                 )}
                             </div>
-                            <div className="w-px h-8 bg-gray-200 mx-2"></div>
+                            <div className="w-px h-8 bg-edge mx-2"></div>
 
                         </div>
                     </div>

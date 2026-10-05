@@ -47,18 +47,18 @@ class ErrorBoundary extends Component<{ children: ReactNode }, ErrorBoundaryStat
       return (
         <div className="h-full w-full flex items-center justify-center p-6">
           <div className="text-center max-w-md">
-            <div className="w-20 h-20 bg-red-50 rounded-full mx-auto mb-4 flex items-center justify-center">
-              <AlertCircle size={40} className="text-red-400" />
+            <div className="w-20 h-20 bg-raised rounded-full mx-auto mb-4 flex items-center justify-center">
+              <AlertCircle size={40} className="text-pink-text" />
             </div>
-            <h3 className="text-xl font-bold text-gray-700 mb-2">Algo salió mal</h3>
-            <p className="text-sm text-gray-500 mb-4">
+            <h3 className="text-xl font-bold text-text-2 mb-2">Algo salió mal</h3>
+            <p className="text-sm text-text-3 mb-4">
               {isStaleBuildError(this.state.error)
                 ? 'Publicamos una versión nueva de Partners. Recarga la página para verla.'
                 : this.state.error?.message || 'Error desconocido'}
             </p>
             <button
               onClick={() => (isStaleBuildError(this.state.error) ? window.location.reload() : this.setState({ hasError: false, error: null }))}
-              className="px-4 py-2 bg-primary-500 text-white rounded-xl text-sm font-bold hover:bg-primary-600 transition-all"
+              className="px-4 py-2 bg-pink-fill text-white rounded-xl text-sm font-bold hover:bg-pink-fill transition-all"
             >
               Reintentar
             </button>
@@ -245,7 +245,7 @@ const AppContent: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white font-sans overflow-hidden relative">
+    <div className="min-h-screen bg-card font-sans overflow-hidden relative">
 
       {/* 1. LOGIN VIEW */}
       {(flow === 'LOGIN_ACTIVE' || flow === 'LOGIN_EXITING') && (
@@ -254,16 +254,16 @@ const AppContent: React.FC = () => {
             }`}
         >
           {/* Left Side */}
-          <div className="hidden lg:flex w-1/2 bg-brand-bg relative items-center justify-center overflow-hidden">
+          <div className="hidden lg:flex w-1/2 bg-ink relative items-center justify-center overflow-hidden">
             <div className="absolute top-0 left-0 w-full h-full overflow-hidden">
-              <div className="absolute -top-[20%] -left-[10%] w-[70%] h-[70%] bg-primary-100/50 rounded-full blur-[100px] animate-pulse"></div>
-              <div className="absolute top-[40%] -right-[10%] w-[60%] h-[60%] bg-blue-100/50 rounded-full blur-[100px]"></div>
+              <div className="absolute -top-[20%] -left-[10%] w-[70%] h-[70%] bg-pink/15 rounded-full blur-[100px] animate-pulse"></div>
+              <div className="absolute top-[40%] -right-[10%] w-[60%] h-[60%] bg-raised/50 rounded-full blur-[100px]"></div>
             </div>
             <div className="relative z-10 flex flex-col items-center">
               <WorkflowVisual />
               <div className="mt-12 text-center max-w-md px-6">
-                <h2 className="text-2xl font-bold text-brand-dark mb-3">Estrategia integrada</h2>
-                <p className="text-gray-500 leading-relaxed">
+                <h2 className="text-2xl font-bold text-white mb-3">Estrategia integrada</h2>
+                <p className="text-text-3 leading-relaxed">
                   Convierte tu negocio y tu mercado en una estrategia de contenido clara.
                 </p>
               </div>
@@ -271,7 +271,7 @@ const AppContent: React.FC = () => {
           </div>
 
           {/* Right Side */}
-          <div className="w-full lg:w-1/2 flex items-center justify-center bg-white p-6 md:p-12 relative">
+          <div className="w-full lg:w-1/2 flex items-center justify-center bg-card p-6 md:p-12 relative">
             <LoginForm onLogin={handleLogin} />
           </div>
         </div>
@@ -287,12 +287,12 @@ const AppContent: React.FC = () => {
 
       {/* 3. DASHBOARD LAYOUT (Final State) */}
       {flow === 'DASHBOARD_ACTIVE' && (
-        <div className="flex h-screen w-full bg-brand-bg animate-[fade-in_0.8s_ease-out] overflow-hidden">
+        <div className="flex h-screen w-full bg-ink animate-[fade-in_0.8s_ease-out] overflow-hidden">
 
           {/* Mobile Hamburger Button */}
           <button
             onClick={() => setLeftSidebarOpen(true)}
-            className="lg:hidden fixed top-4 left-4 z-50 p-3 bg-white rounded-xl shadow-lg hover:shadow-xl transition-all"
+            className="lg:hidden fixed top-4 left-4 z-50 p-3 bg-card rounded-xl shadow-lg hover:shadow-xl transition-all"
             aria-label="Abrir menú"
           >
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -305,7 +305,7 @@ const AppContent: React.FC = () => {
           {/* Mobile Overlay */}
           {leftSidebarOpen && (
             <div
-              className="fixed inset-0 bg-black/50 z-30 lg:hidden"
+              className="fixed inset-0 bg-raised/50 z-30 lg:hidden"
               onClick={() => setLeftSidebarOpen(false)}
               role="button"
               aria-label="Cerrar menú de navegación"

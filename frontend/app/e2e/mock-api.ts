@@ -69,13 +69,13 @@ function seed(scenario: Scenario) {
     } },
     review: { estado: 'Pendiente', comentario: null, revisada_at: null },
     strategy: [
-      { id: 'main', type: 'main', label: 'Café Prueba' },
-      { id: 'o1', type: 'objective', label: 'Objetivo principal', description: 'Más visitas al local. Otra frase.', parentId: 'main', tags: ['principal'] },
-      { id: 'o2', type: 'objective', label: 'Ser referentes del café de origen', parentId: 'main' },
-      { id: 's1', type: 'strategy', label: 'Estrategia: Mostrar el proceso', parentId: 'o1' },
-      { id: 's2', type: 'strategy', label: 'Educar', parentId: 'o2' },
-      { id: 'c1', type: 'concept', label: 'Café de origen', parentId: 's1' },
-      { id: 'c2', type: 'concept', label: 'Métodos', parentId: 's2' },
+      { x: 0, y: 0, id: 'main', type: 'main', label: 'Café Prueba', parentId: null },
+      { x: 0, y: 0, id: 'o1', type: 'objective', label: 'Objetivo principal', description: 'Más visitas al local. Otra frase.', parentId: 'main', tags: ['principal'] },
+      { x: 0, y: 0, id: 'o2', type: 'objective', label: 'Ser referentes del café de origen', parentId: 'main' },
+      { x: 0, y: 0, id: 's1', type: 'strategy', label: 'Estrategia: Mostrar el proceso', parentId: 'o1' },
+      { x: 0, y: 0, id: 's2', type: 'strategy', label: 'Educar', parentId: 'o2' },
+      { x: 0, y: 0, id: 'c1', type: 'concept', label: 'Café de origen', parentId: 's1' },
+      { x: 0, y: 0, id: 'c2', type: 'concept', label: 'Métodos', parentId: 's2' },
     ],
     study: { ciudad: 'Lima', rubro: 'Cafetería', fecha_estudio: day(-20),
       universo_competidores: { total_detectado_maps: 40, total_relevante_filtrado: 12, listado: [{ nombre: 'Café Rival', rating: 4.5, reseñas: 320, categoria: 'Cafetería' }, { nombre: 'Otro Café', rating: 4.1, reseñas: 90 }] },
@@ -86,7 +86,7 @@ function seed(scenario: Scenario) {
       { id: 'f2', fecha: day(-30), fuente: null, tema: null, dato_o_angulo: null, cluster: null, confianza: null, tipo_senal: null, competidor: null },
     ],
     results: { metrics: [metric('p1', 3), metric('p2', 1)], competitors: [{ mes: day(0).slice(0, 7), red: 'instagram', competidor: 'Café Rival', interacciones_prom: 200, seguidores: 5000 }] },
-    interview: { data: { businessName: 'Café Prueba', industry: 'Cafetería', audience: { location: 'Lima' }, products: ['Espresso', 'Filtrados'] } },
+    interview: { data: { businessName: 'Café Prueba', industry: 'Cafetería', location: 'Lima', description: 'Cafetería de especialidad con granos de origen peruano.', audience: { location: 'Lima' }, products: ['Espresso', 'Filtrados'] }, updated_at: day(-10) },
   };
 }
 
@@ -164,7 +164,7 @@ export class MockApi {
       if (db.brand.data) Object.assign(db.brand.data, { voz_estado: b.estado, voz_comentario: b.comentario });
       return ok({ voz_estado: b.estado, voz_comentario: b.comentario });
     }
-    if (path === `/strategy${c}`) return ok(db.strategy);
+    if (path === `/strategy${c}`) return json(route, db.strategy); // the real endpoint returns the bare list
     if (path === `/strategy${c}/review`) {
       if (method === 'PATCH') { const b = body as { estado: string; comentario: string | null }; db.review = { estado: b.estado, comentario: b.comentario, revisada_at: new Date().toISOString() }; }
       return ok(db.review);
@@ -172,7 +172,18 @@ export class MockApi {
     if (path === `/market${c}/study`) return ok(db.study);
     if (path === `/market${c}/findings`) return ok(db.findings);
     if (path === `/market${c}/report.pdf`) return route.fulfill({ status: 200, headers: { ...cors, 'Content-Type': 'application/pdf', 'Content-Disposition': 'attachment; filename="mercado-cafe-prueba.pdf"' }, body: '%PDF-1.4\n%%EOF' });
-    if (path === `/clients${c}/interview`) return ok(db.interview);
+    if (path === `/clients${c}/interview`) return json(route, db.interview);
+
+    // --- Team panel (frontend/layout) ---
+    if (path === '/users/me') return json(route, { id: 'u1', email: 'equipo@pixely.pe', full_name: 'Equipo Pixely', role: 'admin', is_active: true });
+    if (path === '/clients' || path === '/clients/') return json(route, [{ id: CLIENT, nombre: 'Café Prueba', industry: 'Cafetería', is_active: true, created_at: day(-60) }]);
+    if (path === '/api/admin/overview') return ok({ hoy: day(0), marcas: [adminBrand()] });
+    if (path === `/api/admin/brands${c}`) return json(route, { users: [{ id: 'u2', email: 'prueba@pixely.pe', full_name: 'Ana', role: 'analyst', created_at: day(-30) }] });
+    if (path === `/api/admin/brands${c}/settings`) return ok({ plan: 'Pro', fotos_mes: 12, reels_mes: 4, redes: ['instagram', 'linkedin', 'gbp'], metricool_brand_id: '123', ciudad: 'Lima', rubro: 'Cafetería', contacto_nombre: 'Ana', contacto_email: 'ana@cafe.pe', contacto_telefono: '999 999 999' });
+    if (path === `/clients${c}/personas`) return json(route, { personas: [] });
+    if (path === `/brand${c}/colors`) return ok({ colors: body });
+    if (path === '/strategy/sync') return ok({ synced: true });
+    if ((m = path.match(new RegExp(`^/content${c}/pieces/([^/]+)/finals$`)))) return ok(this.update(m[1], { url_piezas_finales: [`${IMG}/${m[1]}-final.png`] }));
 
     return json(route, { detail: `Mock: ruta no prevista ${method} ${path}` }, 404);
   }
@@ -182,6 +193,18 @@ export class MockApi {
     if (p) Object.assign(p, patch);
     return p;
   }
+}
+
+function adminBrand() {
+  return { id: CLIENT, nombre: 'Café Prueba', usuarios: 2,
+    config: { plan: 'Pro', fotos_mes: 12, reels_mes: 4, redes: ['instagram', 'linkedin', 'gbp'], metricool: true, completa: true },
+    pasos: { ficha: 'listo', mercado: 'listo', voz: 'cliente', estrategia: 'cliente' },
+    contenido: { mes: day(0).slice(0, 7), plan_mes: 12, plan_siguiente: 0, ideas_pendientes: 3, ideas_cambios: 1, en_produccion: 2, por_revisar: 3, por_programar: 1 },
+    ultima_vigilancia: day(-1), ultimos_resultados: day(-2),
+    acciones: [
+      { quien: 'cliente', texto: 'Revisar 3 piezas', n: 3, receta: null, destino: 'validacion' },
+      { quien: 'equipo', texto: 'Ajustar 1 idea con cambios', n: 1, receta: '/05_planificacion', destino: 'planificacion' },
+    ] };
 }
 
 const cors = { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': '*', 'Access-Control-Allow-Methods': '*', 'Access-Control-Expose-Headers': 'Content-Disposition' };

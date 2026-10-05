@@ -13,9 +13,9 @@ import { useAuth } from '../contexts/AuthContext';
 import * as api from '../services/api';
 
 const ESTADO_META: Record<api.VozEstado, { label: string; color: string; icon: React.ElementType }> = {
-    Pendiente: { label: 'Por revisar', color: '#fab219', icon: Sparkles },
-    'Cambios solicitados': { label: 'Cambios pedidos', color: '#ec835a', icon: MessageSquareWarning },
-    Aprobada: { label: 'Aprobada', color: '#0ca30c', icon: Check },
+    Pendiente: { label: 'Por revisar', color: '#EB0C6E', icon: Sparkles },
+    'Cambios solicitados': { label: 'Cambios pedidos', color: '#FF85C3', icon: MessageSquareWarning },
+    Aprobada: { label: 'Aprobada', color: '#E4E4EA', icon: Check },
 };
 
 const COLOR_SLOTS: { key: 'primary' | 'secondary' | 'accent' | 'background'; label: string }[] = [
@@ -47,17 +47,17 @@ const App: React.FC<{ overrideClientId?: string }> = ({ overrideClientId }) => {
 
     useEffect(() => { load(); }, [load]);
 
-    if (loading) return <div className="flex h-64 items-center justify-center"><Loader2 className="animate-spin text-gray-300" size={32} /></div>;
+    if (loading) return <div className="flex h-64 items-center justify-center"><Loader2 className="animate-spin text-mute" size={32} /></div>;
 
     const hasVoice = !!voice && ((voice.tone_traits?.length ?? 0) > 0 || !!voice.archetype);
     if (!hasVoice) {
         return (
-            <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-12 flex flex-col items-center text-center">
-                <Megaphone size={36} className="text-gray-300 mb-4" />
-                <h3 className="text-xl font-bold text-gray-900 mb-2">Tu voz de marca aún no está lista</h3>
-                <p className="text-sm text-gray-500 max-w-md">El equipo de Pixely la prepara a partir de tu Ficha. Aparecerá aquí para que la revises y apruebes.</p>
+            <div className="bg-card rounded-3xl border border-edge shadow-sm p-12 flex flex-col items-center text-center">
+                <Megaphone size={36} className="text-mute mb-4" />
+                <h3 className="text-xl font-bold text-white mb-2">Tu voz de marca aún no está lista</h3>
+                <p className="text-sm text-text-3 max-w-md">El equipo de Pixely la prepara a partir de tu Ficha. Aparecerá aquí para que la revises y apruebes.</p>
                 {user?.isAdmin && (
-                    <p className="mt-4 text-xs text-gray-400">Se define con <code className="font-mono">/02_voz_de_marca</code> desde Claude Desktop.</p>
+                    <p className="mt-4 text-xs text-text-3">Se define con <code className="font-mono">/02_voz_de_marca</code> desde Claude Desktop.</p>
                 )}
             </div>
         );
@@ -73,12 +73,12 @@ const App: React.FC<{ overrideClientId?: string }> = ({ overrideClientId }) => {
             {/* Tone */}
             {(v.tone_traits?.length ?? 0) > 0 && (
                 <section aria-label="Tono">
-                    <h2 className="text-lg font-bold text-gray-900 mb-3">Así suena tu marca</h2>
+                    <h2 className="text-lg font-bold text-white mb-3">Así suena tu marca</h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {v.tone_traits!.map((t) => (
-                            <div key={t.trait} className="bg-white rounded-3xl border border-gray-100 shadow-sm p-6">
-                                <p className="text-xl font-bold text-gray-900">{t.trait}</p>
-                                {(t.description || t.desc) && <p className="text-sm text-gray-600 mt-1">{t.description || t.desc}</p>}
+                            <div key={t.trait} className="bg-card rounded-3xl border border-edge shadow-sm p-6">
+                                <p className="text-xl font-bold text-white">{t.trait}</p>
+                                {(t.description || t.desc) && <p className="text-sm text-text-2 mt-1">{t.description || t.desc}</p>}
                                 {(t.ejemplo_si || t.ejemplo_no) && (
                                     <div className="mt-4 space-y-2">
                                         {t.ejemplo_si && <Example ok text={t.ejemplo_si} />}
@@ -94,7 +94,7 @@ const App: React.FC<{ overrideClientId?: string }> = ({ overrideClientId }) => {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {/* Words */}
                 {((v.palabras_si?.length ?? 0) > 0 || (v.palabras_no?.length ?? 0) > 0) && (
-                    <section className="lg:col-span-2 bg-white rounded-3xl border border-gray-100 shadow-sm p-6 grid grid-cols-1 sm:grid-cols-2 gap-6" aria-label="Palabras">
+                    <section className="lg:col-span-2 bg-card rounded-3xl border border-edge shadow-sm p-6 grid grid-cols-1 sm:grid-cols-2 gap-6" aria-label="Palabras">
                         <WordList ok words={v.palabras_si ?? []} />
                         <WordList ok={false} words={v.palabras_no ?? []} />
                     </section>
@@ -102,21 +102,21 @@ const App: React.FC<{ overrideClientId?: string }> = ({ overrideClientId }) => {
 
                 {/* Archetype */}
                 {v.archetype && (
-                    <section className="bg-white rounded-3xl border border-gray-100 shadow-sm p-6" aria-label="Arquetipo">
-                        <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-1">Arquetipo</p>
-                        <p className="text-2xl font-bold text-gray-900">{v.archetype}</p>
-                        {v.arquetipo_razon && <p className="text-sm text-gray-600 mt-2 leading-relaxed">{v.arquetipo_razon}</p>}
+                    <section className="bg-card rounded-3xl border border-edge shadow-sm p-6" aria-label="Arquetipo">
+                        <p className="text-xs font-bold uppercase tracking-wider text-text-3 mb-1">Arquetipo</p>
+                        <p className="text-2xl font-bold text-white">{v.archetype}</p>
+                        {v.arquetipo_razon && <p className="text-sm text-text-2 mt-2 leading-relaxed">{v.arquetipo_razon}</p>}
                     </section>
                 )}
             </div>
 
             {/* Sample post */}
             {v.ejemplo_post && (
-                <section className="bg-white rounded-3xl border border-gray-100 shadow-sm p-6 flex gap-4" aria-label="Ejemplo de publicación">
+                <section className="bg-card rounded-3xl border border-edge shadow-sm p-6 flex gap-4" aria-label="Ejemplo de publicación">
                     <Quote className="shrink-0" size={28} style={{ color: accent }} />
                     <div>
-                        <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-2">Así escribiríamos una publicación{brandName ? ` de ${brandName}` : ''}</p>
-                        <p className="text-base text-gray-800 whitespace-pre-line leading-relaxed">{v.ejemplo_post}</p>
+                        <p className="text-xs font-bold uppercase tracking-wider text-text-3 mb-2">Así escribiríamos una publicación{brandName ? ` de ${brandName}` : ''}</p>
+                        <p className="text-base text-white whitespace-pre-line leading-relaxed">{v.ejemplo_post}</p>
                     </div>
                 </section>
             )}
@@ -152,13 +152,13 @@ const ReviewBar: React.FC<{
     };
 
     return (
-        <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-5">
+        <div className="bg-card rounded-3xl border border-edge shadow-sm p-5">
             <div className="flex flex-wrap items-center justify-between gap-4">
                 <div className="flex items-center gap-3">
-                    <span className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-sm font-semibold text-gray-800" style={{ background: `${meta.color}1F` }}>
+                    <span className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-sm font-semibold text-white" style={{ background: `${meta.color}1F` }}>
                         <meta.icon size={15} style={{ color: meta.color }} strokeWidth={2.5} /> {meta.label}
                     </span>
-                    <p className="text-sm text-gray-500">
+                    <p className="text-sm text-text-3">
                         {estado === 'Aprobada'
                             ? `Aprobada${voice.voz_revisada_at ? ` el ${new Date(voice.voz_revisada_at).toLocaleDateString('es-PE', { day: 'numeric', month: 'long' })}` : ''}. Escribimos tu contenido con esta voz.`
                             : estado === 'Cambios solicitados'
@@ -168,7 +168,7 @@ const ReviewBar: React.FC<{
                 </div>
                 <div className="flex gap-2">
                     {!asking && (
-                        <button onClick={() => setAsking(true)} className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-gray-200 text-sm font-bold text-gray-700 hover:bg-gray-50">
+                        <button onClick={() => setAsking(true)} className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-edge text-sm font-bold text-text-2 hover:bg-raised">
                             <MessageSquareWarning size={15} /> Pedir cambios
                         </button>
                     )}
@@ -181,45 +181,45 @@ const ReviewBar: React.FC<{
             </div>
 
             {voice.voz_comentario && !asking && (
-                <p className="mt-3 text-sm text-gray-600 italic border-l-2 border-orange-200 pl-3">“{voice.voz_comentario}”</p>
+                <p className="mt-3 text-sm text-text-2 italic border-l-2 border-pink/40 pl-3">“{voice.voz_comentario}”</p>
             )}
 
             {asking && (
                 <div className="mt-4 space-y-3">
-                    <label htmlFor="voice-comment" className="text-sm font-bold text-gray-800">¿Qué cambiarías?</label>
+                    <label htmlFor="voice-comment" className="text-sm font-bold text-white">¿Qué cambiarías?</label>
                     <textarea id="voice-comment" value={comment} onChange={(e) => setComment(e.target.value)} rows={3} autoFocus
                         placeholder="Ej. Somos más relajados, no usamos palabras técnicas; nunca digas 'premium'…"
-                        className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-pink-500/20 focus:border-pink-500" />
-                    {error && <p className="text-sm text-red-600">{error}</p>}
+                        className="w-full rounded-xl border border-edge px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-pink/20 focus:border-pink" />
+                    {error && <p className="text-sm text-pink-text">{error}</p>}
                     <div className="flex gap-2">
-                        <button onClick={() => { setAsking(false); setError(null); }} disabled={saving} className="px-4 py-2.5 rounded-xl border border-gray-200 text-sm font-bold text-gray-600 hover:bg-gray-50">Volver</button>
-                        <button onClick={() => submit('Cambios solicitados')} disabled={saving} className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gray-900 text-white text-sm font-bold hover:bg-gray-800 disabled:opacity-60">
+                        <button onClick={() => { setAsking(false); setError(null); }} disabled={saving} className="px-4 py-2.5 rounded-xl border border-edge text-sm font-bold text-text-2 hover:bg-raised">Volver</button>
+                        <button onClick={() => submit('Cambios solicitados')} disabled={saving} className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-raised text-white text-sm font-bold hover:bg-edge disabled:opacity-60">
                             {saving && <Loader2 size={15} className="animate-spin" />} Enviar cambios
                         </button>
                     </div>
                 </div>
             )}
-            {error && !asking && <p className="mt-2 text-sm text-red-600">{error}</p>}
+            {error && !asking && <p className="mt-2 text-sm text-pink-text">{error}</p>}
         </div>
     );
 };
 
 const Example: React.FC<{ ok: boolean; text: string }> = ({ ok, text }) => (
-    <p className={`flex gap-2 text-sm rounded-xl px-3 py-2 ${ok ? 'bg-green-50 text-gray-800' : 'bg-gray-50 text-gray-500'}`}>
-        {ok ? <Check size={16} className="shrink-0 mt-0.5" style={{ color: '#0ca30c' }} strokeWidth={3} /> : <X size={16} className="shrink-0 mt-0.5 text-gray-400" strokeWidth={3} />}
+    <p className={`flex gap-2 text-sm rounded-xl px-3 py-2 ${ok ? 'bg-raised text-white' : 'bg-raised text-text-3'}`}>
+        {ok ? <Check size={16} className="shrink-0 mt-0.5" style={{ color: '#E4E4EA' }} strokeWidth={3} /> : <X size={16} className="shrink-0 mt-0.5 text-text-3" strokeWidth={3} />}
         <span><span className="font-semibold">{ok ? 'Así sí: ' : 'Así no: '}</span>{text}</span>
     </p>
 );
 
 const WordList: React.FC<{ ok: boolean; words: string[] }> = ({ ok, words }) => (
     <div>
-        <p className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-gray-400 mb-2">
-            {ok ? <Check size={14} style={{ color: '#0ca30c' }} strokeWidth={3} /> : <X size={14} strokeWidth={3} />}
+        <p className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-text-3 mb-2">
+            {ok ? <Check size={14} style={{ color: '#E4E4EA' }} strokeWidth={3} /> : <X size={14} strokeWidth={3} />}
             {ok ? 'Palabras que usamos' : 'Palabras que evitamos'}
         </p>
         <div className="flex flex-wrap gap-1.5">
             {words.map((w) => (
-                <span key={w} className={`text-sm rounded-lg px-2.5 py-1 border ${ok ? 'bg-white border-gray-200 text-gray-800' : 'bg-gray-50 border-gray-100 text-gray-400 line-through'}`}>{w}</span>
+                <span key={w} className={`text-sm rounded-lg px-2.5 py-1 border ${ok ? 'bg-card border-edge text-white' : 'bg-raised border-edge text-text-3 line-through'}`}>{w}</span>
             ))}
         </div>
     </div>
@@ -247,29 +247,29 @@ const RealColors: React.FC<{ clientId: string; voice: api.BrandVoice; onSaved: (
     };
 
     return (
-        <section className="bg-white rounded-3xl border border-gray-100 shadow-sm p-6" aria-label="Colores y logo">
+        <section className="bg-card rounded-3xl border border-edge shadow-sm p-6" aria-label="Colores y logo">
             <div className="flex flex-wrap items-start justify-between gap-4 mb-4">
                 <div>
-                    <h2 className="flex items-center gap-2 text-lg font-bold text-gray-900"><Palette size={18} className="text-primary-600" /> Tus colores y logo</h2>
-                    <p className="text-sm text-gray-500">Los de tu marca real. Si no coinciden, corrígelos: los usamos en tus diseños.</p>
+                    <h2 className="flex items-center gap-2 text-lg font-bold text-white"><Palette size={18} className="text-pink-text" /> Tus colores y logo</h2>
+                    <p className="text-sm text-text-3">Los de tu marca real. Si no coinciden, corrígelos: los usamos en tus diseños.</p>
                 </div>
                 {(dirty || saved) && (
-                    <button onClick={save} disabled={saving || !dirty} className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gray-900 text-white text-sm font-bold hover:bg-gray-800 disabled:opacity-60">
+                    <button onClick={save} disabled={saving || !dirty} className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-raised text-white text-sm font-bold hover:bg-edge disabled:opacity-60">
                         {saving ? <Loader2 size={15} className="animate-spin" /> : saved ? <Check size={15} /> : <Save size={15} />} {saved ? 'Guardado' : 'Guardar colores'}
                     </button>
                 )}
             </div>
             <div className="flex flex-wrap items-center gap-6">
-                {voice.logo_url && <img src={voice.logo_url} alt="Logo" className="h-20 w-20 object-contain rounded-2xl border border-gray-100 p-2" />}
+                {voice.logo_url && <img src={voice.logo_url} alt="Logo" className="h-20 w-20 object-contain rounded-2xl border border-edge p-2" />}
                 {COLOR_SLOTS.map(({ key, label }) => (
                     <label key={key} className="flex items-center gap-3 cursor-pointer">
-                        <span className="relative w-14 h-14 rounded-2xl border border-gray-200 overflow-hidden" style={{ backgroundColor: colors[key] || '#ffffff' }}>
+                        <span className="relative w-14 h-14 rounded-2xl border border-edge overflow-hidden" style={{ backgroundColor: colors[key] || '#ffffff' }}>
                             <input type="color" value={colors[key] || '#ffffff'} onChange={(e) => setColors({ ...colors, [key]: e.target.value.toUpperCase() })}
                                 className="absolute inset-0 opacity-0 cursor-pointer" aria-label={`Color ${label}`} />
                         </span>
                         <span>
-                            <span className="block text-sm font-semibold text-gray-800">{label}</span>
-                            <span className="block text-xs text-gray-500 font-mono">{colors[key] || '—'}</span>
+                            <span className="block text-sm font-semibold text-white">{label}</span>
+                            <span className="block text-xs text-text-3 font-mono">{colors[key] || '—'}</span>
                         </span>
                     </label>
                 ))}

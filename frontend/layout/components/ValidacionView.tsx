@@ -51,14 +51,14 @@ export const ValidacionView: React.FC<{ onNavigate?: (view: string) => void; cli
     };
 
     return (
-        <div className="p-4 md:p-8 h-full overflow-y-auto custom-scrollbar animate-fade-in-up bg-brand-bg">
+        <div className="p-4 md:p-8 h-full overflow-y-auto custom-scrollbar animate-fade-in-up bg-ink">
             <div className="max-w-7xl mx-auto">
                 {onNavigate && <WorkflowStepper currentStep={2} onNavigate={onNavigate} />}
                 <AnimatedHeaderCard supertitle="Contenido" title="Validación" subtitle="Solo lo que necesita tu decisión." />
 
                 {!clientId ? <NoClientSelected /> : loading && pieces.length === 0 ? <LoadingBlock /> : (
                     <>
-                        {error && <p className="mb-4 text-sm text-red-600">{error}</p>}
+                        {error && <p className="mb-4 text-sm text-pink-text">{error}</p>}
 
                         {isTeam && <DeliveryQueue pieces={pieces} onOpen={setDelivering} />}
 
@@ -67,21 +67,21 @@ export const ValidacionView: React.FC<{ onNavigate?: (view: string) => void; cli
                             <section className="lg:col-span-2" aria-label="Por revisar">
                                 <div className="flex items-end justify-between gap-4 mb-4">
                                     <div>
-                                        <p className="text-sm text-gray-500">Esperando tu revisión</p>
-                                        <p className="text-4xl font-bold text-gray-900">
-                                            {toReview.length} <span className="text-lg font-semibold text-gray-400">{toReview.length === 1 ? 'pieza' : 'piezas'}</span>
+                                        <p className="text-sm text-text-3">Esperando tu revisión</p>
+                                        <p className="text-4xl font-bold text-white">
+                                            {toReview.length} <span className="text-lg font-semibold text-text-3">{toReview.length === 1 ? 'pieza' : 'piezas'}</span>
                                         </p>
                                     </div>
-                                    <p className="text-sm text-gray-500 max-w-xs text-right hidden md:block">
+                                    <p className="text-sm text-text-3 max-w-xs text-right hidden md:block">
                                         Primero las que salen antes. Abre cada una para ver el diseño final y su texto; solo lo que apruebes pasa a Publicaciones.
                                     </p>
                                 </div>
 
                                 {toReview.length === 0 ? (
-                                    <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-10 text-center">
-                                        <PartyPopper className="mx-auto text-gray-300 mb-3" size={36} />
-                                        <p className="text-lg font-bold text-gray-900">Estás al día</p>
-                                        <p className="text-sm text-gray-500 mt-1">No hay piezas esperando tu revisión. Te avisaremos aquí cuando el equipo termine las siguientes.</p>
+                                    <div className="bg-card rounded-3xl border border-edge shadow-sm p-10 text-center">
+                                        <PartyPopper className="mx-auto text-mute mb-3" size={36} />
+                                        <p className="text-lg font-bold text-white">Estás al día</p>
+                                        <p className="text-sm text-text-3 mt-1">No hay piezas esperando tu revisión. Te avisaremos aquí cuando el equipo termine las siguientes.</p>
                                     </div>
                                 ) : (
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -93,31 +93,31 @@ export const ValidacionView: React.FC<{ onNavigate?: (view: string) => void; cli
                             </section>
 
                             {/* What the client already sent back */}
-                            <section className="bg-gray-100/70 rounded-3xl p-4 self-start w-full" aria-label={STAGE_META.cambios.label}>
+                            <section className="bg-raised/70 rounded-3xl p-4 self-start w-full" aria-label={STAGE_META.cambios.label}>
                                 <header className="flex items-center justify-between pb-1">
                                     <div className="flex items-center gap-2">
                                         <ChangesIcon size={16} style={{ color: STAGE_META.cambios.color }} strokeWidth={2.5} />
-                                        <h3 className="text-sm font-bold text-gray-900">{STAGE_META.cambios.label}</h3>
+                                        <h3 className="text-sm font-bold text-white">{STAGE_META.cambios.label}</h3>
                                     </div>
-                                    <span className="text-xs font-bold text-gray-500 bg-white rounded-full px-2 py-0.5">{withChanges.length}</span>
+                                    <span className="text-xs font-bold text-text-3 bg-card rounded-full px-2 py-0.5">{withChanges.length}</span>
                                 </header>
-                                <p className="pb-3 text-xs text-gray-500">El equipo está aplicando tus comentarios. Vuelven a "Por revisar" cuando estén corregidas.</p>
+                                <p className="pb-3 text-xs text-text-3">El equipo está aplicando tus comentarios. Vuelven a "Por revisar" cuando estén corregidas.</p>
                                 <div className="space-y-3">
                                     {withChanges.map((piece) => (
                                         <button
                                             key={piece.id}
                                             onClick={() => setSelected(piece)}
-                                            className="w-full text-left bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow p-3"
+                                            className="w-full text-left bg-card rounded-2xl border border-edge shadow-sm hover:shadow-md transition-shadow p-3"
                                         >
-                                            <span className="text-[11px] font-semibold uppercase tracking-wider text-gray-400">{formatFecha(piece.fecha)}</span>
-                                            <p className="text-sm font-bold text-gray-900 leading-snug line-clamp-2 mt-0.5">{piece.topico_angulo || 'Pieza sin tópico'}</p>
-                                            {piece.cambio_tipo && <span className="block mt-1 text-xs font-semibold text-gray-700">Cambiar: {CAMBIO_LABEL[piece.cambio_tipo].toLowerCase()}</span>}
+                                            <span className="text-[11px] font-semibold uppercase tracking-wider text-text-3">{formatFecha(piece.fecha)}</span>
+                                            <p className="text-sm font-bold text-white leading-snug line-clamp-2 mt-0.5">{piece.topico_angulo || 'Pieza sin tópico'}</p>
+                                            {piece.cambio_tipo && <span className="block mt-1 text-xs font-semibold text-text-2">Cambiar: {CAMBIO_LABEL[piece.cambio_tipo].toLowerCase()}</span>}
                                             {piece.comentario_cliente && (
-                                                <p className="mt-2 text-xs text-gray-600 italic line-clamp-2 border-l-2 border-orange-200 pl-2">“{piece.comentario_cliente}”</p>
+                                                <p className="mt-2 text-xs text-text-2 italic line-clamp-2 border-l-2 border-pink/40 pl-2">“{piece.comentario_cliente}”</p>
                                             )}
                                         </button>
                                     ))}
-                                    {withChanges.length === 0 && <p className="py-4 text-center text-xs text-gray-400">No has pedido cambios pendientes</p>}
+                                    {withChanges.length === 0 && <p className="py-4 text-center text-xs text-text-3">No has pedido cambios pendientes</p>}
                                 </div>
                             </section>
                         </div>
@@ -138,12 +138,12 @@ export const ValidacionView: React.FC<{ onNavigate?: (view: string) => void; cli
 const ReviewCard: React.FC<{ piece: api.ContentPiece; onOpen: () => void }> = ({ piece, onOpen }) => (
     <button
         onClick={onOpen}
-        className="w-full text-left bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow overflow-hidden flex"
+        className="w-full text-left bg-card rounded-2xl border border-edge shadow-sm hover:shadow-md transition-shadow overflow-hidden flex"
     >
         <PieceCover piece={piece} className="w-28 shrink-0 aspect-[4/5]" compact />
         <div className="p-4 min-w-0 flex flex-col gap-2">
             <DueBadge fecha={piece.fecha} />
-            <p className="text-sm font-bold text-gray-900 leading-snug line-clamp-3">{piece.topico_angulo || 'Pieza sin tópico'}</p>
+            <p className="text-sm font-bold text-white leading-snug line-clamp-3">{piece.topico_angulo || 'Pieza sin tópico'}</p>
             <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-auto">
                 <FormatoBadge formato={piece.formato} />
                 <PilarBadge pilar={piece.pilar} />

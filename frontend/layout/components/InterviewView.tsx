@@ -51,7 +51,7 @@ export const InterviewView: React.FC<{ onNavigate?: (view: string) => void; clie
                 {!clientId ? <NoClientSelected /> : loading ? <LoadingBlock /> : showForm ? (
                     <>
                         {editing && (
-                            <button onClick={() => setEditing(false)} className="mb-4 flex items-center gap-2 text-sm font-bold text-gray-600 hover:text-gray-900">
+                            <button onClick={() => setEditing(false)} className="mb-4 flex items-center gap-2 text-sm font-bold text-text-2 hover:text-white">
                                 <ArrowLeft size={16} /> Volver a la ficha sin guardar
                             </button>
                         )}
@@ -86,18 +86,18 @@ const Ficha: React.FC<{ record: api.InterviewRecord; onEdit: () => void; onNavig
         <div className="space-y-6">
             <div className="flex flex-wrap items-center justify-between gap-4">
                 <div>
-                    <h2 className="text-2xl font-bold text-gray-900">{d.businessName || 'Tu negocio'}</h2>
-                    {record.updated_at && <p className="text-sm text-gray-500">Actualizada el {fecha(record.updated_at)}</p>}
+                    <h2 className="text-2xl font-bold text-white">{d.businessName || 'Tu negocio'}</h2>
+                    {record.updated_at && <p className="text-sm text-text-3">Actualizada el {fecha(record.updated_at)}</p>}
                 </div>
-                <button onClick={onEdit} className="flex items-center gap-2 px-5 py-3 bg-gray-900 text-white font-bold rounded-xl hover:bg-gray-800 transition-colors">
+                <button onClick={onEdit} className="flex items-center gap-2 px-5 py-3 bg-raised text-white font-bold rounded-xl hover:bg-edge transition-colors">
                     <Pencil size={16} /> Actualizar ficha
                 </button>
             </div>
 
             {stale.length > 0 && (
-                <div className="flex gap-3 p-5 rounded-2xl bg-amber-50 border border-amber-200" role="status">
-                    <AlertTriangle className="text-amber-500 shrink-0 mt-0.5" size={20} />
-                    <div className="text-sm text-gray-800">
+                <div className="flex gap-3 p-5 rounded-2xl bg-raised border border-pink/40" role="status">
+                    <AlertTriangle className="text-pink-text shrink-0 mt-0.5" size={20} />
+                    <div className="text-sm text-white">
                         <p className="font-bold mb-1">
                             {stale.length === 1 ? 'Una parte de tu marca se basa' : 'Algunas partes de tu marca se basan'} en la versión anterior de esta ficha
                         </p>
@@ -107,11 +107,11 @@ const Ficha: React.FC<{ record: api.InterviewRecord; onEdit: () => void; onNavig
                                     {onNavigate ? (
                                         <button onClick={() => onNavigate(MODULE_VIEW[m.modulo])} className="font-semibold underline underline-offset-2">{m.nombre}</button>
                                     ) : <span className="font-semibold">{m.nombre}</span>}
-                                    <span className="text-gray-500"> · generado el {fecha(m.generado_at)}</span>
+                                    <span className="text-text-3"> · generado el {fecha(m.generado_at)}</span>
                                 </li>
                             ))}
                         </ul>
-                        <p className="text-gray-600">El equipo de Pixely puede regenerarlos con tus datos nuevos. El plan y el copy de los próximos meses ya usarán esta versión.</p>
+                        <p className="text-text-2">El equipo de Pixely puede regenerarlos con tus datos nuevos. El plan y el copy de los próximos meses ya usarán esta versión.</p>
                     </div>
                 </div>
             )}
@@ -122,7 +122,7 @@ const Ficha: React.FC<{ record: api.InterviewRecord; onEdit: () => void; onNavig
                     <Chips label="Diferenciadores" items={d.differentiator} />
                     <Text label="Visión" value={d.vision} />
                     {d.attached_file_name && (
-                        <p className="flex items-center gap-2 text-sm text-gray-600"><FileSpreadsheet size={15} className="text-gray-400" /> Catálogo: {d.attached_file_name}</p>
+                        <p className="flex items-center gap-2 text-sm text-text-2"><FileSpreadsheet size={15} className="text-text-3" /> Catálogo: {d.attached_file_name}</p>
                     )}
                 </Section>
 
@@ -130,8 +130,8 @@ const Ficha: React.FC<{ record: api.InterviewRecord; onEdit: () => void; onNavig
                     <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3">
                         {AUDIENCE_LABELS.filter(([k]) => d.audience?.[k]).map(([k, label]) => (
                             <div key={k}>
-                                <dt className="text-xs font-semibold uppercase tracking-wider text-gray-400">{label}</dt>
-                                <dd className="text-sm text-gray-800">{String(d.audience[k])}</dd>
+                                <dt className="text-xs font-semibold uppercase tracking-wider text-text-3">{label}</dt>
+                                <dd className="text-sm text-white">{String(d.audience[k])}</dd>
                             </div>
                         ))}
                     </dl>
@@ -149,8 +149,8 @@ const Ficha: React.FC<{ record: api.InterviewRecord; onEdit: () => void; onNavig
                 <Section icon={Share2} title="Situación actual">
                     {(d.brand?.socialNetworks ?? []).length > 0 && (
                         <div>
-                            <p className="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1">Redes</p>
-                            <ul className="text-sm text-gray-800 space-y-0.5">
+                            <p className="text-xs font-semibold uppercase tracking-wider text-text-3 mb-1">Redes</p>
+                            <ul className="text-sm text-white space-y-0.5">
                                 {d.brand.socialNetworks.map((n: any, i: number) => (
                                     <li key={i}>{typeof n === 'string' ? n : `${n.platform}${n.frequency ? ` · ${n.frequency}` : ''}`}</li>
                                 ))}
@@ -177,16 +177,16 @@ const Ficha: React.FC<{ record: api.InterviewRecord; onEdit: () => void; onNavig
 };
 
 const Section: React.FC<{ icon: React.ElementType; title: string; className?: string; children: React.ReactNode }> = ({ icon: Icon, title, className = '', children }) => (
-    <section className={`bg-white rounded-3xl border border-gray-100 shadow-sm p-6 ${className}`}>
-        <h3 className="flex items-center gap-2 text-lg font-bold text-gray-900 mb-4"><Icon size={18} className="text-primary-600" />{title}</h3>
+    <section className={`bg-card rounded-3xl border border-edge shadow-sm p-6 ${className}`}>
+        <h3 className="flex items-center gap-2 text-lg font-bold text-white mb-4"><Icon size={18} className="text-pink-text" />{title}</h3>
         <div className="space-y-4">{children}</div>
     </section>
 );
 
 const Text: React.FC<{ label: string; value?: string }> = ({ label, value }) => value ? (
     <div>
-        <p className="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1">{label}</p>
-        <p className="text-sm text-gray-800 whitespace-pre-line">{value}</p>
+        <p className="text-xs font-semibold uppercase tracking-wider text-text-3 mb-1">{label}</p>
+        <p className="text-sm text-white whitespace-pre-line">{value}</p>
     </div>
 ) : null;
 
@@ -195,9 +195,9 @@ const Chips: React.FC<{ label: string; items?: unknown }> = ({ label, items }) =
     if (list.length === 0) return null;
     return (
         <div>
-            <p className="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1.5">{label}</p>
+            <p className="text-xs font-semibold uppercase tracking-wider text-text-3 mb-1.5">{label}</p>
             <div className="flex flex-wrap gap-1.5">
-                {list.map((x) => <span key={x} className="text-sm bg-gray-50 border border-gray-100 rounded-lg px-2.5 py-1 text-gray-700">{x}</span>)}
+                {list.map((x) => <span key={x} className="text-sm bg-raised border border-edge rounded-lg px-2.5 py-1 text-text-2">{x}</span>)}
             </div>
         </div>
     );

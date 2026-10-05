@@ -1,4 +1,13 @@
 import React from 'react';
+// Sistema Noche fonts, bundled with the site (latin only), same as the mobile version.
+import '@fontsource/manrope/latin-400.css';
+import '@fontsource/manrope/latin-500.css';
+import '@fontsource/manrope/latin-600.css';
+import '@fontsource/manrope/latin-700.css';
+import '@fontsource/manrope/latin-800.css';
+import '@fontsource/unbounded/latin-600.css';
+import '@fontsource/unbounded/latin-700.css';
+import '@fontsource/unbounded/latin-800.css';
 import ReactDOM from 'react-dom/client';
 import App from './App';
 import { installSessionGuard } from './services/api';
@@ -41,12 +50,12 @@ class GlobalErrorBoundary extends React.Component<{ children: React.ReactNode },
           margin: '0 auto',
           textAlign: 'center'
         }}>
-          <h1 style={{ color: '#e11d48' }}>¡Algo salió mal!</h1>
-          <p style={{ color: '#475569' }}>La aplicación ha encontrado un error inesperado.</p>
+          <h1 style={{ color: '#EB0C6E' }}>¡Algo salió mal!</h1>
+          <p style={{ color: '#8A8A96' }}>La aplicación ha encontrado un error inesperado.</p>
           <pre style={{
             marginTop: '1rem',
             padding: '1rem',
-            background: '#f1f5f9',
+            background: '#26262E',
             borderRadius: '0.5rem',
             overflowX: 'auto',
             textAlign: 'left',
@@ -59,7 +68,7 @@ class GlobalErrorBoundary extends React.Component<{ children: React.ReactNode },
             style={{
               marginTop: '1.5rem',
               padding: '0.75rem 1.5rem',
-              background: '#2563eb',
+              background: '#B4B4BE',
               color: 'white',
               border: 'none',
               borderRadius: '0.5rem',

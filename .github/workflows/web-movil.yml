@@ -1,15 +1,14 @@
-# Tests the mobile web version (frontend/app, served at /m/) on every change: the real build
-# in Android- and iPhone-sized browsers against a fake backend (frontend/app/e2e).
-# If something fails, the run's "Artifacts" (informe-pruebas) has a screenshot and a replay of each failure.
-name: Web móvil (pruebas)
+# Tests both web versions on every change, against a fake backend (frontend/app/e2e/mock-api.ts):
+# - movil: frontend/app (served at /m/) in Android-, iPhone- and computer-sized browsers.
+# - escritorio: frontend/layout (clients on a computer and the team panel).
+# If something fails, the run's "Artifacts" has a screenshot and a replay of each failure.
+name: Web (pruebas)
 
 on:
   push:
     paths:
       - 'frontend/app/**'
-      - 'frontend/layout/index.html'
-      - 'frontend/layout/vercel.json'
-      - 'frontend/layout/build-movil.mjs'
+      - 'frontend/layout/**'
       - '.github/workflows/web-movil.yml'
   workflow_dispatch:
 
@@ -42,4 +41,29 @@ jobs:
           path: |
             frontend/app/playwright-report
             frontend/app/test-results
+          retention-days: 14
+
+  escritorio:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: frontend/layout
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/layout/package-lock.json
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:e2e
+      - if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: informe-pruebas-escritorio
+          path: |
+            frontend/layout/playwright-report
+            frontend/layout/test-results
           retention-days: 14

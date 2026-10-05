@@ -27,7 +27,7 @@ export const AnimatedHeaderCard: React.FC<AnimatedHeaderCardProps> = ({
         let mouse = { x: -9999, y: -9999 };
 
         const primaryColor = '#F20F79';
-        const secondaryColor = '#465362';
+        const secondaryColor = '#E4E4EA';
         const connectionDistance = 100;
         const mouseDistance = 150;
         const particleCount = 80;
@@ -162,7 +162,7 @@ export const AnimatedHeaderCard: React.FC<AnimatedHeaderCardProps> = ({
     return (
         <div
             ref={containerRef}
-            className="relative bg-white rounded-[30px] shadow-sm border border-gray-100 py-12 mb-8 overflow-hidden"
+            className="relative bg-card rounded-[30px] shadow-sm border border-edge py-12 mb-8 overflow-hidden"
         >
             {/* Animation Canvas */}
             <canvas
@@ -171,17 +171,17 @@ export const AnimatedHeaderCard: React.FC<AnimatedHeaderCardProps> = ({
             />
 
             {/* Glass Overlay */}
-            <div className="absolute inset-0 z-10 bg-white/70 backdrop-blur-[2px]" />
+            <div className="absolute inset-0 z-10 bg-card/70 backdrop-blur-[2px]" />
 
             {/* Text Content */}
             <div className="relative z-20 text-center">
-                <span className="block text-primary-500 font-bold tracking-[0.2em] uppercase text-sm mb-4">
+                <span className="block text-pink-text font-bold tracking-[0.2em] uppercase text-sm mb-4">
                     {supertitle}
                 </span>
-                <h1 className="text-5xl sm:text-6xl md:text-7xl font-extrabold text-brand-dark tracking-tighter mb-4 break-words">
+                <h1 className="text-5xl sm:text-6xl md:text-7xl font-extrabold text-white tracking-tighter mb-4 break-words">
                     {title}
                 </h1>
-                <p className="text-lg text-gray-500 font-light">
+                <p className="text-lg text-text-3 font-light">
                     {subtitle}
                 </p>
             </div>

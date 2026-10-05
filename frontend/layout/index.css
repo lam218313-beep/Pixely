@@ -1,17 +1,21 @@
+/* Import Accessibility Styles (imports go first) */
+@import './styles/accessibility.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Import Accessibility Styles */
-@import './styles/accessibility.css';
 
-/* Pixely brand identity: Bricolage Grotesque for headings site-wide,
-   Albert Sans for body (set via tailwind.config.js fontFamily.sans on <html>).
-   Mirrors lam218313-beep/Pixely_web's title-xl/title-l/title-m convention. */
+/* Sistema Noche (same as the mobile version): Unbounded for headings, Manrope for the rest,
+   layered blacks with pink only for what needs attention. */
+html { background: #0A0A0C; color-scheme: dark; }
+body { background: #0A0A0C; color: #FFFFFF; font-family: Manrope, system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
 h1, h2, h3, h4 {
-  font-family: 'Bricolage Grotesque', Arial, sans-serif;
-  letter-spacing: -0.01em;
+  font-family: Unbounded, Manrope, system-ui, sans-serif;
+  letter-spacing: -0.02em;
 }
+::selection { background: rgba(235, 12, 110, 0.35); color: #FFFFFF; }
+input, textarea, select { color-scheme: dark; }
 
 /* Custom Scrollbar */
 .custom-scrollbar::-webkit-scrollbar {
@@ -25,29 +29,29 @@ h1, h2, h3, h4 {
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background-color: rgba(0, 0, 0, 0.1);
+  background-color: rgba(255, 255, 255, 0.12);
   border-radius: 20px;
 }
 
 .custom-scrollbar:hover::-webkit-scrollbar-thumb {
-  background-color: rgba(0, 0, 0, 0.2);
+  background-color: rgba(255, 255, 255, 0.22);
 }
 
 /* Strategy Module Utilities */
 .bg-dot-pattern {
-  background-image: radial-gradient(#CBD5E1 1px, transparent 1px);
+  background-image: radial-gradient(#26262E 1px, transparent 1px);
   background-size: 24px 24px;
 }
 
 .glass-panel {
-  background: rgba(255, 255, 255, 0.9);
+  background: rgba(22, 22, 27, 0.92);
   /* Higher opacity, less reliance on blur */
   /* backdrop-filter: blur(12px); -- PERFORMANCE KILLER */
-  border: 1px solid rgba(255, 255, 255, 0.5);
+  border: 1px solid #26262E;
 }
 
 .glass-dark {
-  background: rgba(30, 41, 59, 0.9);
+  background: rgba(31, 31, 38, 0.95);
   /* backdrop-filter: blur(12px); -- PERFORMANCE KILLER */
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
@@ -58,7 +62,7 @@ h1, h2, h3, h4 {
 }
 
 .shadow-float {
-  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 16px 40px -12px rgba(0, 0, 0, 0.6);
 }
 
 /* Animations */
