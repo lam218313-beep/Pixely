@@ -15,7 +15,7 @@ import {
 } from 'recharts';
 import {
     Radar, FileText, ExternalLink, MapPin, Zap, Map as MapIcon, Table2, Coins, Star, Trophy, Hash, ShieldCheck, Tags,
-    Antenna, TrendingUp, MessageSquare, Store, Banknote,
+    Antenna, TrendingUp, MessageSquare, Store, Banknote, Download, Loader2,
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import * as api from '../services/api';
@@ -121,6 +121,16 @@ export const MercadoView: React.FC<{ onNavigate?: (view: string) => void; client
         return () => { cancelled = true; };
     }, [clientId]);
 
+    const [downloading, setDownloading] = useState(false);
+    const [pdfError, setPdfError] = useState<string | null>(null);
+    const downloadPdf = async () => {
+        if (!clientId) return;
+        setDownloading(true); setPdfError(null);
+        try { await api.downloadMarketReport(clientId); }
+        catch (e) { setPdfError(e instanceof Error ? e.message : 'No se pudo generar el PDF'); }
+        finally { setDownloading(false); }
+    };
+
     const competidores = study?.universo_competidores?.listado ?? [];
     const rated = competidores.filter((c) => typeof c.rating === 'number' && typeof c.reseñas === 'number');
     const avgRating = rated.length ? rated.reduce((s, c) => s + (c.rating as number), 0) / rated.length : null;
@@ -149,11 +159,20 @@ export const MercadoView: React.FC<{ onNavigate?: (view: string) => void; client
                                     </p>
                                 )}
                             </div>
-                            {safeUrl(study?.pdf_url) && (
-                                <a href={safeUrl(study?.pdf_url)!} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-5 py-3 bg-gray-900 text-white font-bold rounded-xl hover:bg-gray-800 transition-colors">
-                                    <FileText size={18} /> Informe completo <ExternalLink size={14} />
-                                </a>
-                            )}
+                            <div className="flex flex-col items-start sm:items-end gap-2">
+                                <div className="flex flex-wrap gap-2">
+                                    <button onClick={downloadPdf} disabled={downloading} className="flex items-center gap-2 px-5 py-3 bg-gray-900 text-white font-bold rounded-xl hover:bg-gray-800 transition-colors disabled:opacity-60">
+                                        {downloading ? <Loader2 size={18} className="animate-spin" /> : <Download size={18} />} Descargar PDF
+                                    </button>
+                                    {safeUrl(study?.pdf_url) && (
+                                        <a href={safeUrl(study?.pdf_url)!} target="_blank" rel="noopener noreferrer" title="El informe largo del estudio fundacional"
+                                            className="flex items-center gap-2 px-5 py-3 bg-white border border-gray-200 text-gray-800 font-bold rounded-xl hover:bg-gray-50 transition-colors">
+                                            <FileText size={18} /> Estudio completo <ExternalLink size={14} />
+                                        </a>
+                                    )}
+                                </div>
+                                {pdfError && <p className="text-sm text-red-600">{pdfError}</p>}
+                            </div>
                         </header>
 
                         {/* Row 1: the headline numbers */}

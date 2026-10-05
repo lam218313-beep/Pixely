@@ -477,6 +477,25 @@ export async function getMarketStudy(clientId: string): Promise<MarketStudy | nu
   return result.data;
 }
 
+/** "Tu mercado" as a PDF, built on the fly from the study and the current findings. Triggers the download. */
+export async function downloadMarketReport(clientId: string): Promise<void> {
+  const response = await fetch(`${API_BASE_URL}/market/${clientId}/report.pdf`, { headers: getAuthHeaders() });
+  if (!response.ok) {
+    const err = await response.json().catch(() => ({ detail: 'No se pudo generar el PDF' }));
+    throw new ApiError(response.status, err.detail || 'No se pudo generar el PDF');
+  }
+  const blob = await response.blob();
+  const name = /filename="([^"]+)"/.exec(response.headers.get('Content-Disposition') ?? '')?.[1] ?? 'mercado.pdf';
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = name;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
 export async function getMarketFindings(clientId: string): Promise<MarketFinding[]> {
   const response = await fetch(`${API_BASE_URL}/market/${clientId}/findings`, {
     headers: getAuthHeaders(),

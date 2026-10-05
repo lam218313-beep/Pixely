@@ -85,6 +85,7 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+    expose_headers=["Content-Disposition"],  # so downloads (e.g. the Mercado PDF) keep their file name
 )
 
 # Routers
