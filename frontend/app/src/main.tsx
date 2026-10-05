@@ -6,18 +6,26 @@ import { AuthProvider } from './lib/auth';
 import { App } from './App';
 import { hydrateSession } from './lib/session';
 import { isNative } from './lib/native';
+import { ErrorBoundary } from './ui/ErrorBoundary';
 import './styles.css';
 
 // Installable web app (works offline, opens fast). Not needed inside the store app.
 if (!isNative) void import('virtual:pwa-register').then(({ registerSW }) => registerSW({ immediate: true }));
 
 // The session is read from the phone's secure storage (or localStorage) before the first screen.
-void hydrateSession().then(() => createRoot(document.getElementById('root')!).render(
-  <React.StrictMode>
-    <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <App />
-      </AuthProvider>
-    </QueryClientProvider>
-  </React.StrictMode>,
-));
+// Whatever happens there, the app always draws.
+const root = createRoot(document.getElementById('root')!);
+void hydrateSession()
+  .catch((e) => console.error('[pixely] sesión', e))
+  .finally(() => root.render(
+    <React.StrictMode>
+      <ErrorBoundary>
+        <QueryClientProvider client={queryClient}>
+          <AuthProvider>
+            <App />
+          </AuthProvider>
+        </QueryClientProvider>
+      </ErrorBoundary>
+    </React.StrictMode>,
+  ));
+

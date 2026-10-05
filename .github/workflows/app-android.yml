@@ -50,6 +50,8 @@ jobs:
     needs: apk
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    permissions:
+      contents: write
     steps:
       - uses: actions/download-artifact@v4
         with:
@@ -70,15 +72,20 @@ jobs:
             adb install -r app-debug.apk
             adb logcat -c
             adb shell am start -n pe.pixely.app/.MainActivity
-            sleep 30
+            sleep 12
+            adb exec-out screencap -p > emulador-12s.png
+            sleep 18
             adb exec-out screencap -p > emulador-30s.png
             adb logcat -d > logcat.txt
-            adb shell dumpsys window | grep -i mCurrentFocus || true
-      - uses: actions/upload-artifact@v4
+            grep -iE "Capacitor|chromium|pixely|AndroidRuntime|FATAL" logcat.txt > logcat-app.txt || true
+      # Results also go to the ci/emulador branch, readable without downloading artifacts.
+      - name: Publish results to the ci/emulador branch
         if: always()
-        with:
-          name: emulador
-          path: |
-            emulador-30s.png
-            logcat.txt
-          retention-days: 7
+        run: |
+          mkdir out && cp emulador-*.png logcat-app.txt out/ 2>/dev/null || true
+          cd out
+          git init -q && git checkout -q -b ci/emulador
+          git config user.name "github-actions" && git config user.email "actions@github.com"
+          echo "${{ github.sha }}" > commit.txt
+          git add -A && git commit -qm "Emulador ${{ github.sha }}"
+          git push -qf "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" ci/emulador

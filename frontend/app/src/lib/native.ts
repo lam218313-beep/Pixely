@@ -11,13 +11,20 @@ export const platform = Capacitor.getPlatform(); // 'ios' | 'android' | 'web'
 /** Dark status bar, splash hidden once the first screen is ready, back button = go back. */
 export async function startNativeShell(goBack: () => boolean): Promise<void> {
   if (!isNative) return;
-  const [{ StatusBar, Style }, { SplashScreen }, { App }] = await Promise.all([
-    import('@capacitor/status-bar'), import('@capacitor/splash-screen'), import('@capacitor/app'),
-  ]);
-  StatusBar.setStyle({ style: Style.Dark }).catch(() => {});
-  if (platform === 'android') StatusBar.setBackgroundColor({ color: '#0A0A0C' }).catch(() => {});
-  App.addListener('backButton', () => { if (!goBack()) App.minimizeApp(); });
-  SplashScreen.hide().catch(() => {});
+  // Each piece on its own: if one fails, the others (and the app) keep working.
+  try {
+    const { SplashScreen } = await import('@capacitor/splash-screen');
+    await SplashScreen.hide();
+  } catch (e) { console.error('[pixely] splash', e); }
+  try {
+    const { StatusBar, Style } = await import('@capacitor/status-bar');
+    await StatusBar.setStyle({ style: Style.Dark });
+    if (platform === 'android') await StatusBar.setBackgroundColor({ color: '#0A0A0C' });
+  } catch (e) { console.error('[pixely] status bar', e); }
+  try {
+    const { App } = await import('@capacitor/app');
+    await App.addListener('backButton', () => { if (!goBack()) void App.minimizeApp(); });
+  } catch (e) { console.error('[pixely] back button', e); }
 }
 
 /** Shares (or saves) a file the backend sent, through the phone's share sheet. */

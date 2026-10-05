@@ -25,8 +25,13 @@ async function secure() {
   return (await import('@aparajita/capacitor-secure-storage')).SecureStorage;
 }
 
+/** Never lets a slow or broken storage keep the app from opening. */
+function withTimeout<T>(p: Promise<T>, ms: number, fallback: T): Promise<T> {
+  return Promise.race([p.catch(() => fallback), new Promise<T>((r) => setTimeout(() => r(fallback), ms))]);
+}
+
 async function readRaw(key: string): Promise<string | null> {
-  if (isNative) return (await secure()).getItem(key).catch(() => null);
+  if (isNative) return withTimeout(secure().then((s) => s.getItem(key)), 2500, null);
   try { return localStorage.getItem(key); } catch { return null; }
 }
 

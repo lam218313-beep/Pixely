@@ -9,7 +9,8 @@ const config: CapacitorConfig = {
   android: { allowMixedContent: false },
   ios: { contentInset: 'never', backgroundColor: '#0A0A0C' },
   plugins: {
-    SplashScreen: { launchAutoHide: false, backgroundColor: '#0A0A0C', showSpinner: false },
+    // Hides by itself: the first screen never depends on a native call finishing.
+    SplashScreen: { launchAutoHide: true, launchShowDuration: 600, backgroundColor: '#0A0A0C', showSpinner: false },
     StatusBar: { style: 'DARK', backgroundColor: '#0A0A0C', overlaysWebView: false },
   },
 };
