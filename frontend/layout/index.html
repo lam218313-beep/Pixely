@@ -4,15 +4,16 @@
 <head>
   <meta charset="UTF-8" />
   <script>
-    // One front door: clients use the Pixely app (frontend/app, served at /m/) on any screen;
-    // the team (admins) uses this panel. Anyone without a team session goes to the app's sign-in,
-    // which hands team accounts back here already signed in (see frontend/app/src/lib/auth.tsx).
+    // Phones get the mobile version (frontend/app, served at /m/). "?escritorio=1" keeps a
+    // phone on this desktop version (remembered); "?movil=1" sends it back to the mobile one.
     (function () {
       try {
-        var user = JSON.parse(localStorage.getItem('pixely_user') || 'null');
-        var team = user && user.role === 'admin' && localStorage.getItem('pixely_access_token');
-        if (!team) location.replace('/m/');
-      } catch (e) { location.replace('/m/'); }
+        var q = location.search, key = 'pixely_version';
+        if (q.indexOf('escritorio=1') > -1) localStorage.setItem(key, 'escritorio');
+        if (q.indexOf('movil=1') > -1) localStorage.removeItem(key);
+        var phone = matchMedia('(pointer: coarse)').matches && Math.min(screen.width, screen.height) < 600;
+        if (phone && localStorage.getItem(key) !== 'escritorio') location.replace('/m/');
+      } catch (e) { /* stay on desktop */ }
     })();
   </script>
   <link rel="icon" type="image/png" href="/src/assets/logo.png" />

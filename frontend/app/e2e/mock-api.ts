@@ -188,10 +188,7 @@ const cors = { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers
 const json = (route: Route, data: unknown, status = 200) => route.fulfill({ status, headers: cors, contentType: 'application/json', body: JSON.stringify(data) });
 
 function session(email: string) {
-  // equipo@… is a team account (admin, no brand): the app hands it to the team panel.
-  const team = email.startsWith('equipo@');
-  return { access_token: 'token-de-prueba', token_type: 'bearer', refresh_token: 'refresh-de-prueba', expires_at: Math.floor(Date.now() / 1000) + 3600, user_email: email,
-    tenant_id: 'tenant-default', logo_url: null, role: team ? 'admin' : 'analyst', ficha_cliente_id: team ? null : CLIENT };
+  return { access_token: 'token-de-prueba', refresh_token: 'refresh-de-prueba', expires_at: Math.floor(Date.now() / 1000) + 3600, user_email: email, role: 'client', ficha_cliente_id: CLIENT };
 }
 
 /** What the app keeps in the browser once signed in (same key as src/lib/session.ts). */
