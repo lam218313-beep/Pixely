@@ -42,6 +42,18 @@ npm run dev        # usa .env.development (backend local en :8001)
 npm run build      # usa .env.production (backend de Railway)
 ```
 
+## Validar y Plan
+
+- **Validar** (`/validar`, `/validar/:id`): las piezas en estado "por revisar" como un mazo. Derecha = aprobar
+  (espera 4 segundos con "Deshacer" antes de enviarse), izquierda = pedir cambios (imagen / texto / ambos +
+  comentario), arriba = el texto por red y el porqué. Usa `PATCH /content/{id}/pieces/{pieza}/review`.
+- **Plan** (`/plan?mes=AAAA-MM`, `/plan/mezcla`, `/plan/:id`): ideas por semana con calendario del mes,
+  "Aprobar las pendientes", la mezcla del mes (ruta estratégica, ritmo, pilares, formatos) y el detalle de
+  cada idea (qué contaremos, láminas o escenas, por qué, dato de mercado, ruta, su semana). Usa
+  `PATCH .../plan-review` y `POST .../plan-review/approve-pending`.
+- Las decisiones se ven al instante y el servidor las confirma después; si falla, la pantalla vuelve atrás.
+- Los globitos de la barra (Plan, Validar) cuentan lo que espera al cliente.
+
 ## Entrar con código: configuración de Supabase (una vez)
 
 Supabase envía y verifica el código. En el panel de Supabase del proyecto:
@@ -56,5 +68,5 @@ Supabase envía y verifica el código. En el panel de Supabase del proyecto:
 
 1. ~~Cimientos~~
 2. ~~Entrar con código por correo~~ (`/entrar` → `/entrar/codigo`; backend `POST /auth/code/send`, `/auth/code/verify`, `/auth/refresh`). La sesión se renueva sola con el `refresh_token`. Queda "Entrar con contraseña" como respaldo. Face ID / huella llegan con la app de tiendas.
-3. Validar y Plan · 4. Inicio, Resultados y Marca · 5. Capacitor (Play Store / App Store):
+3. ~~Validar y Plan~~ (datos reales: `src/lib/content.ts`, `src/lib/strategy.ts`) · 4. Inicio, Resultados y Marca · 5. Capacitor (Play Store / App Store):
    ahí `src/lib/session.ts` pasa al almacenamiento seguro del teléfono.
