@@ -10,7 +10,9 @@ import { EntrarScreen } from './features/entrar/EntrarScreen';
 import { CodigoScreen } from './features/entrar/CodigoScreen';
 import { InicioScreen } from './features/inicio/InicioScreen';
 import { PlanScreen, PlanMezclaScreen } from './features/plan/PlanScreens';
+import { PlanIdea } from './features/plan/PlanIdea';
 import { ValidarScreen } from './features/validar/ValidarScreen';
+import { ValidarPieza } from './features/validar/ValidarPieza';
 import { ProximasScreen, PublicadasScreen } from './features/resultados/ResultadosScreens';
 import { MarcaScreen, MarcaDetail } from './features/marca/MarcaScreens';
 import { CuentaScreen } from './features/cuenta/CuentaScreen';
@@ -37,6 +39,8 @@ const router = createBrowserRouter([
       {
         element: <DetailLayout />,
         children: [
+          { path: 'validar/:id', element: <ValidarPieza /> },
+          { path: 'plan/:id', element: <PlanIdea /> },
           { path: 'marca/voz', element: <MarcaDetail text="Tu arquetipo, cómo suena tu marca y las palabras que usa y evita. Aquí la apruebas." /> },
           { path: 'marca/estrategia', element: <MarcaDetail text="Tus objetivos, sus estrategias y los conceptos de donde nacen tus ideas." /> },
           { path: 'marca/mercado', element: <MarcaDetail text="El tamaño de tu mercado, lo último de tu competencia y el estudio en PDF." /> },
