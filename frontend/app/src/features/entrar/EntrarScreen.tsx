@@ -3,8 +3,6 @@ import { Navigate, useLocation, useNavigate } from 'react-router';
 import { ArrowRight } from 'lucide-react';
 import { useAuth } from '@/lib/auth';
 import { Button, Field, Dot } from '@/ui';
-import { isNative } from '@/lib/native';
-import { DESKTOP_URL } from '@/lib/web';
 import { EntrarFrame } from './EntrarHero';
 
 /** Entrada (design "A · Noche"): the client writes their email and receives a code. No passwords. */
@@ -58,7 +56,6 @@ export const EntrarScreen: React.FC = () => {
       <button type="button" onClick={() => { setWithPassword(!withPassword); setError(null); }} className="h-11 text-[13px] font-bold text-text-3">
         {withPassword ? 'Mejor, envíame un código' : 'Entrar con contraseña'}
       </button>
-      {!isNative && <a href={DESKTOP_URL} className="-mt-2 text-center text-[13px] font-bold text-text-3 no-underline">Ir a la versión de escritorio</a>}
       <p className="m-0 mb-2 text-center text-[13px] text-text-3">
         ¿Aún no trabajas con nosotros? <a href="https://wa.me/51949268607" target="_blank" rel="noopener noreferrer" className="font-bold text-pink-text no-underline">Escríbenos</a>
       </p>

@@ -141,8 +141,8 @@ const AppContent: React.FC = () => {
   // Handler for logout
   const handleLogout = () => {
     logout();
-    setDisplayUser('');
-    setFlow('LOGIN_ACTIVE');
+    // Everyone signs in through the Pixely app; team accounts come back here from there.
+    window.location.replace('/m/entrar');
   };
 
   // ... handleLogin ...

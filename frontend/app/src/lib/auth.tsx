@@ -9,8 +9,10 @@ import React, { createContext, useCallback, useContext, useEffect, useMemo, useS
 import { useQueryClient } from '@tanstack/react-query';
 import { ApiError, TokenResponse, api, onSessionExpired, toSession } from './api';
 import { Session, clearSession, loadSession, saveSession } from './session';
+import { isNative } from './native';
+import { openTeamPanel } from './web';
 
-const TEAM_MESSAGE = 'Esta versión es para clientes de Pixely. El equipo trabaja en la versión de escritorio.';
+const TEAM_MESSAGE = 'Esta cuenta no tiene una marca asignada. Escríbenos y lo revisamos.';
 
 interface AuthValue {
   session: Session | null;
@@ -37,6 +39,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => onSessionExpired(signOut), [signOut]);
 
   const start = useCallback((res: TokenResponse) => {
+    if (res.role === 'admin' && !isNative) return openTeamPanel(res);
     if (!res.ficha_cliente_id) throw new Error(TEAM_MESSAGE);
     const next = toSession(res);
     saveSession(next);

@@ -45,3 +45,17 @@ test('sin servidor muestra "Sin conexión"', async ({ page, api: _ }) => {
   await page.getByRole('button', { name: 'Entrar', exact: true }).click();
   await expect(page.getByText('Sin conexión. Revisa tu internet.')).toBeVisible();
 });
+
+test('una cuenta del equipo pasa al panel del equipo con la sesión abierta', async ({ page, api: _ }) => {
+  await page.route(/localhost:\d+\/$/, (r) => r.fulfill({ contentType: 'text/html', body: '<p>Panel del equipo</p>' }));
+  await page.goto('./entrar');
+  await page.getByRole('button', { name: 'Entrar con contraseña' }).click();
+  await page.getByLabel('Tu correo').fill('equipo@pixely.pe');
+  await page.getByLabel('Contraseña').fill('clave-correcta');
+  await page.getByRole('button', { name: 'Entrar', exact: true }).click();
+  await expect(page.getByText('Panel del equipo')).toBeVisible();
+  const stored = await page.evaluate(() => ({ token: localStorage.getItem('pixely_access_token'), user: JSON.parse(localStorage.getItem('pixely_user') ?? '{}'), app: localStorage.getItem('pixely_app_session') }));
+  expect(stored.token).toBe('token-de-prueba');
+  expect(stored.user).toMatchObject({ role: 'admin', user_email: 'equipo@pixely.pe', tenant_id: 'tenant-default' });
+  expect(stored.app, 'la app no guarda sesión para el equipo').toBeNull();
+});
