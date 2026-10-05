@@ -1,4 +1,5 @@
 import React from 'react';
+import { useRouteError } from 'react-router';
 
 /** If a screen breaks, show what happened and a way out instead of a blank (black) screen. */
 export class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { error: Error | null }> {
@@ -19,3 +20,10 @@ export const BootError: React.FC<{ message?: string }> = ({ message }) => (
     <button type="button" onClick={() => window.location.replace('/')} style={{ height: 52, borderRadius: 16, border: 'none', background: '#D90B66', color: '#fff', fontSize: 15, fontWeight: 800 }}>Volver a empezar</button>
   </div>
 );
+
+/** The router's own error screen: same friendly message instead of React Router's developer page. */
+export const RouteError: React.FC = () => {
+  const error = useRouteError();
+  console.error('[pixely] pantalla rota', error);
+  return <BootError message={error instanceof Error ? error.message : undefined} />;
+};

@@ -133,7 +133,10 @@ const Deck: React.FC<{ piece: ContentPiece; behind: number; onApprove: () => voi
   };
   const onMove = (e: React.PointerEvent) => {
     if (!start.current) return;
-    setDrag((d) => ({ ...d, x: e.clientX - start.current!.x, y: e.clientY - start.current!.y }));
+    // Read the offset now: the updater may run after the finger lifts and `start` is cleared.
+    const x = e.clientX - start.current.x;
+    const y = e.clientY - start.current.y;
+    setDrag((d) => ({ ...d, x, y }));
   };
   const onUp = () => {
     if (!start.current) return;

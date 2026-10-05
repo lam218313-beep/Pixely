@@ -24,8 +24,9 @@ import { CuentaScreen } from './features/cuenta/CuentaScreen';
 import { NotFound } from './features/NotFound';
 import { PrivacidadScreen, EliminarCuentaScreen } from './features/legal/LegalScreens';
 import { startNativeShell } from './lib/native';
+import { RouteError } from './ui/ErrorBoundary';
 
-const router = createBrowserRouter([
+const router = createBrowserRouter([{ errorElement: <RouteError />, children: [
   { path: '/entrar', element: <EntrarScreen /> },
   { path: '/entrar/codigo', element: <CodigoScreen /> },
   { path: '/privacidad', element: <PrivacidadScreen /> },
@@ -61,7 +62,7 @@ const router = createBrowserRouter([
     ],
   },
   { path: '*', element: <NotFound /> },
-]);
+] }]);
 
 // Android back button: go back inside the app; on a tab's main screen, leave the app.
 const ROOTS = new Set(['/', '/plan', '/validar', '/resultados', '/marca', '/entrar']);
