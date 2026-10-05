@@ -42,9 +42,19 @@ npm run dev        # usa .env.development (backend local en :8001)
 npm run build      # usa .env.production (backend de Railway)
 ```
 
+## Entrar con código: configuración de Supabase (una vez)
+
+Supabase envía y verifica el código. En el panel de Supabase del proyecto:
+
+1. **Correo propio (SMTP):** Authentication → Emails → SMTP Settings. Sin esto, Supabase solo envía
+   a los miembros del equipo y unos pocos correos por hora (sirve para probar, no para clientes).
+2. **Plantilla "Magic Link"** con el código: debe incluir `{{ .Token }}`.
+3. **Vencimiento y largo:** Authentication → Providers → Email: `Email OTP Expiration` = 600 s y
+   `Email OTP Length` = 6 (la app espera 6 dígitos y dice "vence en 10 minutos").
+
 ## Pendiente (por pasos)
 
 1. ~~Cimientos~~
-2. Entrar con código por correo (hoy, temporal: correo + contraseña de siempre). Face ID / huella en la app de tiendas.
+2. ~~Entrar con código por correo~~ (`/entrar` → `/entrar/codigo`; backend `POST /auth/code/send`, `/auth/code/verify`, `/auth/refresh`). La sesión se renueva sola con el `refresh_token`. Queda "Entrar con contraseña" como respaldo. Face ID / huella llegan con la app de tiendas.
 3. Validar y Plan · 4. Inicio, Resultados y Marca · 5. Capacitor (Play Store / App Store):
    ahí `src/lib/session.ts` pasa al almacenamiento seguro del teléfono.

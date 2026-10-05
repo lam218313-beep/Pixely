@@ -6,6 +6,10 @@
 
 export interface Session {
   token: string;
+  /** Renews `token` when it expires (about every hour) without asking for a new code. */
+  refreshToken: string | null;
+  /** When `token` expires, in seconds since 1970. */
+  expiresAt: number | null;
   email: string;
   role: string;
   clientId: string | null;
