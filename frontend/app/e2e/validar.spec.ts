@@ -78,3 +78,17 @@ test('dos deslizamientos seguidos muy rápidos no cuentan la pieza dos veces', a
   const sent = api.sent('PATCH', /\/review$/).map((c) => c.path);
   expect(new Set(sent).size, 'cada pieza se envía una sola vez').toBe(sent.length);
 });
+
+test('en computadora se valida con el teclado', async ({ page, api }, info) => {
+  test.skip(info.project.name !== 'computadora', 'solo en computadora');
+  await page.goto('./validar');
+  await expect(card(page)).toHaveAccessibleName('El viaje del grano');
+  await page.keyboard.press('ArrowRight');
+  await expect(card(page)).toHaveAccessibleName('Detrás de la barra');
+  await page.keyboard.press('ArrowLeft');
+  await expect(page.getByRole('heading', { name: '¿Qué cambiamos?' })).toBeVisible();
+  await page.keyboard.press('Escape');
+  await page.keyboard.press('ArrowUp');
+  await expect(page).toHaveURL(/\/validar\/v2$/);
+  await expect.poll(() => api.sent('PATCH', /pieces\/v1\/review$/).length).toBe(1);
+});

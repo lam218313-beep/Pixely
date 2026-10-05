@@ -6,3 +6,4 @@ dist-e2e/
 test-results/
 playwright-report/
 dist-web/
+e2e-capturas/

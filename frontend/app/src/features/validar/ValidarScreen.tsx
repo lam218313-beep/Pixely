@@ -48,6 +48,21 @@ export const ValidarScreen: React.FC = () => {
     if (u) { clearTimeout(u.timer); review.mutate({ id: u.id, estado: 'Aprobado' }); }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // On a computer: → aprobar, ← pedir cambios, ↑ ver el texto (only when no panel is open).
+  const keys = useRef<{ approve: () => void; changes: () => void; detail: () => void } | null>(null);
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (!keys.current || e.altKey || e.ctrlKey || e.metaKey || (e.target as HTMLElement).closest('input,textarea,[role=dialog]')) return;
+      if (e.key === 'ArrowRight') keys.current.approve();
+      else if (e.key === 'ArrowLeft') keys.current.changes();
+      else if (e.key === 'ArrowUp') keys.current.detail();
+      else return;
+      e.preventDefault();
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, []);
+
   const queue = useMemo(() => (data ?? []).filter((p) => pieceStage(p) === 'revision' && p.id !== undo?.id), [data, undo]);
 
   if (isLoading) return <Screen title="Validar"><Loading /></Screen>;
@@ -80,12 +95,13 @@ export const ValidarScreen: React.FC = () => {
   const total = queue.length + reviewed.ok + reviewed.cambios;
   const done = reviewed.ok + reviewed.cambios;
   const top = queue[0];
+  keys.current = top && !changesFor ? { approve: () => approve(top), changes: () => setChangesFor(top), detail: () => navigate(`/validar/${top.id}`) } : null;
 
   return (
     <>
       {top ? (
-        <div className="h-dvh flex flex-col px-5 pt-safe pb-[118px]">
-          <header className="pt-4 flex flex-col gap-3.5">
+        <div className="h-dvh flex flex-col px-5 pt-safe pb-[118px] lg:pb-10 lg:max-w-[520px] lg:mx-auto">
+          <header className="pt-4 lg:pt-10 flex flex-col gap-3.5">
             <div className="flex items-center justify-between">
               <h1 className="font-display font-bold text-[28px] m-0">Validar<Dot /></h1>
               <span className="inline-flex items-center h-[30px] px-3 rounded-full bg-pink/15 text-pink-text text-xs font-extrabold">{done + 1} de {total}</span>
@@ -101,15 +117,16 @@ export const ValidarScreen: React.FC = () => {
           <div className="flex items-center justify-center gap-[22px] pt-5">
             <button type="button" aria-label="Pedir cambios" onClick={() => setChangesFor(top)} className="w-16 h-16 rounded-full border border-line bg-card flex items-center justify-center active:scale-95 transition"><PenLine size={26} /></button>
             <Link to={`/validar/${top.id}`} aria-label="Ver texto y por qué" className="w-12 h-12 rounded-full border border-line flex items-center justify-center text-text-2 active:scale-95 transition"><List size={20} /></Link>
-            <button type="button" aria-label="Aprobar" onClick={() => approve(top)} className="w-[76px] h-[76px] rounded-full bg-pink-fill flex items-center justify-center shadow-[0_12px_28px_rgba(217,11,102,0.4)] active:scale-95 transition"><Check size={34} strokeWidth={3} /></button>
+            <button type="button" aria-label="Aprobar" title="Aprobar (→)" onClick={() => approve(top)} className="w-[76px] h-[76px] rounded-full bg-pink-fill flex items-center justify-center shadow-[0_12px_28px_rgba(217,11,102,0.4)] active:scale-95 transition"><Check size={34} strokeWidth={3} /></button>
           </div>
+          <p className="hidden lg:block m-0 mt-4 text-center text-xs text-text-3">Atajos: → aprobar · ← pedir cambios · ↑ ver el texto</p>
         </div>
       ) : (
         <AllDone reviewed={reviewed} pieces={data ?? []} />
       )}
 
       {undo && (
-        <div role="status" className="fixed inset-x-0 bottom-[120px] z-40 px-5 flex justify-center">
+        <div role="status" className="fixed inset-x-0 lg:left-[260px] bottom-[120px] lg:bottom-8 z-40 px-5 flex justify-center">
           <div className="w-full max-w-[440px] bg-raised border border-line rounded-[18px] pl-4 pr-2 py-2 flex items-center justify-between gap-3 shadow-[0_12px_30px_rgba(0,0,0,0.5)]">
             <span className="inline-flex items-center gap-2 text-sm font-bold"><Check size={16} strokeWidth={3} className="text-pink-text" />Aprobada</span>
             <button type="button" onClick={cancelApprove} className="h-10 px-4 rounded-[12px] text-sm font-extrabold text-pink-text">Deshacer</button>
@@ -189,7 +206,7 @@ const Deck: React.FC<{ piece: ContentPiece; behind: number; onApprove: () => voi
           <h2 className="m-0 font-display font-bold text-lg leading-tight">{piece.topico_angulo ?? 'Pieza sin título'}</h2>
           <p className="m-0 text-[13px] text-text-3">{formatDay(piece.fecha)}{networksOf(piece) ? ` · ${networksOf(piece)}` : ''}</p>
           <Link to={`/validar/${piece.id}`} className="mt-1.5 inline-flex items-center gap-1.5 text-[13px] font-extrabold text-pink-text no-underline">
-            <ChevronUp size={16} strokeWidth={2.5} /> Desliza arriba: texto y por qué
+            <ChevronUp size={16} strokeWidth={2.5} /> <span className="lg:hidden">Desliza arriba: texto y por qué</span><span className="hidden lg:inline">Ver texto y por qué</span>
           </Link>
         </div>
       </article>
@@ -207,7 +224,7 @@ const AllDone: React.FC<{ reviewed: { ok: number; cambios: number }; pieces: Con
     reviewed.cambios ? `pediste cambios en ${reviewed.cambios}` : '',
   ].filter(Boolean).join(' y ');
   return (
-    <div className="relative min-h-full flex flex-col px-5 pt-safe pb-36 overflow-hidden">
+    <div className="relative min-h-full flex flex-col px-5 pt-safe pb-36 lg:pb-14 overflow-hidden">
       <div aria-hidden className="absolute left-1/2 top-[250px] w-[420px] h-[420px] -ml-[210px] -mt-[210px] rounded-full border border-raised" />
       <div aria-hidden className="absolute left-1/2 top-[250px] w-[290px] h-[290px] -ml-[145px] -mt-[145px] rounded-full border border-edge" />
       <div className="relative flex-1 flex flex-col items-center justify-center text-center gap-5 py-10">

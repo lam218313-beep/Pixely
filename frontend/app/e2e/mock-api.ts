@@ -9,7 +9,7 @@ export const API = 'http://api.pixely.test';
 export const IMG = 'https://img.pixely.test';
 export const CLIENT = 'cliente-prueba';
 
-const PNG = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==', 'base64');
+const PNG = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAADElEQVR42mNwc3MDAAFsAPV8l2FZAAAAAElFTkSuQmCC', 'base64');
 
 const iso = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 export const day = (offset: number) => { const d = new Date(); d.setDate(d.getDate() + offset); return iso(d); };
