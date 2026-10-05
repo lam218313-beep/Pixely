@@ -513,6 +513,13 @@ export type ContentFormato = 'Imagen' | 'Carrusel' | 'Estado' | 'Reel';
 export type ContentPilar = 'Problema' | 'Identidad' | 'Prueba';
 export type ContentAprobacion = 'Pendiente' | 'Aprobado' | 'Cambios solicitados';
 
+/** One slide (Carrusel) or scene (Reel) of a planned idea, in words. */
+export interface PieceStep {
+  n: number;
+  titulo: string;
+  detalle?: string | null;
+}
+
 export interface ContentPiece {
   id: string;
   client_id: string;
@@ -543,7 +550,8 @@ export interface ContentPiece {
   objetivo: string | null;
   evidencia: string | null;     // market fact behind an [I] piece, with its source
   razon: string | null;         // why the piece exists: how objective, strategy, concept and evidence became this piece
-  descripcion_visual: string | null; // what the image shows and why, in Spanish (written by /03_generar)
+  descripcion_visual: string | null; // what the piece will show and tell, in Spanish (written by /05_planificacion; older plans by /03_generar)
+  estructura: PieceStep[] | null;    // Carrusel slides or Reel scenes in words, written by /05_planificacion
   // The client's decision on the idea, in Planificación (before production)
   plan_estado: PlanEstado;
   plan_comentario: string | null;

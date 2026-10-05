@@ -8,7 +8,7 @@ import React, { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Check, Eye, Loader2, MessageSquareWarning, X } from 'lucide-react';
 import * as api from '../../services/api';
-import { FormatoBadge, PilarBadge, PieceStrategy, PieceReasoning, PieceWhyLine, formatFecha } from './ContentPieceUI';
+import { FormatoBadge, PilarBadge, PieceStrategy, PieceReasoning, PieceOutline, PieceWhyLine, formatFecha } from './ContentPieceUI';
 import { pieceLinks, type StrategyIndex } from './strategyLinks';
 
 // Status colors, always shown with their icon and word.
@@ -243,6 +243,7 @@ export const PlanPieceModal: React.FC<{
                     <h3 className="text-xl font-bold text-gray-900 leading-snug">{piece.topico_angulo || 'Idea sin tópico'}</h3>
                 </div>
 
+                <PieceOutline piece={piece} />
                 <PieceStrategy links={links} />
                 <PieceReasoning piece={piece} withVisual={false} />
 

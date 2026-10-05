@@ -349,6 +349,32 @@ export const PieceReasoning: React.FC<{ piece: api.ContentPiece; withVisual?: bo
     );
 };
 
+/** What the idea will show and tell, before any image exists: the planner's description and, for Carrusel and Reel, its slides or scenes. */
+export const PieceOutline: React.FC<{ piece: api.ContentPiece }> = ({ piece }) => {
+    const steps = (piece.estructura ?? []).filter((s) => s && s.titulo).sort((a, b) => a.n - b.n);
+    if (!piece.descripcion_visual && steps.length === 0) return null;
+    const unit = piece.formato === 'Reel' ? 'Escenas' : 'Láminas';
+    return (
+        <div className="p-6 border-b border-gray-100 space-y-3">
+            <SectionTitle>Qué contaremos</SectionTitle>
+            {piece.descripcion_visual && <p className="text-sm text-gray-700 leading-relaxed">{piece.descripcion_visual}</p>}
+            {steps.length > 0 && (
+                <div>
+                    <p className="text-[11px] font-bold uppercase tracking-wider text-gray-400 mb-2">{unit}</p>
+                    <ol className="space-y-2">
+                        {steps.map((s) => (
+                            <li key={s.n} className="flex gap-3">
+                                <span className="w-6 h-6 rounded-full bg-pink-50 text-pink-600 text-xs font-bold flex items-center justify-center shrink-0">{s.n}</span>
+                                <p className="text-sm text-gray-700"><span className="font-semibold text-gray-900">{s.titulo}</span>{s.detalle ? `: ${s.detalle}` : ''}</p>
+                            </li>
+                        ))}
+                    </ol>
+                </div>
+            )}
+        </div>
+    );
+};
+
 /** One quiet line for lists: the main branch a piece serves (objetivo → estrategia → concepto). */
 export const PieceWhyLine: React.FC<{ piece: api.ContentPiece; index?: StrategyIndex | null }> = ({ piece, index = null }) => {
     const links = pieceLinks(piece, index);
