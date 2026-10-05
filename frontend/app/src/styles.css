@@ -27,8 +27,8 @@
 
   /* Rosa Pixely */
   --color-pink: #EB0C6E;       /* acento: puntos, bordes, barras */
-  --color-pink-fill: #D90B66;  /* botones con texto blanco */
-  --color-pink-text: #FF85C3;  /* enlaces y texto rosa sobre negro */
+  --color-pink-fill: #EB0C6E;  /* botones: el mismo rosa del logo */
+  --color-pink-text: #EB0C6E;  /* texto rosa: el mismo del logo (4,5:1 sobre negro) */
   --color-pink-soft: #FFC2E1;
 
   --radius-control: 16px;

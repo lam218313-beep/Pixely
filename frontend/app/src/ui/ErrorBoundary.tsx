@@ -17,7 +17,7 @@ export const BootError: React.FC<{ message?: string }> = ({ message }) => (
     <p style={{ margin: 0, fontSize: 26, fontWeight: 800 }}>Algo salió mal<span style={{ color: '#EB0C6E' }}>.</span></p>
     <p style={{ margin: 0, fontSize: 15, color: '#B4B4BE', lineHeight: 1.5 }}>No pudimos abrir esta pantalla. Intenta de nuevo; si sigue pasando, avísanos.</p>
     {message && <p style={{ margin: 0, fontSize: 12, color: '#8A8A96', wordBreak: 'break-word' }}>{message}</p>}
-    <button type="button" onClick={() => window.location.replace(import.meta.env.BASE_URL)} style={{ height: 52, borderRadius: 16, border: 'none', background: '#D90B66', color: '#fff', fontSize: 15, fontWeight: 800 }}>Volver a empezar</button>
+    <button type="button" onClick={() => window.location.replace(import.meta.env.BASE_URL)} style={{ height: 52, borderRadius: 16, border: 'none', background: '#EB0C6E', color: '#fff', fontSize: 15, fontWeight: 800 }}>Volver a empezar</button>
   </div>
 );
 

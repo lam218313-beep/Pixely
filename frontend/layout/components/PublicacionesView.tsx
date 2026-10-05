@@ -22,7 +22,7 @@ import {
 
 type Tab = 'proximas' | 'publicadas';
 
-const OWN = '#D90B66';          // the brand's own bar
+const OWN = '#EB0C6E';          // the brand's own bar
 const RIVAL = '#4A4A55';        // competitors, neutral
 const ABOVE = '#E4E4EA';
 const nf = new Intl.NumberFormat('es-PE', { notation: 'compact', maximumFractionDigits: 1 });

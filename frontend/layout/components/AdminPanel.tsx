@@ -49,7 +49,7 @@ const VIEW_TO_TAB: Record<string, api.AdminDestino> = {
 const PASO_META: Record<api.PasoEstado, { color: string; icon: React.ElementType; label: string }> = {
     listo: { color: '#E4E4EA', icon: Check, label: 'Listo' },
     cliente: { color: '#EB0C6E', icon: Eye, label: 'Por aprobar' },
-    cambios: { color: '#FF85C3', icon: MessageSquareWarning, label: 'Cambios pedidos' },
+    cambios: { color: '#EB0C6E', icon: MessageSquareWarning, label: 'Cambios pedidos' },
     falta: { color: '#8A8A96', icon: Circle, label: 'Falta' },
 };
 const PASOS: { key: keyof api.AdminMarca['pasos']; label: string; destino: api.AdminDestino }[] = [

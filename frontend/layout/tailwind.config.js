@@ -60,8 +60,8 @@ export default {
         // picks up the real Pixely color without touching each file.
         pink: {
           DEFAULT: '#EB0C6E',
-          fill: '#D90B66',
-          text: '#FF85C3',
+          fill: '#EB0C6E',
+          text: '#EB0C6E',
           soft: '#FFC2E1',
           50: '#FFF0F7',
           100: '#FFE0F0',

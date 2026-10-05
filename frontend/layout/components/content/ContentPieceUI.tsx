@@ -32,7 +32,7 @@ export type PieceStage = 'produccion' | 'revision' | 'cambios' | 'aprobada' | 'p
 export const STAGE_META: Record<PieceStage, { label: string; color: string; icon: React.ElementType }> = {
     produccion: { label: 'En producción', color: '#8A8A96', icon: Clock },
     revision: { label: 'Por revisar', color: '#EB0C6E', icon: Eye },
-    cambios: { label: 'Cambios pedidos', color: '#FF85C3', icon: MessageSquareWarning },
+    cambios: { label: 'Cambios pedidos', color: '#EB0C6E', icon: MessageSquareWarning },
     aprobada: { label: 'Aprobada', color: '#E4E4EA', icon: Check },
     programada: { label: 'Programada', color: '#E4E4EA', icon: Send },
     publicada: { label: 'Publicada', color: '#E4E4EA', icon: CheckCheck },

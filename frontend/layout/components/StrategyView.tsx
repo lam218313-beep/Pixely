@@ -7,7 +7,7 @@ import * as api from '../services/api';
 
 const ESTADO_META: Record<api.EstrategiaEstado, { label: string; color: string; icon: React.ElementType }> = {
     Pendiente: { label: 'Por revisar', color: '#EB0C6E', icon: Sparkles },
-    'Cambios solicitados': { label: 'Cambios pedidos', color: '#FF85C3', icon: MessageSquareWarning },
+    'Cambios solicitados': { label: 'Cambios pedidos', color: '#EB0C6E', icon: MessageSquareWarning },
     Aprobada: { label: 'Aprobada', color: '#E4E4EA', icon: Check },
 };
 
