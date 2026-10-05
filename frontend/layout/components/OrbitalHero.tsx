@@ -1,10 +1,10 @@
 import React from 'react';
-import pixelyLogo from '../src/assets/logo.png';
 
 // Simple SVG placeholders for logos to avoid external image dependencies
 const PixelyLogo = () => (
   <div className="w-[100px] h-[100px] rounded-full flex items-center justify-center overflow-hidden bg-card shadow-2xl p-2">
-    <img src={pixelyLogo} alt="Pixely Logo" className="w-full h-full object-contain" />
+    {/* The app icon: "p" with the pink dot, same as the mobile app. */}
+    <span className="font-display font-extrabold text-[52px] leading-none text-white" aria-label="Pixely">p<span className="text-pink">.</span></span>
   </div>
 );
 
