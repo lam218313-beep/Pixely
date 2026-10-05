@@ -11,7 +11,8 @@
     "cap:sync": "npm run build && cap sync",
     "cap:android": "npm run cap:sync && cap open android",
     "cap:ios": "npm run cap:sync && cap open ios",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "build:web": "tsc --noEmit && PIXELY_BASE=/m/ vite build --outDir dist-web"
   },
   "dependencies": {
     "@aparajita/capacitor-biometric-auth": "^10.0.0",

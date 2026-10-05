@@ -62,7 +62,7 @@ const router = createBrowserRouter([{ errorElement: <RouteError />, children: [
     ],
   },
   { path: '*', element: <NotFound /> },
-] }]);
+] }], { basename: import.meta.env.BASE_URL.replace(/\/$/, '') || '/' });
 
 // Android back button: go back inside the app; on a tab's main screen, leave the app.
 const ROOTS = new Set(['/', '/plan', '/validar', '/resultados', '/marca', '/entrar']);

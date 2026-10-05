@@ -1,7 +1,7 @@
 import { test, expect } from './fixtures';
 
 test('aprobar una idea pasa a la siguiente pendiente', async ({ page, api }) => {
-  await page.goto('/plan/i1');
+  await page.goto('./plan/i1');
   await expect(page.getByRole('heading', { name: 'Idea con estructura' })).toBeVisible();
   await expect(page.getByText('El origen')).toBeVisible();
   await page.getByRole('button', { name: 'Aprobar idea' }).click();
@@ -10,7 +10,7 @@ test('aprobar una idea pasa a la siguiente pendiente', async ({ page, api }) => 
 });
 
 test('pedir cambios en una idea', async ({ page, api }) => {
-  await page.goto('/plan/i2');
+  await page.goto('./plan/i2');
   await page.getByRole('button', { name: 'Cambios' }).click();
   await page.getByLabel('Cuéntanos qué cambiar').fill('Mejor el viernes');
   await page.getByRole('button', { name: 'Enviar al equipo' }).click();
@@ -19,7 +19,7 @@ test('pedir cambios en una idea', async ({ page, api }) => {
 });
 
 test('aprobar todas las pendientes del mes', async ({ page, api }) => {
-  await page.goto('/plan');
+  await page.goto('./plan');
   await page.getByRole('button', { name: /Aprobar las \d+ pendientes/ }).click();
   await page.getByRole('button', { name: 'Sí, aprobarlas' }).click();
   await expect(page.getByText('Nada pendiente')).toBeVisible();
@@ -27,7 +27,7 @@ test('aprobar todas las pendientes del mes', async ({ page, api }) => {
 });
 
 test('cambiar de mes y ver la mezcla', async ({ page, api: _ }) => {
-  await page.goto('/plan');
+  await page.goto('./plan');
   await page.getByRole('button', { name: 'Mes siguiente' }).click();
   await page.getByRole('button', { name: 'Mes siguiente' }).click();
   await expect(page.getByText(/Sin plan para/)).toBeVisible();

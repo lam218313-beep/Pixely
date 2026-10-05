@@ -10,7 +10,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { ApiError, TokenResponse, api, onSessionExpired, toSession } from './api';
 import { Session, clearSession, loadSession, saveSession } from './session';
 
-const TEAM_MESSAGE = 'Esta app es para clientes de Pixely. El equipo trabaja en Partners desde la computadora.';
+const TEAM_MESSAGE = 'Esta versión es para clientes de Pixely. El equipo trabaja en la versión de escritorio.';
 
 interface AuthValue {
   session: Session | null;

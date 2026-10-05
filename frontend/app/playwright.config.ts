@@ -13,7 +13,8 @@ export default defineConfig({
   retries: process.env.CI ? 1 : 0,
   reporter: process.env.CI ? [['list'], ['html', { open: 'never' }]] : 'list',
   use: {
-    baseURL: `http://localhost:${PORT}`,
+    // Same address as production: the mobile version lives at /m/ (tests use relative paths like './plan').
+    baseURL: `http://localhost:${PORT}/m/`,
     serviceWorkers: 'block',
     locale: 'es-PE',
     timezoneId: 'America/Lima',
@@ -29,8 +30,9 @@ export default defineConfig({
   ],
   webServer: {
     command: `npx vite build --mode e2e --outDir dist-e2e && npx vite preview --outDir dist-e2e --port ${PORT} --strictPort`,
-    url: `http://localhost:${PORT}`,
-    reuseExistingServer: !process.env.CI,
+    env: { PIXELY_BASE: '/m/' }, // both the build and the preview server must know the app lives at /m/
+    url: `http://localhost:${PORT}/m/`,
+    reuseExistingServer: false, // always a fresh build: a leftover server could be serving old code
     timeout: 120_000,
   },
 });

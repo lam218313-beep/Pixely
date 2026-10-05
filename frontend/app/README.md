@@ -1,8 +1,27 @@
 # Pixely — app del cliente
 
-La app móvil del cliente (web móvil hoy; Play Store y App Store después, con Capacitor).
-Vive aparte de `frontend/layout` (Partners de escritorio, que sigue igual para el equipo y para
-los clientes que prefieran la computadora). Las dos usan el mismo backend.
+La **versión móvil de Partners en la web**. Las tiendas (Play Store y App Store, con Capacitor)
+quedan en pausa: el código nativo sigue aquí, pero primero la web.
+
+## Dónde vive
+
+- Se publica **dentro del mismo sitio de Vercel** que Partners de escritorio, en `/m/`.
+  `frontend/layout` la construye junto con el escritorio (`npm run build` → `build-movil.mjs`
+  copia esta app a `dist/m`) y `frontend/layout/vercel.json` sirve sus pantallas.
+- Un **teléfono** que abre la web va solo a `/m/` (script al inicio de `frontend/layout/index.html`).
+  Computadoras y tablets siguen viendo el escritorio.
+- `/?escritorio=1` deja a ese teléfono en la versión de escritorio (lo recuerda); `/?movil=1` lo
+  devuelve a la móvil. La app tiene el enlace "Versión de escritorio" en Entrar y en Tu cuenta.
+- Las dos usan el mismo backend. La móvil es solo para clientes; el equipo usa el escritorio.
+
+## Pruebas automáticas
+
+`npm run test:e2e` construye la app tal como se publica (en `/m/`) y la recorre con Playwright en
+tamaño Android y iPhone, contra un backend de mentira (`e2e/mock-api.ts`): entrar, todas las
+pantallas con datos y vacías, Validar (deslizar, deshacer, cambios), Plan, Marca, PDF y fallas del
+servidor. Una prueba falla si la app lanza un error o muestra "Algo salió mal". GitHub las corre en
+cada cambio (`.github/workflows/web-movil.yml`); si algo falla, el informe con capturas queda en
+los artefactos del run.
 
 ## Cómo está hecha
 
