@@ -1,0 +1,72 @@
+/* Sistema Noche: negros por capas, el rosa solo para lo que hay que hacer. Solo negros, grises y rosa. */
+@import "tailwindcss";
+@import "@fontsource/manrope/latin-400.css";
+@import "@fontsource/manrope/latin-600.css";
+@import "@fontsource/manrope/latin-700.css";
+@import "@fontsource/manrope/latin-800.css";
+@import "@fontsource/unbounded/latin-700.css";
+@import "@fontsource/unbounded/latin-800.css";
+
+@theme {
+  --font-sans: "Manrope", system-ui, sans-serif;
+  --font-display: "Unbounded", "Manrope", system-ui, sans-serif;
+
+  /* Superficies */
+  --color-ink: #0A0A0C;       /* fondo */
+  --color-card: #16161B;      /* tarjeta */
+  --color-raised: #1F1F26;    /* panel, chip neutro */
+  --color-edge: #26262E;      /* borde de tarjeta */
+  --color-line: #33333C;      /* borde de control */
+  --color-mute: #4A4A55;      /* pendiente en barras */
+
+  /* Texto */
+  --color-text: #FFFFFF;
+  --color-text-2: #B4B4BE;
+  --color-text-3: #8A8A96;
+  --color-text-soft: #E4E4EA;
+
+  /* Rosa Pixely */
+  --color-pink: #EB0C6E;       /* acento: puntos, bordes, barras */
+  --color-pink-fill: #D90B66;  /* botones con texto blanco */
+  --color-pink-text: #FF85C3;  /* enlaces y texto rosa sobre negro */
+  --color-pink-soft: #FFC2E1;
+
+  --radius-control: 16px;
+  --radius-card: 24px;
+  --radius-sheet: 32px;
+}
+
+@layer base {
+  html, body, #root { height: 100%; }
+  html { background: var(--color-ink); color-scheme: dark; -webkit-tap-highlight-color: transparent; }
+  body {
+    margin: 0;
+    background: var(--color-ink);
+    color: var(--color-text);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    overscroll-behavior-y: none;
+  }
+  input, textarea, button, select { font: inherit; color: inherit; }
+  /* Campos de 16px como mínimo: iOS no hace zoom al enfocarlos */
+  input, textarea, select { font-size: 16px; }
+  :focus-visible { outline: 2px solid var(--color-pink-text); outline-offset: 2px; }
+}
+
+@utility font-display {
+  font-family: var(--font-display);
+  letter-spacing: -0.04em;
+}
+
+/* Etiqueta en mayúsculas de las secciones */
+@utility eyebrow {
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-text-3);
+}
+
+/* Márgenes seguros del teléfono (notch, barra de gestos) */
+@utility pt-safe { padding-top: max(env(safe-area-inset-top), 16px); }
+@utility pb-safe { padding-bottom: max(env(safe-area-inset-bottom), 16px); }
