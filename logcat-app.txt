@@ -1,0 +1,327 @@
+10-05 15:52:34.048   832   862 V WindowManagerShell: Transition requested: android.os.BinderProxy@7e4b7b TransitionRequestInfo { type = OPEN, triggerTask = TaskInfo{userId=0 taskId=8 displayId=0 isRunning=true baseIntent=Intent { flg=0x10000000 cmp=pe.pixely.app/.MainActivity } baseActivity=ComponentInfo{pe.pixely.app/pe.pixely.app.MainActivity} topActivity=ComponentInfo{pe.pixely.app/pe.pixely.app.MainActivity} origActivity=null realActivity=ComponentInfo{pe.pixely.app/pe.pixely.app.MainActivity} numActivities=1 lastActiveTime=45835 supportsMultiWindow=true resizeMode=1 isResizeable=true minWidth=-1 minHeight=-1 defaultMinSize=220 token=WCT{android.window.IWindowContainerToken$Stub$Proxy@ce7cd98} topActivityType=1 pictureInPictureParams=null shouldDockBigOverlays=false launchIntoPipHostTaskId=-1 lastParentTaskIdBeforePip=-1 displayCutoutSafeInsets=null topActivityInfo=ActivityInfo{ae709f1 pe.pixely.app.MainActivity} launchCookies=[] positionInParent=Point(0, 0) parentTaskId=-1 isFocused=false isVisible=false isVisibleRequested=false isSleeping=false topActivityInSizeCompat=false topActivityEligibleForLetterboxEducation= false topActivityLetterboxed= false isFromDoubleTap= false topActivityLetterboxVerticalPosition= -1 topActivityLetterboxHorizontalPosition= -1 topActivityLetterboxWidth=-1 topActivityLetterboxHeight=-1 locusId=null displayAreaFeatureId=1 cameraCompatControlState=hidden}, remoteTransition = null, displayChange = null }
+10-05 15:52:34.108   519  2591 I ActivityTaskManager: START u0 {flg=0x10000000 cmp=pe.pixely.app/.MainActivity} with LAUNCH_SINGLE_TASK from uid 2000 (BAL_ALLOW_PERMISSION) result code=0
+10-05 15:52:34.327   519  2510 D CoreBackPreview: Window{99b9eda u0 Splash Screen pe.pixely.app}: Setting back callback OnBackInvokedCallbackInfo{mCallback=android.window.IOnBackInvokedCallback$Stub$Proxy@4f71eeb, mPriority=0, mIsAnimationCallback=false}
+10-05 15:52:34.431   519   547 I ActivityManager: Start proc 3089:pe.pixely.app/u0a192 for next-top-activity {pe.pixely.app/pe.pixely.app.MainActivity}
+10-05 15:52:34.483  3089  3089 I pe.pixely.app: Late-enabling -Xcheck:jni
+10-05 15:52:34.507  3089  3089 I pe.pixely.app: Using CollectorTypeCC GC.
+10-05 15:52:34.508  3089  3089 W pe.pixely.app: Unexpected CPU variant for x86: x86_64.
+10-05 15:52:34.508  3089  3089 W pe.pixely.app: Known variants: atom, sandybridge, silvermont, goldmont, goldmont-plus, tremont, kabylake, default
+10-05 15:52:34.537   519   536 V WindowManager: Sent Transition #6 createdAt=10-05 15:52:33.961 via request=TransitionRequestInfo { type = OPEN, triggerTask = TaskInfo{userId=0 taskId=8 displayId=0 isRunning=true baseIntent=Intent { flg=0x10000000 cmp=pe.pixely.app/.MainActivity } baseActivity=ComponentInfo{pe.pixely.app/pe.pixely.app.MainActivity} topActivity=ComponentInfo{pe.pixely.app/pe.pixely.app.MainActivity} origActivity=null realActivity=ComponentInfo{pe.pixely.app/pe.pixely.app.MainActivity} numActivities=1 lastActiveTime=45835 supportsMultiWindow=true resizeMode=1 isResizeable=true minWidth=-1 minHeight=-1 defaultMinSize=220 token=WCT{RemoteToken{7965c9e Task{6dfb15a #8 type=standard A=10192:pe.pixely.app}}} topActivityType=1 pictureInPictureParams=null shouldDockBigOverlays=false launchIntoPipHostTaskId=-1 lastParentTaskIdBeforePip=-1 displayCutoutSafeInsets=null topActivityInfo=ActivityInfo{b71c37f pe.pixely.app.MainActivity} launchCookies=[] positionInParent=Point(0, 0) parentTaskId=-1 isFocused=false isVisible=false isVisibleRequested=false isSleeping=false topActivityInSizeCompat=false topActivityEligibleForLetterboxEducation= false topActivityLetterboxed= false isFromDoubleTap= false topActivityLetterboxVerticalPosition= -1 topActivityLetterboxHorizontalPosition= -1 topActivityLetterboxWidth=-1 topActivityLetterboxHeight=-1 locusId=null displayAreaFeatureId=1 cameraCompatControlState=hidden}, remoteTransition = null, displayChange = null }
+10-05 15:52:34.538   519   536 V WindowManager:     info={id=6 t=OPEN f=0x0 trk=0 r=[0@Point(0, 0)] c=[{WCT{RemoteToken{7965c9e Task{6dfb15a #8 type=standard A=10192:pe.pixely.app}}} m=OPEN f=NONE leash=Surface(name=Task=8)/@0xc8722e1 sb=Rect(0, 0 - 320, 640) eb=Rect(0, 0 - 320, 640) d=0},{WCT{RemoteToken{c3b1f4c Task{31a8468 #1 type=home}}} m=TO_BACK f=SHOW_WALLPAPER leash=Surface(name=Task=1)/@0xac124f7 sb=Rect(0, 0 - 320, 640) eb=Rect(0, 0 - 320, 640) d=0}]}
+10-05 15:52:35.010  3089  3089 W ziparchive: Unable to open '/data/app/~~_ZwSVVm_VoR3PzjX7Y7ViA==/pe.pixely.app-bwvGXhDCnTD-Fw4Elz_u4Q==/base.dm': No such file or directory
+10-05 15:52:35.010  3089  3089 W ziparchive: Unable to open '/data/app/~~_ZwSVVm_VoR3PzjX7Y7ViA==/pe.pixely.app-bwvGXhDCnTD-Fw4Elz_u4Q==/base.dm': No such file or directory
+10-05 15:52:35.504  3089  3089 D nativeloader: Configuring clns-6 for other apk /data/app/~~_ZwSVVm_VoR3PzjX7Y7ViA==/pe.pixely.app-bwvGXhDCnTD-Fw4Elz_u4Q==/base.apk. target_sdk_version=36, uses_libraries=, library_path=/data/app/~~_ZwSVVm_VoR3PzjX7Y7ViA==/pe.pixely.app-bwvGXhDCnTD-Fw4Elz_u4Q==/lib/x86_64, permitted_path=/data:/mnt/expand:/data/user/0/pe.pixely.app
+10-05 15:52:35.538  3089  3089 V GraphicsEnvironment: ANGLE GameManagerService for pe.pixely.app: false
+10-05 15:52:35.538  3089  3089 V GraphicsEnvironment: pe.pixely.app is not listed in per-application setting
+10-05 15:52:36.482  3089  3089 W pe.pixely.app: Accessing hidden method Landroid/view/ViewGroup;->makeOptionalFitsSystemWindows()V (unsupported, reflection, allowed)
+10-05 15:52:36.630  1051  1051 D CarrierSvcBindHelper: onPackageAdded: pe.pixely.app
+10-05 15:52:36.649  1051  1335 D ImsResolver: maybeAddedImsService, packageName: pe.pixely.app
+10-05 15:52:36.701  3089  3089 E pe.pixely.app: Failed to open APK '/data/resource-cache/com.android.systemui-neutral-Qpih.frro': Invalid file
+10-05 15:52:36.701  3089  3089 E pe.pixely.app: Failed to open APK '/data/resource-cache/com.android.systemui-accent-L6Wu.frro': Invalid file
+10-05 15:52:36.701  3089  3089 E pe.pixely.app: Failed to open APK '/data/resource-cache/com.android.systemui-dynamic-fR0W.frro': Invalid file
+10-05 15:52:36.729   834   834 I SafetyLabelChangedBroadcastReceiver: received broadcast packageName: pe.pixely.app, current user: UserHandle{0}, packageChangeEvent: NEW_INSTALL, intent user: UserHandle{0}
+10-05 15:52:36.737  3089  3089 W pe.pixely.app: Entry not found
+10-05 15:52:36.740   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{25e8d76 com.android.cts.priv.ctsshim/10170} BLOCKED
+10-05 15:52:36.740   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{a05f77 com.google.android.youtube/10139} BLOCKED
+10-05 15:52:36.740   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{e6917e4 com.android.internal.display.cutout.emulation.corner/10025} BLOCKED
+10-05 15:52:36.740   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{65ed44d com.android.internal.display.cutout.emulation.double/10048} BLOCKED
+10-05 15:52:36.740   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{b9e0b02 com.google.android.googlequicksearchbox/10132} BLOCKED
+10-05 15:52:36.740   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{f317c13 com.google.android.onetimeinitializer/10126} BLOCKED
+10-05 15:52:36.740   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{591ce50 com.google.android.ext.shared/10100} BLOCKED
+10-05 15:52:36.740   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{dd16849 com.android.internal.systemui.navbar.gestural_wide_back/10007} BLOCKED
+10-05 15:52:36.740   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{165d54e com.android.virtualmachine.res/10183} BLOCKED
+10-05 15:52:36.740   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{7adc66f com.google.android.federatedcompute/10172} BLOCKED
+10-05 15:52:36.740   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{4d7f7c com.android.managedprovisioning.auto_generated_rro_product__/10024} BLOCKED
+10-05 15:52:36.740   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{3bf4005 com.android.carrierconfig.auto_generated_rro_vendor__/10078} BLOCKED
+10-05 15:52:36.740   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{6cdf85a com.android.systemui.emulation.pixel_3_xl/10034} BLOCKED
+10-05 15:52:36.740   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{6fa5a8b com.android.systemui.emulation.pixel_4_xl/10059} BLOCKED
+10-05 15:52:36.740   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{2b11768 com.android.systemui.emulation.pixel_fold/10009} BLOCKED
+10-05 15:52:36.740   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{cf8d781 com.android.simappdialog.auto_generated_rro_product__/10030} BLOCKED
+10-05 15:52:36.740   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{6634026 com.android.htmlviewer/10115} BLOCKED
+10-05 15:52:36.740   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{9321467 com.google.android.health.connect.backuprestore/10179} BLOCKED
+10-05 15:52:36.740   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{b344214 com.android.systemui.auto_generated_rro_product__/10031} BLOCKED
+10-05 15:52:36.740   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{da6abd com.google.android.apps.messaging/10129} BLOCKED
+10-05 15:52:36.740   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{4b338b2 com.google.android.soundpicker/10137} BLOCKED
+10-05 15:52:36.740   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{7419003 com.google.android.marvin.talkbackoverlay/10077} BLOCKED
+10-05 15:52:36.740   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{61d6b80 com.google.android.configupdater/10130} BLOCKED
+10-05 15:52:36.740   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{647f5b9 com.android.internal.emulation.pixel_3a_xl/10044} BLOCKED
+10-05 15:52:36.741   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{f982dfe com.android.internal.emulation.pixel_6_pro/10018} BLOCKED
+10-05 15:52:36.742   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{badbfac com.android.internal.emulation.pixel_7_pro/10004} BLOCKED
+10-05 15:52:36.742   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{4693475 com.android.internal.emulation.pixel_8_pro/10058} BLOCKED
+10-05 15:52:36.742   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{6452c0a com.android.internal.emulation.pixel_3a/10053} BLOCKED
+10-05 15:52:36.742   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{89afc7b com.android.internal.emulation.pixel_4a/10011} BLOCKED
+10-05 15:52:36.742   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{50d2a98 com.android.internal.emulation.pixel_6a/10023} BLOCKED
+10-05 15:52:36.742   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{325a2f1 com.android.internal.emulation.pixel_7a/10033} BLOCKED
+10-05 15:52:36.742   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{611fed6 com.google.android.overlay.googlewebview/10049} BLOCKED
+10-05 15:52:36.742   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{d2e557 com.google.android.hotspot2.osulogin/10190} BLOCKED
+10-05 15:52:36.742   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{3f65844 com.android.simappdialog/10112} BLOCKED
+10-05 15:52:36.742   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{7607d2d com.android.internal.display.cutout.emulation.hole/10073} BLOCKED
+10-05 15:52:36.742   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{8073262 com.android.internal.display.cutout.emulation.tall/10065} BLOCKED
+10-05 15:52:36.742   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{6367ff3 com.android.internal.systemui.navbar.threebutton/10068} BLOCKED
+10-05 15:52:36.742   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{922b4b0 com.android.camera2/10146} BLOCKED
+10-05 15:52:36.742   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{6f4bf29 com.android.systemui.auto_generated_rro_vendor__/10076} BLOCKED
+10-05 15:52:36.742   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{b2a12ae com.google.android.deskclock/10152} BLOCKED
+10-05 15:52:36.742   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{32f284f com.android.internal.systemui.navbar.twobutton/10020} BLOCKED
+10-05 15:52:36.742   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{5766bdc com.google.android.as/10125} BLOCKED
+10-05 15:52:36.742   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{7124e5 com.google.android.gm/10142} BLOCKED
+10-05 15:52:36.742   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{788abba com.android.internal.systemui.navbar.gestural_extra_wide_back/10045} BLOCKED
+10-05 15:52:36.742   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{55ffa6b com.android.systemui.emulation.pixel_3/10015} BLOCKED
+10-05 15:52:36.742   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{1ec69c8 com.android.systemui.emulation.pixel_4/10037} BLOCKED
+10-05 15:52:36.742   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{2942a61 com.android.systemui.emulation.pixel_5/10071} BLOCKED
+10-05 15:52:36.742   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{605c986 com.android.systemui.emulation.pixel_6/10074} BLOCKED
+10-05 15:52:36.742   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{781d247 com.android.systemui.emulation.pixel_7/10072} BLOCKED
+10-05 15:52:36.742   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{a425a74 com.android.systemui.emulation.pixel_8/10070} BLOCKED
+10-05 15:52:36.742   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{f880b9d com.android.nfc.auto_generated_rro_product__/10027} BLOCKED
+10-05 15:52:36.742   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{8e4f812 com.android.printspooler/10104} BLOCKED
+10-05 15:52:36.742   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{cff4be3 com.android.emergency.auto_generated_rro_product__/10041} BLOCKED
+10-05 15:52:36.742   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{664a9e0 com.google.android.connectivity.resources.goldfish.overlay/10079} BLOCKED
+10-05 15:52:36.742   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{7dec499 com.android.dreams.basic/10103} BLOCKED
+10-05 15:52:36.742   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{116835e com.google.android.networkstack.tethering.emulator/10022} BLOCKED
+10-05 15:52:36.742   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{b50c33f com.android.providers.settings.auto_generated_rro_product__/10002} BLOCKED
+10-05 15:52:36.742   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{e9a840c com.google.android.as.oss/10122} BLOCKED
+10-05 15:52:36.742   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{94e1155 com.android.traceur.auto_generated_rro_product__/10005} BLOCKED
+10-05 15:52:36.742   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{c43776a com.google.android.devicelockcontroller/10177} BLOCKED
+10-05 15:52:36.742   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{d18545b com.google.android.dialer/10128} BLOCKED
+10-05 15:52:36.742   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{671d4f8 com.android.internal.emulation.pixel_3/10046} BLOCKED
+10-05 15:52:36.742   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{d2b6dd1 com.android.internal.emulation.pixel_4/10060} BLOCKED
+10-05 15:52:36.742   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{799a036 com.android.internal.emulation.pixel_5/10012} BLOCKED
+10-05 15:52:36.742   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{afddb37 com.android.internal.emulation.pixel_6/10038} BLOCKED
+10-05 15:52:36.742   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{a6b48a4 com.android.internal.emulation.pixel_7/10067} BLOCKED
+10-05 15:52:36.742   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{2a8160d com.android.internal.emulation.pixel_8/10039} BLOCKED
+10-05 15:52:36.742   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{35789c2 com.google.android.captiveportallogin/10113} BLOCKED
+10-05 15:52:36.742   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{64af3d3 com.android.musicfx/10088} BLOCKED
+10-05 15:52:36.742   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{c664b10 com.google.android.apps.docs/10153} BLOCKED
+10-05 15:52:36.742   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{c5ea0f3 com.google.android.apps.maps/10155} BLOCKED
+10-05 15:52:36.742   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{cd0609 com.google.android.modulemetadata/10147} BLOCKED
+10-05 15:52:36.742   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{318800e com.google.android.markup/10135} BLOCKED
+10-05 15:52:36.742   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{146fa2f com.android.providers.settings.auto_generated_rro_vendor__/10080} BLOCKED
+10-05 15:52:36.742   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{acd083c com.google.android.rkpdapp/10180} BLOCKED
+10-05 15:52:36.742   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{c36f9c5 com.google.android.contacts/10154} BLOCKED
+10-05 15:52:36.742   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{6e08f1a com.android.server.telecom.auto_generated_rro_product__/10032} BLOCKED
+10-05 15:52:36.742   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{1530a4b com.google.android.overlay.googleconfig/10055} BLOCKED
+10-05 15:52:36.742   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{e806c28 com.android.chrome/10150} BLOCKED
+10-05 15:52:36.742   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{c926d41 com.android.bips.auto_generated_rro_product__/10035} BLOCKED
+10-05 15:52:36.742   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{8e882e6 com.google.android.apps.customization.pixel/10143} BLOCKED
+10-05 15:52:36.742   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{6c60027 com.google.android.tag/10082} BLOCKED
+10-05 15:52:36.742   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{b8422d4 com.google.android.overlay.permissioncontroller/10003} BLOCKED
+10-05 15:52:36.742   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{dd79c7d com.google.android.partnersetup/10124} BLOCKED
+10-05 15:52:36.742   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{c29e772 com.google.android.apps.wallpaper.nexus/10141} BLOCKED
+10-05 15:52:36.742   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{68877c3 com.google.android.apps.nexuslauncher/10169} BLOCKED
+10-05 15:52:36.742   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{6a9840 com.google.android.nearby.halfsheet/10187} BLOCKED
+10-05 15:52:36.742   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{9468379 com.android.theme.font.notoserifsource/10066} BLOCKED
+10-05 15:52:36.743   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{7ab08be com.google.android.safetycenter.resources/10184} BLOCKED
+10-05 15:52:36.743   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{170cd1f com.android.internal.display.cutout.emulation.waterfall/10040} BLOCKED
+10-05 15:52:36.743   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{80f86c com.android.internal.systemui.navbar.transparent/10029} BLOCKED
+10-05 15:52:36.743   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{222de35 com.google.android.connectivity.resources/10186} BLOCKED
+10-05 15:52:36.743   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{a8af2ca com.android.providers.contacts.auto_generated_rro_product__/10019} BLOCKED
+10-05 15:52:36.743   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{55f1c3b com.google.android.feedback/10162} BLOCKED
+10-05 15:52:36.743   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{4bb2f58 com.google.android.printservice.recommendation/10110} BLOCKED
+10-05 15:52:36.743   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{23028b1 com.google.android.apps.photos/10140} BLOCKED
+10-05 15:52:36.743   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{d0af657 com.google.android.calendar/10145} BLOCKED
+10-05 15:52:36.743   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{4cd7196 com.google.android.documentsui/10098} BLOCKED
+10-05 15:52:36.743   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{4194117 com.android.systemui.emulation.pixel_3a_xl/10021} BLOCKED
+10-05 15:52:36.743   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{f5fe904 com.android.systemui.emulation.pixel_6_pro/10063} BLOCKED
+10-05 15:52:36.743   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{1ed9eed com.android.systemui.emulation.pixel_7_pro/10054} BLOCKED
+10-05 15:52:36.743   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{e71122 com.android.systemui.emulation.pixel_8_pro/10001} BLOCKED
+10-05 15:52:36.743   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{be6d7b3 com.google.mainline.telemetry/10151} BLOCKED
+10-05 15:52:36.743   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{e749170 com.android.carrierconfig.auto_generated_rro_product__/10064} BLOCKED
+10-05 15:52:36.743   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{8923ce9 com.android.providers.partnerbookmarks/10101} BLOCKED
+10-05 15:52:36.743   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{a091d6e com.android.wallpaper.livepicker/10089} BLOCKED
+10-05 15:52:36.743   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{ded3c0f com.android.providers.telephony.auto_generated_rro_product__/10062} BLOCKED
+10-05 15:52:36.743   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{8e9549c com.android.phone.auto_generated_rro_vendor__/10081} BLOCKED
+10-05 15:52:36.743   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{fc8bea5 com.google.mainline.adservices/10136} BLOCKED
+10-05 15:52:36.743   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{b2da27a com.android.imsserviceentitlement/10117} BLOCKED
+10-05 15:52:36.743   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{e4b8a2b com.google.android.healthconnect.controller/10178} BLOCKED
+10-05 15:52:36.743   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{2851e88 com.android.internal.emulation.pixel_2_xl/10016} BLOCKED
+10-05 15:52:36.743   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{72ba021 com.android.internal.emulation.pixel_3_xl/10056} BLOCKED
+10-05 15:52:36.743   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{2e36c46 com.android.internal.emulation.pixel_4_xl/10047} BLOCKED
+10-05 15:52:36.743   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{9f69e07 com.android.internal.emulation.pixel_fold/10006} BLOCKED
+10-05 15:52:36.743   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{2919b34 com.android.bookmarkprovider/10114} BLOCKED
+10-05 15:52:36.743   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{3811d5d com.google.android.overlay.pixelconfigcommon/10014} BLOCKED
+10-05 15:52:36.743   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{7da06d2 com.android.systemui.accessibility.accessibilitymenu.auto_generated_rro_product__/10050} BLOCKED
+10-05 15:52:36.743   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{e5513a3 com.android.systemui.emulation.pixel_3a/10013} BLOCKED
+10-05 15:52:36.743   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{94736a0 com.android.systemui.emulation.pixel_4a/10000} BLOCKED
+10-05 15:52:36.743   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{5b73259 com.android.systemui.emulation.pixel_6a/10042} BLOCKED
+10-05 15:52:36.743   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{a2dbe1e com.android.systemui.emulation.pixel_7a/10017} BLOCKED
+10-05 15:52:36.743   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{e9b46ff com.google.android.settings.intelligence/10118} BLOCKED
+10-05 15:52:36.743   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{f51d536 com.google.android.projection.gearhead/10123} BLOCKED
+10-05 15:52:36.743   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{ff91ccc com.google.android.uwb.resources/10176} BLOCKED
+10-05 15:52:36.743   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{2926c37 com.android.cts.ctsshim/10171} BLOCKED
+10-05 15:52:36.743   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{59f9b15 com.google.android.wifi.resources/10188} BLOCKED
+10-05 15:52:36.743   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{d739e2a com.google.android.wifi.dialog/10189} BLOCKED
+10-05 15:52:36.743   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{2e7541b com.google.android.apps.wallpaper/10161} BLOCKED
+10-05 15:52:36.743   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{139b8 com.google.android.odad/10121} BLOCKED
+10-05 15:52:36.743   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{c6bd391 com.android.settings.auto_generated_rro_product__/10028} BLOCKED
+10-05 15:52:36.743   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{78572f6 com.android.internal.systemui.navbar.gestural/10051} BLOCKED
+10-05 15:52:36.743   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{d1d16f7 com.google.android.apps.youtube.music/10156} BLOCKED
+10-05 15:52:36.743   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{c6c3964 com.android.bluetoothmidiservice/10107} BLOCKED
+10-05 15:52:36.743   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{ae917cd com.android.storagemanager.auto_generated_rro_product__/10026} BLOCKED
+10-05 15:52:36.743   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{dc882 com.google.android.cellbroadcastreceiver/10191} BLOCKED
+10-05 15:52:36.743   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{f822b93 com.android.phone.auto_generated_rro_product__/10061} BLOCKED
+10-05 15:52:36.743   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{a6587d0 android.auto_generated_rro_product__/10069} BLOCKED
+10-05 15:52:36.743   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{77c63c9 com.android.internal.systemui.navbar.gestural_narrow_back/10052} BLOCKED
+10-05 15:52:36.743   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{cd3eace com.google.android.inputmethod.latin/10144} BLOCKED
+10-05 15:52:36.743   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{119edef android.auto_generated_rro_vendor__/10075} BLOCKED
+10-05 15:52:36.743   519   594 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{46350fc com.google.android.apps.restore/10120} BLOCKED
+10-05 15:52:36.783  3089  3089 W pe.pixely.app: Accessing hidden method Landroid/os/Trace;->isTagEnabled(J)Z (unsupported, reflection, allowed)
+10-05 15:52:36.783  3089  3089 W pe.pixely.app: Accessing hidden method Landroid/os/Trace;->traceBegin(JLjava/lang/String;)V (unsupported, reflection, allowed)
+10-05 15:52:36.783  3089  3089 W pe.pixely.app: Accessing hidden method Landroid/os/Trace;->traceEnd(J)V (unsupported, reflection, allowed)
+10-05 15:52:36.783  3089  3089 W pe.pixely.app: Accessing hidden method Landroid/os/Trace;->asyncTraceBegin(JLjava/lang/String;I)V (unsupported, reflection, allowed)
+10-05 15:52:36.783  3089  3089 W pe.pixely.app: Accessing hidden method Landroid/os/Trace;->asyncTraceEnd(JLjava/lang/String;I)V (unsupported, reflection, allowed)
+10-05 15:52:36.890   519   800 I SdkSandboxManager: No SDKs used. Skipping SDK data reconcilation for CallingInfo{mUid=10192, mPackageName='pe.pixely.app, mAppProcessToken='null'}
+10-05 15:52:36.901  3089  3314 I cr_VariationsUtils: Failed reading seed file "/data/user/0/pe.pixely.app/app_webview/variations_seed_new"
+10-05 15:52:36.901  3089  3314 I cr_VariationsUtils: Failed reading seed file "/data/user/0/pe.pixely.app/app_webview/variations_seed"
+10-05 15:52:37.406  3089  3348 W chromium: [WARNING:dns_config_service_android.cc(115)] Failed to read DnsConfig.
+10-05 15:52:37.531  3089  3348 E chromium: [ERROR:simple_file_enumerator.cc(21)] opendir /data/user/0/pe.pixely.app/cache/WebView/Default/HTTP Cache/Code Cache/js: No such file or directory (2)
+10-05 15:52:37.531  3089  3348 E chromium: [ERROR:simple_index_file.cc(614)] Could not reconstruct index from disk
+10-05 15:52:37.636  3089  3089 D Capacitor: Starting BridgeActivity
+10-05 15:52:37.700  3089  3089 D Capacitor: Registering plugin instance: CapacitorCookies
+10-05 15:52:37.710  3089  3089 D Capacitor: Registering plugin instance: WebView
+10-05 15:52:37.712  3089  3089 D Capacitor: Registering plugin instance: CapacitorHttp
+10-05 15:52:37.721  3089  3089 D Capacitor: Registering plugin instance: SystemBars
+10-05 15:52:37.727  3089  3089 D Capacitor: Registering plugin instance: BiometricAuthNative
+10-05 15:52:37.728  3089  3089 D Capacitor: Registering plugin instance: SecureStorage
+10-05 15:52:37.737  3089  3089 D Capacitor: Registering plugin instance: App
+10-05 15:52:37.738  3089  3089 D Capacitor: Registering plugin instance: Filesystem
+10-05 15:52:37.754  3089  3089 D Capacitor: Registering plugin instance: Share
+10-05 15:52:37.832  3089  3089 D Capacitor: Registering plugin instance: SplashScreen
+10-05 15:52:37.836  3089  3089 D Capacitor: Registering plugin instance: StatusBar
+10-05 15:52:37.841   519   547 I ActivityManager: Start proc 3385:com.google.android.webview:sandboxed_process0:org.chromium.content.app.SandboxedProcessService0:0/u0ai9000 for  {pe.pixely.app/org.chromium.content.app.SandboxedProcessService0:0}
+10-05 15:52:37.903   519   547 I ActivityManager: Start proc 3412:com.google.android.webview:webview_apk/u0a134 for service {com.google.android.webview/org.chromium.android_webview.nonembedded.AwComponentUpdateService}
+10-05 15:52:37.930  3385  3385 I cr_WebViewApkApp: Launched version=113.0.5672.136 minSdkVersion=29 isBundle=false processName=com.google.android.webview:sandboxed_process0:org.chromium.content.app.SandboxedProcessService0:0
+10-05 15:52:38.065  3089  3089 V Capacitor/StatusBarPlugin: Notifying listeners for event statusBarOverlayChanged
+10-05 15:52:38.066  3089  3089 D Capacitor/StatusBarPlugin: No listeners found for event statusBarOverlayChanged
+10-05 15:52:38.068  3089  3089 V Capacitor/StatusBarPlugin: Notifying listeners for event statusBarOverlayChanged
+10-05 15:52:38.068  3089  3089 D Capacitor/StatusBarPlugin: No listeners found for event statusBarOverlayChanged
+10-05 15:52:38.103  3089  3089 W Capacitor: Unable to read file at path public/plugins
+10-05 15:52:38.107  3089  3089 D Capacitor: Loading app at https://localhost
+10-05 15:52:38.186  3089  3089 D Capacitor: App started
+10-05 15:52:38.198  3089  3089 D Capacitor/AppPlugin: Firing change: true
+10-05 15:52:38.198  3089  3089 V Capacitor/AppPlugin: Notifying listeners for event appStateChange
+10-05 15:52:38.198  3089  3089 D Capacitor/AppPlugin: No listeners found for event appStateChange
+10-05 15:52:38.199  3089  3089 D Capacitor: App resumed
+10-05 15:52:38.256  3089  3349 D Capacitor: Handling local request: https://localhost/
+10-05 15:52:38.305   519  2287 D CoreBackPreview: Window{7876e8d u0 pe.pixely.app/pe.pixely.app.MainActivity}: Setting back callback OnBackInvokedCallbackInfo{mCallback=android.window.IOnBackInvokedCallback$Stub$Proxy@8df6433, mPriority=0, mIsAnimationCallback=false}
+10-05 15:52:38.693  3089  3089 V Capacitor/AppPlugin: Notifying listeners for event pause
+10-05 15:52:38.694  3089  3089 D Capacitor/AppPlugin: No listeners found for event pause
+10-05 15:52:38.694  3089  3089 D Capacitor: App paused
+10-05 15:52:38.696  3089  3089 D Capacitor/AppPlugin: Firing change: false
+10-05 15:52:38.701  3089  3089 V Capacitor/AppPlugin: Notifying listeners for event appStateChange
+10-05 15:52:38.701  3089  3089 D Capacitor/AppPlugin: No listeners found for event appStateChange
+10-05 15:52:38.701  3089  3089 D Capacitor: App stopped
+10-05 15:52:38.702  3089  3089 D Capacitor: Saving instance state!
+10-05 15:52:38.724  3089  3089 D Capacitor: App destroyed
+10-05 15:52:38.845   519   909 D CoreBackPreview: Window{7876e8d u0 pe.pixely.app/pe.pixely.app.MainActivity}: Setting back callback null
+10-05 15:52:38.946   519  2589 W InputManager-JNI: Input channel object '7876e8d pe.pixely.app/pe.pixely.app.MainActivity (client)' was disposed without first being removed with the input manager!
+10-05 15:52:39.176  3089  3089 D Capacitor: Starting BridgeActivity
+10-05 15:52:39.180  3089  3089 D Capacitor: Registering plugin instance: CapacitorCookies
+10-05 15:52:39.182  3089  3089 D Capacitor: Registering plugin instance: WebView
+10-05 15:52:39.183  3089  3089 D Capacitor: Registering plugin instance: CapacitorHttp
+10-05 15:52:39.185  3089  3089 D Capacitor: Registering plugin instance: SystemBars
+10-05 15:52:39.186  3089  3089 D Capacitor: Registering plugin instance: BiometricAuthNative
+10-05 15:52:39.188  3089  3089 D Capacitor: Registering plugin instance: SecureStorage
+10-05 15:52:39.189  3089  3089 D Capacitor: Registering plugin instance: App
+10-05 15:52:39.190  3089  3089 D Capacitor: Registering plugin instance: Filesystem
+10-05 15:52:39.191  3089  3089 D Capacitor: Registering plugin instance: Share
+10-05 15:52:39.204  3089  3089 D Capacitor: Registering plugin instance: SplashScreen
+10-05 15:52:39.206  3089  3089 D Capacitor: Registering plugin instance: StatusBar
+10-05 15:52:39.229  3089  3089 V Capacitor/StatusBarPlugin: Notifying listeners for event statusBarOverlayChanged
+10-05 15:52:39.229  3089  3089 D Capacitor/StatusBarPlugin: No listeners found for event statusBarOverlayChanged
+10-05 15:52:39.234  3089  3089 V Capacitor/StatusBarPlugin: Notifying listeners for event statusBarOverlayChanged
+10-05 15:52:39.234  3089  3089 D Capacitor/StatusBarPlugin: No listeners found for event statusBarOverlayChanged
+10-05 15:52:39.275  3089  3089 W Capacitor: Unable to read file at path public/plugins
+10-05 15:52:39.276  3089  3089 D Capacitor: Loading app at https://localhost
+10-05 15:52:39.285  3089  3089 D Capacitor: App started
+10-05 15:52:39.287  3089  3089 D Capacitor/AppPlugin: Firing change: true
+10-05 15:52:39.287  3089  3089 V Capacitor/AppPlugin: Notifying listeners for event appStateChange
+10-05 15:52:39.287  3089  3089 D Capacitor/AppPlugin: No listeners found for event appStateChange
+10-05 15:52:39.287  3089  3089 D Capacitor: App resumed
+10-05 15:52:39.288  3089  3349 D Capacitor: Handling local request: https://localhost/
+10-05 15:52:39.361   519  1945 D CoreBackPreview: Window{c3c6708 u0 pe.pixely.app/pe.pixely.app.MainActivity}: Setting back callback OnBackInvokedCallbackInfo{mCallback=android.window.IOnBackInvokedCallback$Stub$Proxy@7295e28, mPriority=0, mIsAnimationCallback=false}
+10-05 15:52:39.404  3089  3358 D Capacitor: Handling local request: https://localhost/assets/index-z-vYkvJU.js
+10-05 15:52:39.427  3089  3089 W cr_AwContents: 	at org.chromium.android_webview.AwContents.m(chromium-TrichromeWebViewGoogle6432.apk-stable-567263637:10)
+10-05 15:52:39.427  3089  3089 W cr_AwContents: 	at org.chromium.android_webview.AwContents.h(chromium-TrichromeWebViewGoogle6432.apk-stable-567263637:2)
+10-05 15:52:39.427  3089  3089 W cr_AwContents: 	at com.android.webview.chromium.WebViewChromium.evaluateJavaScript(chromium-TrichromeWebViewGoogle6432.apk-stable-567263637:37)
+10-05 15:52:39.427  3089  3089 W cr_AwContents: 	at com.getcapacitor.plugin.SystemBars.lambda$injectSafeAreaCSS$5(SystemBars.java:278)
+10-05 15:52:39.427  3089  3089 W cr_AwContents: 	at com.getcapacitor.plugin.SystemBars.$r8$lambda$TNHKhinwCcf5MkP4ahZdrUqtU1k(Unknown Source:0)
+10-05 15:52:39.427  3089  3089 W cr_AwContents: 	at com.getcapacitor.plugin.SystemBars$$ExternalSyntheticLambda2.run(D8$$SyntheticClass:0)
+10-05 15:52:39.429  3089  3089 W cr_AwContents: 	at org.chromium.android_webview.AwContents.m(chromium-TrichromeWebViewGoogle6432.apk-stable-567263637:10)
+10-05 15:52:39.429  3089  3089 W cr_AwContents: 	at org.chromium.android_webview.AwContents.h(chromium-TrichromeWebViewGoogle6432.apk-stable-567263637:2)
+10-05 15:52:39.429  3089  3089 W cr_AwContents: 	at com.android.webview.chromium.WebViewChromium.evaluateJavaScript(chromium-TrichromeWebViewGoogle6432.apk-stable-567263637:37)
+10-05 15:52:39.429  3089  3089 W cr_AwContents: 	at com.getcapacitor.cordova.MockCordovaWebViewImpl.lambda$eval$0(MockCordovaWebViewImpl.java:189)
+10-05 15:52:39.429  3089  3089 W cr_AwContents: 	at com.getcapacitor.cordova.MockCordovaWebViewImpl.$r8$lambda$4KdV8CYlWQxu6zbahMKlKsvDFpM(Unknown Source:0)
+10-05 15:52:39.429  3089  3089 W cr_AwContents: 	at com.getcapacitor.cordova.MockCordovaWebViewImpl$$ExternalSyntheticLambda1.run(D8$$SyntheticClass:0)
+10-05 15:52:39.482  3089  3377 D Capacitor: Handling local request: https://localhost/assets/index-ByJKtxvZ.css
+10-05 15:52:39.504  3089  3089 E Capacitor/Console: File:  - Line 6 - Msg: Error injecting safe area CSS: TypeError: Cannot read properties of null (reading 'style')
+10-05 15:52:39.505  3089  3089 E Capacitor/Console: File:  - Line 6 - Msg: Error injecting safe area CSS: TypeError: Cannot read properties of null (reading 'style')
+10-05 15:52:39.506  3089  3089 E Capacitor/Console: File:  - Line 6 - Msg: Error injecting safe area CSS: TypeError: Cannot read properties of null (reading 'style')
+10-05 15:52:39.827  3412  3562 W cr_AWNetworkFetcherTask: 	at org.chromium.android_webview.nonembedded.NetworkFetcherTask.download(chromium-TrichromeWebViewGoogle6432.apk-stable-567263637:48)
+10-05 15:52:40.023  3089  3349 D Capacitor: Handling local request: https://localhost/assets/native-CiLB-VKw.js
+10-05 15:52:40.057  3089  3349 D Capacitor: Handling local request: https://localhost/assets/base-C9yklNrs.js
+10-05 15:52:40.065  3089  3349 D Capacitor: Handling local request: https://localhost/assets/esm-BI3ABBlE.js
+10-05 15:52:40.251  3089  3349 D Capacitor: Handling local request: https://localhost/favicon-64.png
+10-05 15:52:40.272  3089  3089 I Capacitor/Console: File:  - Line 349 - Msg: [object Object]
+10-05 15:52:40.277  3089  3089 V Capacitor/Plugin: To native (Capacitor plugin): callbackId: 67021355, pluginId: SplashScreen, methodName: hide
+10-05 15:52:40.277  3089  3089 V Capacitor: callback: 67021355, pluginId: SplashScreen, methodName: hide, methodData: {}
+10-05 15:52:40.281  3089  3089 I Capacitor/Console: File:  - Line 349 - Msg: [object Object]
+10-05 15:52:40.283  3089  3089 V Capacitor/Plugin: To native (Capacitor plugin): callbackId: 67021356, pluginId: SecureStorage, methodName: internalGetItem
+10-05 15:52:40.286  3089  3089 V Capacitor: callback: 67021356, pluginId: SecureStorage, methodName: internalGetItem, methodData: {"prefixedKey":"capacitor-storage_pixely_app_session","sync":false}
+10-05 15:52:40.288  3089  3089 I Capacitor/Console: File:  - Line 333 - Msg: undefined
+10-05 15:52:40.291  3089  3349 D Capacitor: Handling local request: https://localhost/assets/esm-BnI4Za3V.js
+10-05 15:52:40.302  3089  3089 I Capacitor/Console: File:  - Line 333 - Msg: {"data":null}
+10-05 15:52:40.303  3089  3089 I Capacitor/Console: File:  - Line 349 - Msg: [object Object]
+10-05 15:52:40.303  3089  3089 V Capacitor/Plugin: To native (Capacitor plugin): callbackId: 67021357, pluginId: SecureStorage, methodName: internalGetItem
+10-05 15:52:40.303  3089  3089 V Capacitor: callback: 67021357, pluginId: SecureStorage, methodName: internalGetItem, methodData: {"prefixedKey":"capacitor-storage_pixely_app_biometria","sync":false}
+10-05 15:52:40.315  3089  3089 I Capacitor/Console: File:  - Line 333 - Msg: {"data":null}
+10-05 15:52:40.331   519   909 I WindowManager: finishDrawing of relaunch: Window{c3c6708 u0 pe.pixely.app/pe.pixely.app.MainActivity} 3874ms
+10-05 15:52:40.335   519   536 W ziparchive: Unable to open '/data/app/~~_ZwSVVm_VoR3PzjX7Y7ViA==/pe.pixely.app-bwvGXhDCnTD-Fw4Elz_u4Q==/base.dm': No such file or directory
+10-05 15:52:40.337   519   536 I ActivityTaskManager: Displayed pe.pixely.app/.MainActivity for user 0: +6s489ms
+10-05 15:52:40.366  3089  3351 D Capacitor: Handling local request: https://localhost/favicon-64.png
+10-05 15:52:40.402  3089  3089 I Capacitor/Console: File:  - Line 349 - Msg: [object Object]
+10-05 15:52:40.403  3089  3089 V Capacitor/Plugin: To native (Capacitor plugin): callbackId: 67021358, pluginId: StatusBar, methodName: setStyle
+10-05 15:52:40.403  3089  3089 V Capacitor: callback: 67021358, pluginId: StatusBar, methodName: setStyle, methodData: {"style":"DARK"}
+10-05 15:52:40.438   519  1945 W InputManager-JNI: Input channel object '99b9eda Splash Screen pe.pixely.app (client)' was disposed without first being removed with the input manager!
+10-05 15:52:40.506  3089  3353 D Capacitor: Handling local request: https://localhost/assets/unbounded-latin-800-normal-CN2Hxyoo.woff2
+10-05 15:52:40.507  3089  3353 D Capacitor: Handling local request: https://localhost/assets/manrope-latin-800-normal-BfWYOv1c.woff2
+10-05 15:52:40.511  3089  3377 D Capacitor: Handling local request: https://localhost/assets/unbounded-latin-700-normal-CaoNriVp.woff2
+10-05 15:52:40.512  3089  3358 D Capacitor: Handling local request: https://localhost/assets/manrope-latin-700-normal-BZp_XxE4.woff2
+10-05 15:52:40.513  3089  3351 D Capacitor: Handling local request: https://localhost/assets/manrope-latin-400-normal-PaqtzbVb.woff2
+10-05 15:52:40.569  1051  1051 D CarrierSvcBindHelper: onPackageModified: pe.pixely.app
+10-05 15:52:40.570   519   594 I ImeTracker: pe.pixely.app:bdb50c11: onRequestHide at ORIGIN_SERVER_HIDE_INPUT reason HIDE_UNSPECIFIED_WINDOW
+10-05 15:52:40.570   519   594 I ImeTracker: pe.pixely.app:bdb50c11: onCancelled at PHASE_SERVER_SHOULD_HIDE
+10-05 15:52:40.572  3089  3089 I Capacitor/Console: File:  - Line 333 - Msg: undefined
+10-05 15:52:40.579  3089  3089 I Capacitor/Console: File:  - Line 349 - Msg: [object Object]
+10-05 15:52:40.594  3089  3089 V Capacitor/Plugin: To native (Capacitor plugin): callbackId: 67021359, pluginId: StatusBar, methodName: setBackgroundColor
+10-05 15:52:40.594  3089  3089 V Capacitor: callback: 67021359, pluginId: StatusBar, methodName: setBackgroundColor, methodData: {"color":"#0A0A0C"}
+10-05 15:52:40.643  1477  1477 I GoogleInputMethodService: GoogleInputMethodService.onStartInput():1877 onStartInput(EditorInfo{inputType=0x0(NULL) imeOptions=0x12000000 privateImeOptions=null actionName=UNSPECIFIED actionLabel=null actionId=0 initialSelStart=-1 initialSelEnd=-1 initialCapsMode=0x0 hintText=null label=null packageName=pe.pixely.app fieldId=0 fieldName=null extras=null}, false)
+10-05 15:52:40.786  3089  3349 D Capacitor: Handling local request: https://localhost/assets/esm-ClZiTbuh.js
+10-05 15:52:40.914  1051  1335 D ImsResolver: maybeAddedImsService, packageName: pe.pixely.app
+10-05 15:52:41.382   519   573 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{b9e0b02 com.google.android.googlequicksearchbox/10132} BLOCKED
+10-05 15:52:41.383   519   573 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{57a5cd8 com.google.android.gm/10142} BLOCKED
+10-05 15:52:41.383   519   573 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{d18545b com.google.android.dialer/10128} BLOCKED
+10-05 15:52:41.383   519   573 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{c36f9c5 com.google.android.contacts/10154} BLOCKED
+10-05 15:52:41.383   519   573 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{4738831 com.google.android.apps.youtube.music/10156} BLOCKED
+10-05 15:52:43.554  3089  3089 I Capacitor/Console: File:  - Line 333 - Msg: undefined
+10-05 15:52:43.578  3089  3089 I Capacitor/Console: File:  - Line 349 - Msg: [object Object]
+10-05 15:52:43.580  3089  3089 V Capacitor/Plugin: To native (Capacitor plugin): callbackId: 67021360, pluginId: App, methodName: addListener
+10-05 15:52:43.580  3089  3089 V Capacitor: callback: 67021360, pluginId: App, methodName: addListener, methodData: {"eventName":"backButton"}
+10-05 15:52:43.847  3089  3730 D ProfileInstaller: Installing profile for pe.pixely.app
+10-05 15:52:44.204  1568  1568 I AiAiEcho: AppFetcherImplV2 updateApps package:[pe.pixely.app], userId:[0], reason:[package is added.].
+10-05 15:52:44.205  1568  1568 I AiAiEcho: AppFetcherImpl onPackageChanged pe.pixely.app.
+10-05 15:52:44.206  1568  2478 I AiAiEcho: AppIndexer Package:[pe.pixely.app] UserProfile:[0] Enabled:[true].
+10-05 15:52:44.206  1568  2478 I AiAiEcho: AppFetcherImplV2 updateApps package:[pe.pixely.app], userId:[0], reason:[package is updated.].
+10-05 15:52:46.646   519  2510 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{dd447cc com.google.android.gm/10142} BLOCKED
+10-05 15:52:49.163   519  1558 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{eb75869 com.google.android.settings.intelligence/10118} BLOCKED
+10-05 15:52:49.164   519  2328 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{b36d2ee com.google.android.settings.intelligence/10118} BLOCKED
+10-05 15:52:51.547   519   573 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{627fa33 com.google.android.googlequicksearchbox/10132} BLOCKED
+10-05 15:52:51.547   519   573 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{3b341f0 com.android.camera2/10146} BLOCKED
+10-05 15:52:51.548   519   573 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{10a6369 com.google.android.devicelockcontroller/10177} BLOCKED
+10-05 15:52:51.548   519   573 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{7ec81ee com.google.android.rkpdapp/10180} BLOCKED
+10-05 15:52:51.549   519   573 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{b5e068f com.google.android.settings.intelligence/10118} BLOCKED
+10-05 15:52:51.549   519   573 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{899197d com.google.android.projection.gearhead/10123} BLOCKED
+10-05 15:52:52.800  1501  2920 I BlockstoreStorage: Clearing Blockstore Data for package pe.pixely.app [CONTEXT service_id=258 ]
+10-05 15:52:53.109  1409  3098 I FontLog : Package pe.pixely.app has no metadata [CONTEXT service_id=132 ]
+10-05 15:53:02.125   519   573 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{e75eafa com.google.android.youtube/10139} BLOCKED
+10-05 15:53:02.125   519   573 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{d2968ab com.google.android.apps.messaging/10129} BLOCKED
+10-05 15:53:02.125   519   573 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{7c7db08 com.google.android.as/10125} BLOCKED
+10-05 15:53:02.125   519   573 I AppsFilter: interaction: PackageSetting{5e6c811 pe.pixely.app/10192} -> PackageSetting{374dda2 com.google.android.apps.maps/10155} BLOCKED
