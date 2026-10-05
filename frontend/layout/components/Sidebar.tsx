@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { LayoutGrid, Home, Power, Shield, ClipboardList, Palette, CalendarRange, CheckCircle2, Radar, Send } from 'lucide-react';
-import pixelyLogo from '../src/assets/logo.png';
 import { useAuth } from '../contexts/AuthContext';
 import * as api from '../services/api';
 import { pieceStage } from './content/ContentPieceUI';
@@ -43,9 +42,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isExpanded, setIsExpanded, act
 
             {/* Logo Area */}
             <div className="h-28 flex items-center justify-center relative shrink-0 w-full">
-                <div className="w-24 h-24 rounded-2xl flex items-center justify-center shrink-0 transition-transform duration-300 ease-out group-hover:scale-105 overflow-hidden">
-                    <img src={pixelyLogo} alt="Pixely Logo" className="w-full h-full object-contain" />
-                </div>
+                <span className="font-display font-extrabold text-[28px] leading-none text-white" aria-label="Pixely">pixely<span className="text-pink">.</span></span>
             </div>
 
             {/* Navigation: grouped by what each page is for, not a flat list of steps */}
