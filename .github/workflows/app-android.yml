@@ -1,0 +1,46 @@
+# Builds an installable test APK of the client app (frontend/app) on every change.
+# Download it from the run's "Artifacts" (pixely-app-debug) and open it on an Android phone.
+# It is a debug build for testing: the Play Store version is signed separately (see frontend/app/README.md).
+name: App Android (APK de prueba)
+
+on:
+  push:
+    paths:
+      - 'frontend/app/**'
+      - '.github/workflows/app-android.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: app-android-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: frontend/app
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/app/package-lock.json
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - uses: gradle/actions/setup-gradle@v4
+      - run: npm ci
+      - run: npm run build
+      - run: npx cap sync android
+      - name: Build debug APK
+        working-directory: frontend/app/android
+        run: ./gradlew assembleDebug --no-daemon
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pixely-app-debug
+          path: frontend/app/android/app/build/outputs/apk/debug/app-debug.apk
+          retention-days: 14

@@ -2,6 +2,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api, requestFile } from './api';
 import { useClientId } from './auth';
+import { shareFile } from './native';
 
 export type Revision = 'Pendiente' | 'Aprobada' | 'Cambios solicitados';
 
@@ -98,6 +99,7 @@ export function useMarket() {
 export async function downloadMarketPdf(clientId: string): Promise<void> {
   const { blob, name } = await requestFile(`/market/${clientId}/report.pdf`);
   const fileName = name ?? 'mercado.pdf';
+  if (await shareFile(blob, fileName, 'Tu mercado').catch(() => false)) return;
   const file = new File([blob], fileName, { type: 'application/pdf' });
   const nav = navigator as Navigator & { canShare?: (d: ShareData) => boolean };
   if (nav.canShare?.({ files: [file] })) {

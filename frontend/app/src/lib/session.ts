@@ -1,8 +1,9 @@
 /**
- * Where the session lives. Today: localStorage (mobile web). In the store app this
- * file is the only one that changes, to the phone's secure storage (Keychain / Keystore)
- * through Capacitor, so the rest of the app never touches storage directly.
+ * Where the session lives. On the web: localStorage. In the store app: the phone's secure
+ * storage (Keychain on iPhone, Keystore on Android), which other apps can't read.
+ * The session is loaded once before the app draws (`hydrateSession`), then read from memory.
  */
+import { isNative } from './native';
 
 export interface Session {
   token: string;
@@ -16,22 +17,60 @@ export interface Session {
 }
 
 const KEY = 'pixely_app_session';
+const BIOMETRY_KEY = 'pixely_app_biometria';
+let memory: Session | null = null;
+let biometry: 'si' | 'no' | null = null;
+
+async function secure() {
+  return (await import('@aparajita/capacitor-secure-storage')).SecureStorage;
+}
+
+async function readRaw(key: string): Promise<string | null> {
+  if (isNative) return (await secure()).getItem(key).catch(() => null);
+  try { return localStorage.getItem(key); } catch { return null; }
+}
+
+function writeRaw(key: string, value: string | null): void {
+  if (isNative) {
+    void secure().then((s) => (value == null ? s.removeItem(key) : s.setItem(key, value))).catch(() => {});
+    return;
+  }
+  try { if (value == null) localStorage.removeItem(key); else localStorage.setItem(key, value); } catch { /* private mode */ }
+}
+
+/** Call once before rendering. */
+export async function hydrateSession(): Promise<void> {
+  try {
+    const raw = await readRaw(KEY);
+    const s = raw ? (JSON.parse(raw) as Session) : null;
+    memory = s && s.token ? s : null;
+  } catch {
+    memory = null;
+  }
+  const b = await readRaw(BIOMETRY_KEY);
+  biometry = b === 'si' || b === 'no' ? b : null;
+}
 
 export function loadSession(): Session | null {
-  try {
-    const raw = localStorage.getItem(KEY);
-    if (!raw) return null;
-    const s = JSON.parse(raw) as Session;
-    return s && s.token ? s : null;
-  } catch {
-    return null;
-  }
+  return memory;
 }
 
 export function saveSession(s: Session): void {
-  try { localStorage.setItem(KEY, JSON.stringify(s)); } catch { /* private mode: session lasts this visit */ }
+  memory = s;
+  writeRaw(KEY, JSON.stringify(s));
 }
 
 export function clearSession(): void {
-  try { localStorage.removeItem(KEY); } catch { /* nothing stored */ }
+  memory = null;
+  writeRaw(KEY, null);
+}
+
+/** Whether the client chose to unlock the app with Face ID / fingerprint ('si'), declined ('no') or wasn't asked yet (null). */
+export function getBiometryChoice(): 'si' | 'no' | null {
+  return biometry;
+}
+
+export function setBiometryChoice(choice: 'si' | 'no'): void {
+  biometry = choice;
+  writeRaw(BIOMETRY_KEY, choice);
 }
