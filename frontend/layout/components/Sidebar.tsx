@@ -42,7 +42,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isExpanded, setIsExpanded, act
 
             {/* Logo Area */}
             <div className="h-28 flex items-center justify-center relative shrink-0 w-full">
-                <span className="font-display font-extrabold text-[28px] leading-none text-white" aria-label="Pixely">pixely<span className="text-pink">.</span></span>
+                <span className="font-display font-extrabold text-[40px] leading-none text-white" aria-label="Pixely">p<span className="text-pink">.</span></span>
             </div>
 
             {/* Navigation: grouped by what each page is for, not a flat list of steps */}
