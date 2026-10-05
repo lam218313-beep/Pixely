@@ -54,6 +54,17 @@ npm run build      # usa .env.production (backend de Railway)
 - Las decisiones se ven al instante y el servidor las confirma después; si falla, la pantalla vuelve atrás.
 - Los globitos de la barra (Plan, Validar) cuentan lo que espera al cliente.
 
+## Inicio, Resultados y Marca
+
+- **Inicio** (`/`): la tarea más urgente en la tarjeta rosa (piezas por revisar → ideas por aprobar → voz →
+  estrategia), el resto debajo, "Mercado actualizado" si hay hallazgos de la última semana y lo próximo en salir.
+- **Resultados** (`/resultados`, `/resultados/publicadas?mes=`, `/resultados/:id`): agenda de lo que viene;
+  del mes publicado, alcance e indicadores (suma de todas las redes), tú vs tu competencia (likes + comentarios
+  por publicación en Instagram vs `competitor_benchmarks.interacciones_prom`), la mejor pieza y el detalle de
+  cada una. Los titulares ("Superaste a…", "Estás cerca de…") salen solos de los números.
+- **Marca** (`/marca` y `/marca/voz|estrategia|mercado|ficha`): personalidad de la marca, aprobar la voz y la
+  estrategia, mercado con el PDF (en el celular abre "Compartir" si se puede) y la ficha de solo consulta.
+
 ## Entrar con código: configuración de Supabase (una vez)
 
 Supabase envía y verifica el código. En el panel de Supabase del proyecto:
@@ -68,5 +79,5 @@ Supabase envía y verifica el código. En el panel de Supabase del proyecto:
 
 1. ~~Cimientos~~
 2. ~~Entrar con código por correo~~ (`/entrar` → `/entrar/codigo`; backend `POST /auth/code/send`, `/auth/code/verify`, `/auth/refresh`). La sesión se renueva sola con el `refresh_token`. Queda "Entrar con contraseña" como respaldo. Face ID / huella llegan con la app de tiendas.
-3. ~~Validar y Plan~~ (datos reales: `src/lib/content.ts`, `src/lib/strategy.ts`) · 4. Inicio, Resultados y Marca · 5. Capacitor (Play Store / App Store):
+3. ~~Validar y Plan~~ (datos reales: `src/lib/content.ts`, `src/lib/strategy.ts`) · 4. ~~Inicio, Resultados y Marca~~ (`src/lib/brand.ts`, `src/lib/results.ts`) · 5. Capacitor (Play Store / App Store):
    ahí `src/lib/session.ts` pasa al almacenamiento seguro del teléfono.

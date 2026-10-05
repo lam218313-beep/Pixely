@@ -14,7 +14,12 @@ import { PlanIdea } from './features/plan/PlanIdea';
 import { ValidarScreen } from './features/validar/ValidarScreen';
 import { ValidarPieza } from './features/validar/ValidarPieza';
 import { ProximasScreen, PublicadasScreen } from './features/resultados/ResultadosScreens';
-import { MarcaScreen, MarcaDetail } from './features/marca/MarcaScreens';
+import { ResultadosPieza } from './features/resultados/ResultadosPieza';
+import { MarcaScreen } from './features/marca/MarcaScreens';
+import { MarcaVoz } from './features/marca/MarcaVoz';
+import { MarcaEstrategia } from './features/marca/MarcaEstrategia';
+import { MarcaMercado } from './features/marca/MarcaMercado';
+import { MarcaFicha } from './features/marca/MarcaFicha';
 import { CuentaScreen } from './features/cuenta/CuentaScreen';
 import { NotFound } from './features/NotFound';
 
@@ -41,10 +46,11 @@ const router = createBrowserRouter([
         children: [
           { path: 'validar/:id', element: <ValidarPieza /> },
           { path: 'plan/:id', element: <PlanIdea /> },
-          { path: 'marca/voz', element: <MarcaDetail text="Tu arquetipo, cómo suena tu marca y las palabras que usa y evita. Aquí la apruebas." /> },
-          { path: 'marca/estrategia', element: <MarcaDetail text="Tus objetivos, sus estrategias y los conceptos de donde nacen tus ideas." /> },
-          { path: 'marca/mercado', element: <MarcaDetail text="El tamaño de tu mercado, lo último de tu competencia y el estudio en PDF." /> },
-          { path: 'marca/ficha', element: <MarcaDetail text="La información de tu negocio, tal como nos la contaste." /> },
+          { path: 'resultados/:id', element: <ResultadosPieza /> },
+          { path: 'marca/voz', element: <MarcaVoz /> },
+          { path: 'marca/estrategia', element: <MarcaEstrategia /> },
+          { path: 'marca/mercado', element: <MarcaMercado /> },
+          { path: 'marca/ficha', element: <MarcaFicha /> },
           { path: 'cuenta', element: <CuentaScreen /> },
         ],
       },

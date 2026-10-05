@@ -64,7 +64,8 @@ function refreshSession(current: Session): Promise<Session | null> {
   return refreshing;
 }
 
-export async function request<T>(path: string, init: RequestInit = {}, retried = false): Promise<T> {
+/** Sends a request with the session, renewing it when needed. Returns the raw response once it is ok. */
+async function send(path: string, init: RequestInit = {}, retried = false): Promise<Response> {
   let session = loadSession();
   // Renew a minute before it expires, so a screen never fails halfway.
   if (session?.expiresAt && session.refreshToken && session.expiresAt - Date.now() / 1000 < 60) {
@@ -84,20 +85,33 @@ export async function request<T>(path: string, init: RequestInit = {}, retried =
   }
 
   if (res.status === 401 && session?.token) {
-    if (!retried && session.refreshToken && (await refreshSession(session))) return request<T>(path, init, true);
+    if (!retried && session.refreshToken && (await refreshSession(session))) return send(path, init, true);
     expiredListeners.forEach((fn) => fn());
     throw new ApiError(401, 'Tu sesión venció. Vuelve a entrar.');
   }
   if (!res.ok) throw new ApiError(res.status, await parseError(res));
-  if (res.status === 204) return undefined as T;
+  return res;
+}
 
+export async function request<T>(path: string, init: RequestInit = {}, unwrap = true): Promise<T> {
+  const res = await send(path, init);
+  if (res.status === 204) return undefined as T;
   const body = await res.json();
   // Most endpoints answer { status, data }; a few return the object itself.
-  return (body && typeof body === 'object' && 'data' in body && 'status' in body ? body.data : body) as T;
+  return (unwrap && body && typeof body === 'object' && 'data' in body && 'status' in body ? body.data : body) as T;
+}
+
+/** A file from the backend (e.g. the Mercado PDF) with the name the server gave it. */
+export async function requestFile(path: string): Promise<{ blob: Blob; name: string | null }> {
+  const res = await send(path);
+  const name = /filename="([^"]+)"/.exec(res.headers.get('Content-Disposition') ?? '')?.[1] ?? null;
+  return { blob: await res.blob(), name };
 }
 
 export const api = {
   get: <T>(path: string) => request<T>(path),
+  /** The whole JSON body, without unwrapping { status, data }. */
+  raw: <T>(path: string) => request<T>(path, {}, false),
   post: <T>(path: string, body?: unknown) => request<T>(path, { method: 'POST', body: body instanceof URLSearchParams || body instanceof FormData ? body : JSON.stringify(body ?? {}) }),
   patch: <T>(path: string, body?: unknown) => request<T>(path, { method: 'PATCH', body: JSON.stringify(body ?? {}) }),
 };
