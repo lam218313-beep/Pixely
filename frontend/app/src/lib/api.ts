@@ -2,7 +2,7 @@
  * The only door to the Partners backend. Every screen asks through here, so the
  * token, errors and "session expired" are handled in one place.
  */
-import { loadSession } from './session';
+import { Session, loadSession, saveSession } from './session';
 
 export const API_URL = (import.meta.env.VITE_API_URL as string | undefined)?.replace(/\/$/, '') || 'http://localhost:8000';
 
@@ -28,8 +28,48 @@ async function parseError(res: Response): Promise<string> {
   return res.status >= 500 ? 'El servidor no respondió bien. Intenta de nuevo.' : 'No se pudo completar la acción.';
 }
 
-export async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
-  const session = loadSession();
+/** What /token, /auth/code/verify and /auth/refresh answer. */
+export interface TokenResponse {
+  access_token: string;
+  user_email: string;
+  role: string;
+  ficha_cliente_id: string | null;
+  refresh_token?: string | null;
+  expires_at?: number | null;
+}
+
+export function toSession(r: TokenResponse): Session {
+  return { token: r.access_token, refreshToken: r.refresh_token ?? null, expiresAt: r.expires_at ?? null, email: r.user_email, role: r.role, clientId: r.ficha_cliente_id };
+}
+
+let refreshing: Promise<Session | null> | null = null;
+
+/** Renews the token once, even if several screens ask at the same time. */
+function refreshSession(current: Session): Promise<Session | null> {
+  if (!current.refreshToken) return Promise.resolve(null);
+  refreshing ??= fetch(`${API_URL}/auth/refresh`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ refresh_token: current.refreshToken }),
+  })
+    .then(async (res) => {
+      if (!res.ok) return null;
+      const next = toSession(await res.json());
+      if (!next.clientId) next.clientId = current.clientId;
+      saveSession(next);
+      return next;
+    })
+    .catch(() => null)
+    .finally(() => { refreshing = null; });
+  return refreshing;
+}
+
+export async function request<T>(path: string, init: RequestInit = {}, retried = false): Promise<T> {
+  let session = loadSession();
+  // Renew a minute before it expires, so a screen never fails halfway.
+  if (session?.expiresAt && session.refreshToken && session.expiresAt - Date.now() / 1000 < 60) {
+    session = (await refreshSession(session)) ?? session;
+  }
   const headers = new Headers(init.headers);
   if (session?.token) headers.set('Authorization', `Bearer ${session.token}`);
   if (init.body && !(init.body instanceof FormData) && !(init.body instanceof URLSearchParams) && !headers.has('Content-Type')) {
@@ -44,6 +84,7 @@ export async function request<T>(path: string, init: RequestInit = {}): Promise<
   }
 
   if (res.status === 401 && session?.token) {
+    if (!retried && session.refreshToken && (await refreshSession(session))) return request<T>(path, init, true);
     expiredListeners.forEach((fn) => fn());
     throw new ApiError(401, 'Tu sesión venció. Vuelve a entrar.');
   }

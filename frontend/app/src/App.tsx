@@ -7,6 +7,7 @@ import { createBrowserRouter, RouterProvider } from 'react-router';
 import { RequireAuth } from './layouts/RequireAuth';
 import { TabsLayout, DetailLayout } from './layouts/TabsLayout';
 import { EntrarScreen } from './features/entrar/EntrarScreen';
+import { CodigoScreen } from './features/entrar/CodigoScreen';
 import { InicioScreen } from './features/inicio/InicioScreen';
 import { PlanScreen, PlanMezclaScreen } from './features/plan/PlanScreens';
 import { ValidarScreen } from './features/validar/ValidarScreen';
@@ -17,6 +18,7 @@ import { NotFound } from './features/NotFound';
 
 const router = createBrowserRouter([
   { path: '/entrar', element: <EntrarScreen /> },
+  { path: '/entrar/codigo', element: <CodigoScreen /> },
   {
     element: <RequireAuth />,
     children: [

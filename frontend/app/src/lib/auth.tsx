@@ -2,24 +2,23 @@
  * Who is signed in. The client app is only for clients: a team account without a
  * brand is turned away with a clear message (the team works in Partners on desktop).
  *
- * TEMPORARY: signs in with email + password through the existing /token. Step 2 of the
- * build replaces it with a code sent by email (and Face ID / fingerprint in the store app).
+ * Sign-in is a 6-digit code sent by email (no passwords). The session renews itself
+ * in the background (see api.ts). Face ID / fingerprint arrive with the store app.
  */
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { ApiError, api, onSessionExpired } from './api';
+import { ApiError, TokenResponse, api, onSessionExpired, toSession } from './api';
 import { Session, clearSession, loadSession, saveSession } from './session';
 
-interface TokenResponse {
-  access_token: string;
-  user_email: string;
-  role: string;
-  ficha_cliente_id: string | null;
-}
+const TEAM_MESSAGE = 'Esta app es para clientes de Pixely. El equipo trabaja en Partners desde la computadora.';
 
 interface AuthValue {
   session: Session | null;
-  signIn: (email: string, password: string) => Promise<void>;
+  /** Emails a code. Resolves the same way whether or not the email is a client. */
+  requestCode: (email: string) => Promise<void>;
+  verifyCode: (email: string, code: string) => Promise<void>;
+  /** Backup while code emails are being set up. */
+  signInWithPassword: (email: string, password: string) => Promise<void>;
   signOut: () => void;
 }
 
@@ -37,24 +36,31 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   useEffect(() => onSessionExpired(signOut), [signOut]);
 
-  const signIn = useCallback(async (email: string, password: string) => {
-    const form = new URLSearchParams({ username: email.trim(), password });
-    let res: TokenResponse;
-    try {
-      res = await api.post<TokenResponse>('/token', form);
-    } catch (e) {
-      if (e instanceof ApiError && e.status === 401) throw new Error('Correo o contraseña incorrectos.');
-      throw e;
-    }
-    if (!res.ficha_cliente_id) {
-      throw new Error('Esta app es para clientes de Pixely. El equipo trabaja en Partners desde la computadora.');
-    }
-    const next: Session = { token: res.access_token, email: res.user_email, role: res.role, clientId: res.ficha_cliente_id };
+  const start = useCallback((res: TokenResponse) => {
+    if (!res.ficha_cliente_id) throw new Error(TEAM_MESSAGE);
+    const next = toSession(res);
     saveSession(next);
     setSession(next);
   }, []);
 
-  const value = useMemo(() => ({ session, signIn, signOut }), [session, signIn, signOut]);
+  const requestCode = useCallback(async (email: string) => {
+    await api.post('/auth/code/send', { email: email.trim() });
+  }, []);
+
+  const verifyCode = useCallback(async (email: string, code: string) => {
+    start(await api.post<TokenResponse>('/auth/code/verify', { email: email.trim(), code }));
+  }, [start]);
+
+  const signInWithPassword = useCallback(async (email: string, password: string) => {
+    try {
+      start(await api.post<TokenResponse>('/token', new URLSearchParams({ username: email.trim(), password })));
+    } catch (e) {
+      if (e instanceof ApiError && e.status === 401) throw new Error('Correo o contraseña incorrectos.');
+      throw e;
+    }
+  }, [start]);
+
+  const value = useMemo(() => ({ session, requestCode, verifyCode, signInWithPassword, signOut }), [session, requestCode, verifyCode, signInWithPassword, signOut]);
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
