@@ -22,7 +22,7 @@ import * as api from '../services/api';
 import { PILAR_META, NoClientSelected, LoadingBlock, safeUrl, formatFecha, parseFecha } from './content/ContentPieceUI';
 
 // Magnitude marks share one brand hue; pilar identity uses PILAR_META; confidence is ordinal → one hue, light→dark.
-const ACCENT = '#D90B66';
+const ACCENT = '#EB0C6E';
 const INK_2 = '#4A4A55';
 const MUTED = '#8A8A96';
 const GRID = '#26262E';

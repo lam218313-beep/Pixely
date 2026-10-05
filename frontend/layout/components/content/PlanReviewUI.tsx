@@ -14,7 +14,7 @@ import { pieceLinks, type StrategyIndex } from './strategyLinks';
 // Status colors, always shown with their icon and word.
 export const PLAN_META: Record<api.PlanEstado, { label: string; color: string; icon: React.ElementType }> = {
     Pendiente: { label: 'Por revisar', color: '#EB0C6E', icon: Eye },
-    'Cambios solicitados': { label: 'Cambios pedidos', color: '#FF85C3', icon: MessageSquareWarning },
+    'Cambios solicitados': { label: 'Cambios pedidos', color: '#EB0C6E', icon: MessageSquareWarning },
     Aprobada: { label: 'Aprobada', color: '#E4E4EA', icon: Check },
 };
 

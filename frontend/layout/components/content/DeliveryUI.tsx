@@ -35,8 +35,8 @@ export const DueBadge: React.FC<{ fecha: string }> = ({ fecha }) => {
     const [label, color] =
         days < 0 ? ['Su fecha ya pasó', '#EB0C6E']
         : days === 0 ? ['Sale hoy', '#EB0C6E']
-        : days === 1 ? ['Sale mañana', '#FF85C3']
-        : days <= 3 ? [`Sale en ${days} días`, '#FF85C3']
+        : days === 1 ? ['Sale mañana', '#EB0C6E']
+        : days <= 3 ? [`Sale en ${days} días`, '#EB0C6E']
         : [`Sale el ${formatFecha(fecha)}`, null];
     if (!color) return <span className="text-xs font-semibold text-text-3">{label}</span>;
     return (
