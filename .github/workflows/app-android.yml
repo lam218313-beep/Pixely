@@ -1,0 +1,88 @@
+# Builds an installable test APK of the client app (frontend/app).
+# Paused: the app ships as the mobile web version first (frontend/layout serves it at /m/).
+# Run it by hand from the Actions tab ("Run workflow") when we pick the stores back up.
+# It is a debug build for testing: the Play Store version is signed separately (see frontend/app/README.md).
+name: App Android (APK de prueba)
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: app-android-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: frontend/app
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/app/package-lock.json
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - uses: gradle/actions/setup-gradle@v4
+      - run: npm ci
+      - run: npm run build
+      - run: npx cap sync android
+      - name: Build debug APK
+        working-directory: frontend/app/android
+        run: ./gradlew assembleDebug --no-daemon
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pixely-app-debug
+          path: frontend/app/android/app/build/outputs/apk/debug/app-debug.apk
+          retention-days: 14
+
+  # Opens the APK in an Android emulator and keeps a screenshot and the log, to see what a phone sees.
+  emulador:
+    needs: apk
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: pixely-app-debug
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Run the app in the emulator
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          target: google_apis
+          arch: x86_64
+          disable-animations: true
+          script: |
+            adb install -r app-debug.apk
+            adb logcat -c
+            adb shell am start -n pe.pixely.app/.MainActivity
+            sleep 12
+            adb exec-out screencap -p > emulador-12s.png
+            sleep 18
+            adb exec-out screencap -p > emulador-30s.png
+            adb logcat -d > logcat.txt
+            grep -iE "Capacitor|chromium|pixely|AndroidRuntime|FATAL" logcat.txt > logcat-app.txt || true
+      # Results also go to the ci/emulador branch, readable without downloading artifacts.
+      - name: Publish results to the ci/emulador branch
+        if: always()
+        run: |
+          mkdir out && cp emulador-*.png logcat-app.txt out/ 2>/dev/null || true
+          cd out
+          git init -q && git checkout -q -b ci/emulador
+          git config user.name "github-actions" && git config user.email "actions@github.com"
+          echo "${{ github.sha }}" > commit.txt
+          git add -A && git commit -qm "Emulador ${{ github.sha }}"
+          git push -qf "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" ci/emulador

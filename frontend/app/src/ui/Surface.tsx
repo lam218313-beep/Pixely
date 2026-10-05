@@ -37,6 +37,7 @@ export const ListRow: React.FC<{ to?: string; href?: string; icon?: React.ReactN
   );
   const cls = 'flex items-center gap-3.5 bg-card border border-edge rounded-[22px] px-4 py-3.5 text-white no-underline active:bg-raised transition';
   if (to) return <Link to={to} className={cls}>{inner}</Link>;
-  if (href) return <a href={href} target="_blank" rel="noopener noreferrer" className={cls}>{inner}</a>;
+  // Other sites open in a new tab; our own pages (e.g. the desktop version) in the same one.
+  if (href) return /^https?:/.test(href) ? <a href={href} target="_blank" rel="noopener noreferrer" className={cls}>{inner}</a> : <a href={href} className={cls}>{inner}</a>;
   return <div className={cls}>{inner}</div>;
 };

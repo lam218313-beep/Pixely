@@ -1,0 +1,45 @@
+# Tests the mobile web version (frontend/app, served at /m/) on every change: the real build
+# in Android- and iPhone-sized browsers against a fake backend (frontend/app/e2e).
+# If something fails, the run's "Artifacts" (informe-pruebas) has a screenshot and a replay of each failure.
+name: Web móvil (pruebas)
+
+on:
+  push:
+    paths:
+      - 'frontend/app/**'
+      - 'frontend/layout/index.html'
+      - 'frontend/layout/vercel.json'
+      - 'frontend/layout/build-movil.mjs'
+      - '.github/workflows/web-movil.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: web-movil-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  pruebas:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: frontend/app
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/app/package-lock.json
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:e2e
+      - if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: informe-pruebas
+          path: |
+            frontend/app/playwright-report
+            frontend/app/test-results
+          retention-days: 14

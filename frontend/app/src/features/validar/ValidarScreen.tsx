@@ -54,14 +54,19 @@ export const ValidarScreen: React.FC = () => {
   if (error) return <Screen title="Validar"><ErrorState message={error.message} onRetry={() => refetch()} /></Screen>;
 
   const approve = (p: ContentPiece) => {
-    if (undo) { clearTimeout(undo.timer); review.mutate({ id: undo.id, estado: 'Aprobado' }); }
-    const timer = window.setTimeout(() => { review.mutate({ id: p.id, estado: 'Aprobado' }); setUndo(null); }, UNDO_MS);
-    setUndo({ id: p.id, timer });
+    // Read the latest pending approval (not this render's copy): two quick swipes must not count a piece twice.
+    const pending = undoRef.current;
+    if (pending?.id === p.id) return;
+    if (pending) { clearTimeout(pending.timer); review.mutate({ id: pending.id, estado: 'Aprobado' }); }
+    const timer = window.setTimeout(() => { review.mutate({ id: p.id, estado: 'Aprobado' }); undoRef.current = null; setUndo(null); }, UNDO_MS);
+    undoRef.current = { id: p.id, timer };
+    setUndo(undoRef.current);
     setReviewed((r) => ({ ...r, ok: r.ok + 1 }));
   };
   const cancelApprove = () => {
     if (!undo) return;
     clearTimeout(undo.timer);
+    undoRef.current = null;
     setUndo(null);
     setReviewed((r) => ({ ...r, ok: r.ok - 1 }));
   };
@@ -126,14 +131,17 @@ const Deck: React.FC<{ piece: ContentPiece; behind: number; onApprove: () => voi
   const urls = finalAssets(piece);
 
   const onDown = (e: React.PointerEvent) => {
-    if ((e.target as HTMLElement).closest('a,button,video')) return;
+    if (drag.leaving || (e.target as HTMLElement).closest('a,button,video')) return;
     start.current = { x: e.clientX, y: e.clientY };
     (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
     setDrag((d) => ({ ...d, active: true }));
   };
   const onMove = (e: React.PointerEvent) => {
     if (!start.current) return;
-    setDrag((d) => ({ ...d, x: e.clientX - start.current!.x, y: e.clientY - start.current!.y }));
+    // Read the offset now: the updater may run after the finger lifts and `start` is cleared.
+    const x = e.clientX - start.current.x;
+    const y = e.clientY - start.current.y;
+    setDrag((d) => ({ ...d, x, y }));
   };
   const onUp = () => {
     if (!start.current) return;

@@ -12,6 +12,20 @@
   </head>
   <body>
     <div id="root"></div>
+    <!-- If the app's code can't even start (old phone, failed download), say so instead of a black screen. -->
+    <script>
+      window.__pixelyErrors = [];
+      window.addEventListener('error', function (e) { window.__pixelyErrors.push(String(e.message || e)); });
+      setTimeout(function () {
+        var r = document.getElementById('root');
+        if (r && !r.firstChild) {
+          r.innerHTML = '<div style="min-height:100vh;display:flex;flex-direction:column;justify-content:center;gap:14px;padding:28px;background:#0A0A0C;color:#fff;font-family:system-ui,sans-serif">'
+            + '<p style="margin:0;font-size:24px;font-weight:800">No pudimos abrir Pixely<span style="color:#EB0C6E">.</span></p>'
+            + '<p style="margin:0;font-size:15px;color:#B4B4BE">Revisa tu conexión y vuelve a abrir la app. Si sigue pasando, avísanos.</p>'
+            + '<p style="margin:0;font-size:12px;color:#8A8A96;word-break:break-word">' + window.__pixelyErrors.join(' · ').replace(/</g, '&lt;') + '</p></div>';
+        }
+      }, 8000);
+    </script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
