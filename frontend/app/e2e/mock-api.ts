@@ -31,9 +31,13 @@ function piece(id: string, fecha: string, extra: Partial<Piece>): Piece {
   };
 }
 
-export type Scenario = 'full' | 'empty';
+export type Scenario = 'full' | 'empty' | 'vitrina';
 
-function seed(scenario: Scenario) {
+function seed(scenario: Scenario): ReturnType<typeof base> {
+  return scenario === 'vitrina' ? vitrina(base('full')) : base(scenario);
+}
+
+function base(scenario: 'full' | 'empty') {
   if (scenario === 'empty') {
     return { pieces: [] as Piece[], brand: { status: 'empty', data: null }, review: { estado: 'Pendiente', comentario: null, revisada_at: null }, strategy: [], study: null, findings: [], results: { metrics: [], competitors: [] }, interview: { data: {} } };
   }
@@ -205,6 +209,60 @@ function adminBrand() {
       { quien: 'cliente', texto: 'Revisar 3 piezas', n: 3, receta: null, destino: 'validacion' },
       { quien: 'equipo', texto: 'Ajustar 1 idea con cambios', n: 1, receta: '/05_planificacion', destino: 'planificacion' },
     ] };
+}
+
+/**
+ * "Casa Norte": the demo brand used for the screenshots on pixely.pe (e2e/vitrina.spec.ts).
+ * A fashion boutique in Miraflores; its pieces use Pixely's own production photos. No real client.
+ */
+export const VITRINA_IMG = (name: string) => `${IMG}/vitrina/${name}`;
+function vitrina(db: ReturnType<typeof base>) {
+  const P = (id: string) => db.pieces.find((p) => p.id === id)!;
+  const set = (id: string, v: Partial<Piece>) => Object.assign(P(id), v);
+  set('v1', { topico_angulo: 'Tres formas de llevar el negro', url_piezas_finales: ['rubro-moda', 'historia', 'showreel-1'].map(VITRINA_IMG),
+    copy_instagram: 'El negro no es aburrido: es la base de todo. Te mostramos tres formas de llevarlo esta semana. Ven a probártelas a Casa Norte, Miraflores.',
+    copy_linkedin: 'Tres combinaciones en negro que funcionan para la oficina y para la noche.', copy_gbp: 'Nuevas combinaciones en negro, disponibles en tienda.',
+    razon: 'Las búsquedas de "outfit negro" suben en octubre y tu competencia no lo está mostrando.', evidencia: '4 de 6 boutiques de la zona no muestran combinaciones completas (Instagram, 2 oct)' });
+  set('v2', { topico_angulo: 'La zapatilla blanca que va con todo', url_piezas_finales: [VITRINA_IMG('showreel-2')],
+    copy_instagram: 'Una sola zapatilla, siete looks. La blanca de cuero vuelve a Casa Norte.', copy_linkedin: 'La zapatilla blanca de cuero, de vuelta en tienda.' });
+  set('v3', { topico_angulo: 'Así elegimos cada prenda', url_piezas_finales: [VITRINA_IMG('showreel-1')] });
+  set('a1', { topico_angulo: 'Cueros que duran', url_piezas_finales: [VITRINA_IMG('rubro-accesorios')] });
+  set('c1p', { topico_angulo: 'Nuestra asesora te recibe', url_piezas_finales: [VITRINA_IMG('problema-fotos')], comentario_cliente: 'Más luz en la cara' });
+  set('s1', { topico_angulo: 'Nueva colección de carteras', url_piezas_finales: [VITRINA_IMG('rubro-accesorios')] });
+  set('p1', { topico_angulo: 'Detrás del mostrador', url_piezas_finales: [VITRINA_IMG('showreel-3')] });
+  set('p2', { topico_angulo: 'El cliente que vuelve', url_piezas_finales: [VITRINA_IMG('historia')] });
+  set('i1', { topico_angulo: 'Cómo elegir tu talla sin probarte', descripcion_visual: 'Carrusel con la cinta métrica sobre la mesa de madera y las prendas dobladas.',
+    estructura: [{ n: 1, titulo: '¿Qué talla soy?', detalle: 'La duda de siempre' }, { n: 2, titulo: 'Mide esto', detalle: 'Pecho, cintura y largo' }, { n: 3, titulo: 'Compara', detalle: 'Nuestra tabla' }, { n: 4, titulo: 'Escríbenos', detalle: 'Te asesoramos por WhatsApp' }],
+    razon: 'La duda de talla es la primera razón por la que no compran por redes en tu rubro.', evidencia: '38 % de las reseñas negativas de la zona mencionan tallas (Google Maps, 1 oct)' });
+  set('i2', { topico_angulo: 'Lo nuevo de la semana', razon: 'Tu público responde más los jueves por la noche.' });
+  set('i3', { topico_angulo: 'Una prenda, tres ocasiones', plan_comentario: 'Mejor el viernes' });
+  set('x1', { topico_angulo: 'Detalles que se notan', formato: 'Imagen', pilar: 'Identidad', concepto_id: 'c2', concepto_ids: ['c2'], plan_estado: 'Pendiente' });
+  db.pieces.forEach((p) => { if (p.concepto === 'Café de origen') { p.concepto = 'Moda que dura'; p.objetivo = 'Más visitas a la tienda'; } });
+  db.brand = { status: 'success', brand_name: 'Casa Norte', data: {
+    archetype: 'El Creador', arquetipo_razon: 'Viste a quien quiere verse bien sin seguir a la masa: piezas pensadas, hechas para durar.', voz_estado: 'Pendiente', voz_comentario: null,
+    tone_traits: [{ trait: 'Cercana', description: 'Habla de tú, como la asesora de la tienda', ejemplo_si: 'Ven a probártela', ejemplo_no: 'Adquiera el producto' }, { trait: 'Segura' }, { trait: 'Elegante' }, { trait: 'Honesta' }],
+    palabras_si: ['pieza', 'durar', 'a tu medida'], palabras_no: ['oferta', 'barato'], ejemplo_post: 'Una prenda bien elegida vale por diez.' } };
+  db.strategy = [
+    { x: 0, y: 0, id: 'main', type: 'main', label: 'Casa Norte', parentId: null },
+    { x: 0, y: 0, id: 'o1', type: 'objective', label: 'Más visitas a la tienda', parentId: 'main', tags: ['principal'] },
+    { x: 0, y: 0, id: 'o2', type: 'objective', label: 'Ser la boutique de referencia en Miraflores', parentId: 'main' },
+    { x: 0, y: 0, id: 's1', type: 'strategy', label: 'Mostrar cómo se combina', parentId: 'o1' },
+    { x: 0, y: 0, id: 's2', type: 'strategy', label: 'Resolver las dudas de compra', parentId: 'o2' },
+    { x: 0, y: 0, id: 'c1', type: 'concept', label: 'Moda que dura', parentId: 's1' },
+    { x: 0, y: 0, id: 'c2', type: 'concept', label: 'Talla perfecta', parentId: 's2' },
+  ];
+  db.study = { ciudad: 'Miraflores, Lima', rubro: 'Boutiques de moda', fecha_estudio: day(-20),
+    universo_competidores: { total_detectado_maps: 64, total_relevante_filtrado: 18, listado: [{ nombre: 'Atelier Sur', rating: 4.6, reseñas: 410, categoria: 'Boutique' }, { nombre: 'Moda Larco', rating: 4.3, reseñas: 180 }] },
+    dossier_profundo: [{ competidor: 'Atelier Sur', estadisticas_precio: { min: 89, max: 420, promedio: 189 } }],
+    tamano_mercado: { rango_estimado: { min: 380000, max: 620000, moneda: 'PEN', periodo: 'mes' }, cruce_de_metodos: 'Cifras del sector y negocios × ticket × pedidos' } };
+  db.findings = [
+    { id: 'f1', fecha: day(-1), fuente: 'Instagram', tema: 'Tallas', dato_o_angulo: 'Atelier Sur empezó a publicar guías de talla', cluster: 'Problema', confianza: 'Alta', tipo_senal: 'contenido', competidor: 'Atelier Sur' },
+    { id: 'f2', fecha: day(-3), fuente: 'Google Maps', tema: 'Atención', dato_o_angulo: 'Las reseñas premian la asesoría personalizada', cluster: 'Prueba', confianza: 'Alta', tipo_senal: 'reseñas', competidor: null },
+    { id: 'f3', fecha: day(-6), fuente: 'Instagram', tema: 'Precios', dato_o_angulo: 'Moda Larco lanzó descuentos de temporada', cluster: 'Identidad', confianza: 'Media', tipo_senal: 'precio', competidor: 'Moda Larco' },
+  ];
+  db.results.competitors = [{ mes: day(0).slice(0, 7), red: 'instagram', competidor: 'Atelier Sur', interacciones_prom: 260, seguidores: 12400 }];
+  db.interview = { data: { businessName: 'Casa Norte', industry: 'Boutique de moda', location: 'Miraflores, Lima', description: 'Boutique de moda y accesorios de cuero, con asesoría personalizada.', audience: { location: 'Miraflores, Lima' }, products: ['Ropa', 'Carteras de cuero', 'Zapatillas'] }, updated_at: day(-10) };
+  return db;
 }
 
 const cors = { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': '*', 'Access-Control-Allow-Methods': '*', 'Access-Control-Expose-Headers': 'Content-Disposition' };

@@ -3,14 +3,15 @@
  * (`test.use({ cuenta: 'equipo' })`). Fails if the page throws.
  */
 import { test as base, expect } from '@playwright/test';
-import { MockApi, CLIENT } from '../../app/e2e/mock-api';
+import { MockApi, CLIENT, type Scenario } from '../../app/e2e/mock-api';
 
 type Cuenta = 'cliente' | 'equipo';
 
-export const test = base.extend<{ cuenta: Cuenta; api: MockApi }>({
+export const test = base.extend<{ cuenta: Cuenta; scenario: Scenario; api: MockApi }>({
   cuenta: ['cliente', { option: true }],
-  api: async ({ page, cuenta }, use) => {
-    const api = new MockApi('full');
+  scenario: ['full', { option: true }],
+  api: async ({ page, cuenta, scenario }, use) => {
+    const api = new MockApi(scenario);
     await api.install(page);
     // Outside services the desktop loads (CDN styles, fonts) still come from the internet; nothing else does.
     await page.addInitScript(({ cuenta, client }) => {
