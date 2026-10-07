@@ -1,682 +1,184 @@
-# Pixely Partners — Arquitectura del Sistema
-> Documento técnico de referencia · Última actualización: Marzo 2026
+# Pixely Partners — Arquitectura del sistema
+> Documento técnico de referencia · Actualizado: octubre 2026 · Reemplaza la versión de marzo 2026
 
-> **Nota (octubre 2026) — partes de este documento ya no aplican.**
-> - **Plan mensual:** existe una sola vez, en la tabla `content_pieces`, que escribe `/05_planificacion` desde Claude Desktop (repo `pixely_automatizaciones`). Los pasos del cliente son una sola línea de producción sobre esa tabla: Planificación (`PlanificacionView.tsx`, piezas en producción) → Validación → Publicación → Repositorio (archivo de lo publicado). Se eliminaron `PlanningView.tsx`, `KanbanBoard.tsx`, `TasksView.tsx`, los routers `/planning` y `/tasks` y `services/content_generator.py`; la tabla `tasks` también se borró. Beneficios se eliminó.
-> - **Menú por zonas:** Inicio · Tu marca (Ficha, Voz de marca, Mercado, Estrategia) · Contenido (Planificación, Validación, Publicación) · Archivo (Repositorio). La entrevista es ahora la **Ficha** (`InterviewView.tsx`), editable, con aviso cuando Voz de marca o Estrategia quedan desactualizadas. El Manual de marca pasó a ser **Voz de marca** (`brand-book/`), que el cliente aprueba. Ya no la genera el backend: la escribe la receta `/02_voz_de_marca` (Claude Desktop) en `brand_identities`; se eliminaron `generate_brand_identity` y `POST /api/admin/brands/{id}/manual`.
-> - **Análisis eliminado** (el Lab Q1–Q10 sobre comentarios de Instagram y su Wiki): con pocas interacciones no era confiable. Se borraron `LabView.tsx`, `components/lab/`, `Wiki*.tsx`, `hooks/useAnalysis.tsx`, los routers `/semantic` (`analysis.py`) y `/pipeline`, y los servicios `aggregator.py` y `apify_service.py` (Partners ya no usa Apify; lo usan las automatizaciones). Las secciones de este documento sobre Lab, Pipeline, Analysis, Aggregator, Apify y el flujo 5.1 ya no aplican. La tabla `analysis_reports` queda en la base de datos sin uso.
-> - **App del cliente (`frontend/app`)**: proyecto aparte de Partners de escritorio (`frontend/layout`), mismo backend. Vite 8 + React 19 + React Router 7 (cada pantalla con su URL) + Tailwind 4 compilado + TanStack Query (memoria intermedia) + PWA instalable (solo en la web) + Capacitor 8 (`android/`, `ios/`, `appId` pe.pixely.app) para Play Store / App Store, con sesión en el almacenamiento seguro del teléfono, Face ID / huella y PDF compartido por el menú nativo. GitHub Actions (`.github/workflows/app-android.yml`) compila un APK de prueba en cada cambio. Páginas públicas `/privacidad` y `/eliminar-cuenta` (las piden las tiendas). Sistema Noche en `src/styles.css` y `src/ui/`. Solo para clientes: una cuenta sin `client_id` no entra. Sesión en `src/lib/session.ts` (localStorage en la web; Keychain / Keystore en la app de tiendas). Entra con un código de 6 dígitos por correo (`POST /auth/code/send` responde igual exista o no el correo; `/auth/code/verify` devuelve la sesión con `refresh_token`; `/auth/refresh` la renueva). Cada llamada crea su propio cliente de Supabase Auth, para no dejar la sesión de un usuario en el cliente compartido del backend. `/token` ahora también devuelve `refresh_token` y `expires_at`. Ver `frontend/app/README.md`.
-> - **Planificación** muestra el plan del mes enlazado a la Estrategia: cada pieza guarda `concepto_ids` (hasta dos conceptos, el principal primero; `concepto_id` = el principal), `concepto`, `objetivo`, `evidencia`, `razon`, `descripcion_visual` (qué contaremos) y `estructura` (láminas del Carrusel o escenas del Reel, en palabras: `[{n, titulo, detalle}]`), todos escritos por `/05_planificacion` (en planes antiguos `descripcion_visual` la escribió `/03_generar`). El detalle de la idea los muestra en "Qué contaremos" (`PieceOutline` en `content/ContentPieceUI.tsx`). La página muestra gráficos del mes (objetivo → estrategia → concepto, formato y pilar; `content/PlanCharts.tsx`) y calendario; el detalle de cada pieza resuelve objetivo y estrategia leyendo el árbol vivo (`content/strategyLinks.ts`). El cliente aprueba **cada idea** antes de producir, sin ver imágenes ni copy (`content_pieces.plan_estado`/`plan_comentario`; `PATCH /content/{client_id}/pieces/{id}/plan-review` y `POST /content/{client_id}/plan-review/approve-pending?month=YYYY-MM`; 409 si la idea ya tiene copy). La pieza terminada se aprueba después en Validación. La tabla `plan_reviews` quedó obsoleta.
-> - **Validación y postprocesado:** `/04_ensamblar` solo deja una guía (`guia_produccion`, `canva_url`, `estado_render = 'En postproducción'`); el equipo hace el postprocesado (Canva, CapCut) y sube la pieza final desde Validación → "Por entregar" (solo admin, `POST /content/{client_id}/pieces/{id}/finals`, a Storage `content-pieces`, máx. 50 MB, indicando `generada_con_ia`). El cliente revisa primero lo que sale antes y, al pedir cambios, dice si es la imagen, el texto o ambos (`cambio_tipo`).
-> - **Publicaciones** (`PublicacionesView.tsx`) reemplaza a Publicación y Repositorio: Próximas (agenda con hora de `publicada_at`) y Publicadas (archivo por mes con resultados de `piece_metrics` y comparación con `competitor_benchmarks`, vía `GET /content/{client_id}/results?month=`). Ambas tablas las llenan las recetas desde Metricool. El recorrido del cliente queda en 3 pasos: Planificación → Validación → Publicaciones.
-> - **Panel del equipo** (`AdminPanel.tsx`): el admin aterriza en **Hoy**, un tablero con todas las marcas (pasos Ficha/Mercado/Voz/Estrategia, estado del contenido y la lista de tareas con la receta a correr), calculado por `GET /api/admin/overview` (`services/admin_overview.py`, una consulta por tabla para todas las marcas). Cada marca abre con el mismo menú que ve el cliente (Ficha, Voz, Mercado, Estrategia, Planificación, Validación, Publicaciones) más un Resumen con sus usuarios. Sin marca elegida, el menú lateral del admin solo muestra Inicio y el Panel.
-> - **Configuración de la marca** (pestaña del Panel del equipo, `admin/BrandSettingsForm.tsx`): tabla `brand_settings` con plan, fotos y reels al mes, redes, `metricool_brand_id`, ciudad, rubro y contacto (`GET/PUT /api/admin/brands/{id}/settings`, solo admin). Es la fuente que leen las recetas de Claude Desktop; el tablero Hoy avisa si falta.
-> - **PDF de Mercado:** el botón "Descargar PDF" de Mercado pide `GET /market/{client_id}/report.pdf`, que arma en el momento (`services/market_report.py`, reportlab) un documento con lo mismo que muestra la página: números clave, ranking y tabla de competidores, precios, promociones y los hallazgos vigentes por pilar. El informe largo del estudio fundacional (`market_studies.pdf_url`) sigue aparte como "Estudio completo".
-> - **Mercado** (`MercadoView.tsx`) lleva ahora los gráficos, todos con datos reales de `market_studies` (de `/01_mercado_estudio`) y `market_findings` (de `/03_mercado_vigilancia`).
-> - **Estrategia** ya no la genera el backend: la escribe la receta `/04_estrategia` (Claude Desktop) en `strategy_nodes`, con la Ficha + Mercado + Voz de marca como evidencia y el visto bueno del equipo. Partners la muestra (mapa con detalle al hacer clic y lista explicada) y el cliente la aprueba o pide cambios (tabla `strategy_reviews`, `GET/PATCH /strategy/{client_id}/review`). Se eliminaron el generador, `strategy_context.py`, `strategy_tree.py` y los endpoints de Admin `strategy/seed` y `reset-strategy`.
+La versión para no técnicos está en `GUIA_EJECUTIVA.md`.
 
 ---
 
-## 1. Visión General
+## 1. Visión general
 
-**Pixely Partners** es una plataforma SaaS de marketing inteligente que automatiza el ciclo completo de análisis de audiencia, generación de estrategias y producción de contenido visual para marcas. El sistema ingesta datos de redes sociales (Instagram), los clasifica con IA, genera insights accionables, y produce imágenes publicitarias listas para publicar.
+Partners muestra y recoge las decisiones del cliente sobre su marca y su contenido. **No genera contenido**: lo escriben las **recetas** de Claude Desktop (repositorio `lam218313-beep/pixely_automatizaciones`), que leen y escriben directamente en Supabase. Partners lee esas tablas, las dibuja y guarda las aprobaciones del cliente.
 
-### Stack Tecnológico
+```
+ Claude Desktop (recetas, con supervisión humana)
+        │  REST de Supabase con la service key
+        ▼
+ ┌──────────────────────────┐          ┌────────────────────┐
+ │ Supabase                 │◄────────►│ Backend FastAPI     │
+ │ Postgres + Auth + Storage│          │ (Railway)           │
+ └──────────────────────────┘          └─────────▲──────────┘
+        ▲                                         │ HTTPS + JWT de Supabase
+        │ Metricool (vía recetas)                 │
+                                       ┌──────────┴──────────────┐
+                                       │ Vercel: partners.pixely.pe│
+                                       │  /     escritorio (layout)│
+                                       │  /m/   app móvil (app)    │
+                                       └───────────────────────────┘
+```
+
+### Stack
 
 | Capa | Tecnología |
-|------|-----------|
-| **Frontend** | React 18 + TypeScript + Vite |
-| **Backend** | Python 3.11 + FastAPI |
-| **Base de datos** | Supabase (PostgreSQL) |
-| **Storage** | Supabase Storage |
-| **Autenticación** | Supabase Auth |
-| **IA — Clasificación/Generación de texto** | OpenAI GPT-5-mini (via SDK compatible) |
-| **IA — Generación de imágenes** | Google Gemini NanoBanana (Flash/Pro) + DALL-E 3 (legacy) |
-| **Scraping** | Apify (Instagram Scraper) |
-| **Deployment** | Docker / Railway (backend), Vercel (frontend) |
-
-### Diagrama de Alto Nivel
-
-```
-┌──────────────────────────────────────────────────────────────────────┐
-│                        FRONTEND (React + Vite)                       │
-│  ┌─────────┐ ┌──────────┐ ┌──────────┐ ┌────────┐ ┌──────────────┐ │
-│  │  Login   │ │   Lab    │ │ Strategy │ │ Studio │ │ Admin Panel  │ │
-│  │         │ │ (Q1-Q10) │ │  (Canvas) │ │(Images)│ │(Brands/Users)│ │
-│  └────┬────┘ └────┬─────┘ └────┬─────┘ └───┬────┘ └──────┬───────┘ │
-│       └────────────┴────────────┴───────────┴─────────────┘         │
-│                              API calls                               │
-└──────────────────────────────────┬───────────────────────────────────┘
-                                   │ HTTPS
-┌──────────────────────────────────┴───────────────────────────────────┐
-│                     BACKEND v2 (FastAPI)                              │
-│  ┌────────────────────────────────────────────────────────────────┐  │
-│  │                     14 API Routers                              │  │
-│  │  auth · clients · pipeline · analysis · interview · strategy  │  │
-│  │  brand · tasks · planning · images · studio · admin · tts     │  │
-│  │  personas                                                      │  │
-│  └────────────────────────┬───────────────────────────────────────┘  │
-│  ┌────────────────────────┴───────────────────────────────────────┐  │
-│  │                     10 Services                                │  │
-│  │  database · gemini_service · aggregator · apify_service       │  │
-│  │  content_generator · context_builder · image_generator        │  │
-│  │  nanobanana_service_v2 · comfyui_service                      │  │
-│  └────────────┬──────────────────┬────────────────┬──────────────┘  │
-└───────────────┼──────────────────┼────────────────┼──────────────────┘
-                │                  │                │
-    ┌───────────▼──────┐  ┌───────▼───────┐  ┌────▼──────────┐
-    │    Supabase       │  │  OpenAI / GPT  │  │  Gemini API   │
-    │  (DB + Storage    │  │  (Classify +   │  │  (NanoBanana   │
-    │   + Auth)         │  │   Generate)    │  │   Image Gen)   │
-    └──────────────────┘  └───────────────┘  └───────────────┘
-                │
-    ┌───────────▼──────┐
-    │     Apify         │
-    │  (Instagram       │
-    │   Scraping)       │
-    └──────────────────┘
-```
+|---|---|
+| Escritorio (`frontend/layout`) | React 19, TypeScript 5.8, Vite 6, Tailwind 3, Recharts |
+| App móvil (`frontend/app`) | React 19, React Router 7, Vite 8, Tailwind 4, TanStack Query, PWA, Capacitor 8 (tiendas en pausa) |
+| Backend (`backend_v2`) | Python 3.11, FastAPI, supabase-py, reportlab (PDF de Mercado) |
+| Datos | Supabase: Postgres, Auth (contraseña y código por correo) y Storage (bucket `content-pieces`) |
+| Recetas | Claude Desktop + Apify + Metricool + Magnific + Canva |
+| Despliegue | Vercel (proyecto `frontend`), Railway (backend, `Dockerfile` en la raíz) |
 
 ---
 
 ## 2. Frontend
 
-### 2.1 Estructura de Archivos
+### 2.1 Escritorio (`frontend/layout`)
 
-```
-frontend/
-├── layout/
-│   ├── App.tsx                    # Root con routing, auth, lazy loading
-│   ├── index.tsx                  # Entry point (ReactDOM.render)
-│   ├── index.html                 # HTML template con meta tags
-│   ├── index.css                  # Variables CSS globales
-│   ├── vite.config.ts             # Config Vite (proxy, alias)
-│   ├── tailwind.config.js         # Tailwind con custom tokens
-│   ├── package.json               # Deps: react, recharts, lucide, framer-motion
-│   │
-│   ├── components/                # 45 componentes + 3 subdirs
-│   │   ├── LoginComponents.tsx    # Login form + workflow visual + animations
-│   │   ├── Sidebar.tsx            # Navegación lateral principal
-│   │   ├── Header.tsx             # Header dinámico por vista
-│   │   ├── LabView.tsx            # Dashboard de análisis (Q1-Q10)
-│   │   ├── CardLabsQ1-Q8*.tsx     # Cards individuales de métricas
-│   │   ├── AdminPanel.tsx         # Panel admin (brands, users, módulos)
-│   │   ├── InterviewView.tsx      # Vista wrapper de entrevista
-│   │   ├── BrandView.tsx          # Vista de identidad de marca
-│   │   ├── StrategyView.tsx       # Canvas de árbol estratégico
-│   │   ├── PlanningView.tsx       # Planificación mensual de contenido
-│   │   ├── KanbanBoard.tsx        # Tablero Kanban de tareas
-│   │   ├── ValidationKanban.tsx   # Validación de contenido
-│   │   ├── ImageGenerationModal.tsx # Modal de generación de imágenes
-│   │   ├── ImageGeneratorPage.tsx # Página completa de generación
-│   │   ├── TutorialModal.tsx      # Tutorial interactivo onboarding
-│   │   ├── studio/                # 13 componentes del Image Studio
-│   │   ├── lab/                   # 11 componentes auxiliares del Lab
-│   │   └── dashboard_cards/       # 8 cards del dashboard
-│   │
-│   ├── entrevista/                # 18 archivos — Flujo de entrevista multi-step
-│   ├── estrategia/                # 18 archivos — Canvas React Flow
-│   ├── brand-book/                # 18 archivos — Generador de brand book
-│   ├── tutorial/                  # 24 archivos — Tutorial interactivo
-│   ├── validacion/                # 19 archivos — Flujo de validación
-│   │
-│   ├── contexts/                  # React Context providers
-│   │   └── AuthContext, etc.
-│   ├── hooks/                     # Custom React hooks
-│   ├── services/                  # API client (fetch wrapper)
-│   ├── styles/                    # CSS módulos adicionales
-│   └── utils/                     # Funciones utilitarias
-│
-├── .env.local                     # Variables de entorno (API URL)
-└── diap01_v2.mp3, diapo_01.mp3   # Audio assets
-```
+Un solo `App.tsx` con vistas internas; el menú (`components/Sidebar.tsx`) está por zonas:
 
-### 2.2 Flujo de Navegación
+| Zona | Vista | Componente |
+|---|---|---|
+| Inicio | Inicio | `PartnersView.tsx` |
+| Tu marca | Ficha | `InterviewView.tsx` (+ `entrevista/`) |
+| | Voz de marca | `BrandView.tsx` (+ `brand-book/`) |
+| | Mercado | `MercadoView.tsx` |
+| | Estrategia | `StrategyView.tsx` (+ `estrategia/`) |
+| Contenido | Planificación | `PlanificacionView.tsx` (+ `content/PlanCharts.tsx`, `content/PlanReviewUI.tsx`) |
+| | Validación | `ValidacionView.tsx` (+ `content/DeliveryUI.tsx` para el equipo) |
+| | Publicaciones | `PublicacionesView.tsx` (Próximas y Publicadas) |
+| Equipo | Panel del equipo | `AdminPanel.tsx` (+ `admin/`, `admin/BrandSettingsForm.tsx`) |
 
-El `App.tsx` maneja el estado global con `AuthContext` y renderiza vistas con lazy loading:
+- Todas las llamadas al backend pasan por `services/api.ts` (`VITE_API_URL`; cierra la sesión si el token expira).
+- Sesión en `contexts/AuthContext.tsx`.
+- `npm run build` construye el escritorio y, con `build-movil.mjs`, copia la app móvil a `dist/m`. `vercel.json` reescribe `/m/*` a la app. Un script en `index.html` manda los teléfonos a `/m/` (`?escritorio=1` / `?movil=1` lo cambian).
 
-```
-Login → [Autenticación Supabase] → AppContent
-                                        │
-                    ┌───────────────────┤
-                    ▼                   ▼
-              [role: admin]      [role: analyst]
-              AdminPanel          Sidebar + Vista
-                                        │
-              ┌─────────┬──────────┬────┴────┬──────────┬──────────┐
-              ▼         ▼          ▼         ▼          ▼          ▼
-            Lab    Interview   Strategy  Planning    Studio   Validation
-          (Q1-Q10)  (Multi-   (React    (Mensual)  (Image   (Kanban
-           Cards    step      Flow      AI Gen)     Gen)    Aprobación)
-                    form)     Canvas)
-```
+### 2.2 App móvil (`frontend/app`)
 
-### 2.3 Vistas Principales
+Solo para clientes (una cuenta sin `client_id` no entra). Cada pantalla tiene su URL:
 
-| Vista | Componente | Descripción |
-|-------|-----------|-------------|
-| **Lab** | `LabView.tsx` + `CardLabsQ1-Q8` | Dashboard con 10 métricas de análisis social. Usa Recharts para visualizaciones (radar, barras, burbujas, timeline). |
-| **Entrevista** | `entrevista/` (18 archivos) | Flujo multi-step: Info del negocio → Audiencia → Producto → Competidores. Guarda en Supabase vía `/clients/{id}/interview`. |
-| **Brand Book** | `brand-book/` + `BrandView.tsx` | Identidad de marca generada por IA: misión, visión, valores, arquetipos, colores, tipografía. |
-| **Estrategia** | `estrategia/` + `StrategyView.tsx` | Canvas visual con React Flow. Árbol jerárquico: Objetivo → Estrategias → Conceptos. Cada nodo tiene metadata (formato, frecuencia, tags). |
-| **Planning** | `PlanningView.tsx` | Generación mensual de calendario de contenido por IA basado en la estrategia. Cuotas configurables (fotos/videos/stories). |
-| **Studio** | `studio/` (13 componentes) | Wizard de generación de imágenes: Brand Visual DNA → Image Bank → Selección de task → Generación con NanoBanana. |
-| **Admin** | `AdminPanel.tsx` (48KB) | CRUD de marcas y usuarios. Gestión de planes. Ejecución de análisis. Generación de estrategias. |
-| **Validación** | `validacion/` + `ValidationKanban.tsx` | Tablero de aprobación de contenido generado. |
+| Ruta | Pantalla |
+|---|---|
+| `/` | Inicio: la tarea más urgente y lo próximo en salir |
+| `/plan`, `/plan/mezcla`, `/plan/:id` | Ideas del mes con calendario, mezcla del mes, detalle de idea |
+| `/validar`, `/validar/:id` | Mazo para aprobar (derecha) o pedir cambios (izquierda) |
+| `/resultados`, `/resultados/publicadas`, `/resultados/:id` | Próximas, publicadas con resultados, detalle |
+| `/marca`, `/marca/voz`, `/marca/estrategia`, `/marca/mercado`, `/marca/ficha` | Su marca |
+| `/cuenta`, `/entrar`, `/entrar/codigo`, `/privacidad`, `/eliminar-cuenta` | Cuenta y acceso |
+
+- `src/lib/api.ts` es la única puerta al backend; `src/lib/session.ts` guarda la sesión (localStorage en la web; Keychain/Keystore con Capacitor).
+- Sistema visual "Noche" en `src/styles.css` y `src/ui/` (botones, chips de estado, tarjetas, barra de pestañas, panel inferior…). El catálogo de componentes, con su código, está en el repositorio `pixely_marca` (`componentes/`).
+- Las decisiones se ven al instante y el servidor las confirma después; si falla, la pantalla vuelve atrás.
+- Detalle en `frontend/app/README.md`.
 
 ---
 
-## 3. Backend (FastAPI)
+## 3. Backend (`backend_v2`, FastAPI)
 
-### 3.1 Estructura de Archivos
+### 3.1 Routers
 
-```
-backend_v2/
-├── app/
-│   ├── main.py            # FastAPI app, middleware CORS, router mounting
-│   ├── config.py          # Settings via pydantic-settings (.env)
-│   ├── models/
-│   │   └── schemas.py     # Pydantic schemas compartidos
-│   ├── routers/           # 14 archivos de endpoints
-│   └── services/          # 10 archivos de lógica de negocio
-│       └── workflows/     # ComfyUI workflow JSONs (3 templates)
-├── migrations/            # 7 SQL migrations
-├── Dockerfile             # Python 3.11-slim
-├── Procfile               # Railway: uvicorn
-├── requirements.txt       # Dependencias de producción
-└── docker-compose.yml     # Desarrollo local
-```
+| Router | Endpoints principales | Uso |
+|---|---|---|
+| `auth` | `POST /token`, `GET /users/me`, `POST /auth/code/send`, `POST /auth/code/verify`, `POST /auth/refresh` | Contraseña (escritorio) y código de 6 dígitos por correo (app). `/auth/code/send` responde igual exista o no el correo |
+| `clients` | `GET/POST /clients` (admin), `GET/PUT/DELETE /clients/{id}` | Marcas |
+| `interview` | `GET/PUT /clients/{id}/interview` | Ficha |
+| `brand` | `GET/PUT /brand/{id}`, `PATCH /brand/{id}/voice/review`, `PUT /brand/{id}/colors` | Voz de marca y su aprobación |
+| `market` | `GET /market/{id}/study`, `GET /market/{id}/findings`, `GET /market/{id}/report.pdf` | Mercado y su PDF (`services/market_report.py`) |
+| `strategy` | `GET /strategy/{id}`, `POST /strategy/sync`, `GET/PATCH /strategy/{id}/review` | Mapa de estrategia y su aprobación |
+| `content` | `GET /content/{id}/pieces`, `PATCH .../pieces/{pieza}/plan-review`, `POST .../plan-review/approve-pending`, `PATCH .../pieces/{pieza}/review`, `POST .../pieces/{pieza}/finals`, `GET /content/{id}/results` | Toda la línea de contenido |
+| `admin` | `GET /admin/overview`, `GET/POST /admin/brands`, `GET/PUT /admin/brands/{id}/settings`, `POST /admin/brands/{id}/users` | Panel del equipo (tablero "Hoy" en `services/admin_overview.py`) |
+| `personas`, `tts` | `POST /clients/{id}/personas`, `POST /tts/generate` | **Sin uso** en las pantallas actuales (restos; candidatos a eliminar) |
 
-### 3.2 Configuración (`config.py`)
+### 3.2 Acceso
 
-Variables de entorno manejadas con `pydantic-settings`:
+- `services/auth_service.py`: `get_current_user` valida el JWT con Supabase Auth y carga el perfil de `users` (`role`, `client_id`). `require_admin` exige `role = 'admin'`. `verify_client_access` deja a un cliente ver solo su `client_id`.
+- **Pendiente de seguridad:** existe un acceso de desarrollo (`admin@pixely.pe` / token fijo) que da permisos de admin. Hoy no hay ningún usuario con `role = 'admin'` en `users`, así que el equipo depende de ese acceso. Antes de abrir a clientes reales: crear las cuentas del equipo y desactivarlo.
 
-| Variable | Servicio | Uso |
-|----------|----------|-----|
-| `SUPABASE_URL` | Supabase | URL del proyecto |
-| `SUPABASE_KEY` | Supabase | Clave pública (anon) |
-| `SUPABASE_SERVICE_KEY` | Supabase | Clave de servicio (admin) |
-| `APIFY_TOKEN` | Apify | Scraping de Instagram |
-| `GEMINI_API_KEY` | Google | Generación de imágenes (NanoBanana) |
-| `OPENAI_API_KEY` | OpenAI | Clasificación, interpretaciones, generación de planes |
-| `COMFYUI_HOST` / `RUNPOD_*` | ComfyUI | Generación de imágenes (legacy) |
-| `IMAGE_PROVIDER` | Config | `"dalle"` o `"comfyui"` |
-| `PORT` | Server | Puerto del servidor (default: 8000) |
+### 3.3 Configuración (`config.py`)
 
-### 3.3 Routers (API Endpoints)
-
-#### Auth (`/token`, `/users/me`)
-- Login via Supabase Auth (email + password)
-- Devuelve JWT access_token, role, plan, tenant_id
-- Dev backdoor: `admin@pixely.pe` / `admin`
-
-#### Clients (`/clients`)
-- CRUD de fichas de clientes (marcas)
-- `GET /clients` — Lista de clientes
-- `POST /clients` — Crear cliente
-- `PUT /clients/{id}` — Actualizar
-- `DELETE /clients/{id}` — Eliminar
-
-#### Pipeline (`/pipeline`)
-- **Orquestador completo** del flujo de análisis:
-  1. `POST /pipeline/start` → Inicia background task
-  2. Scraping de Instagram (Apify)
-  3. Normalización de comentarios
-  4. Clasificación por lotes (GPT-5-mini)
-  5. Agregación matemática (Q1-Q10)
-  6. Generación de interpretaciones (IA)
-  7. Generación de tareas sugeridas
-  8. Guarda resultados en Supabase
-  9. `GET /pipeline/status/{id}` → Progreso
-  10. `GET /pipeline/result/{id}` → Resultados
-
-#### Analysis (`/analysis`)
-- `GET /analysis/{client_id}` — Datos de análisis almacenados
-
-#### Interview (`/clients/{id}/interview`)
-- `PUT` — Guardar datos de entrevista (JSON + archivo opcional)
-- `GET` — Recuperar datos de entrevista
-- Soporta Excel, PDF, y texto plano como adjuntos
-
-#### Strategy (`/strategy`)
-- `GET /{client_id}` — Obtener árbol de estrategia (nodos con coordenadas X,Y)
-- `POST /sync` — Guardar estado completo del canvas (delete + re-insert)
-- Nodos: `main` (objetivo) → `secondary` (estrategia) → `concept` (concepto de contenido)
-
-#### Brand (`/brand`)
-- `GET /{client_id}` — Obtener identidad de marca (misión, visión, valores, colores, tipografía)
-- `PUT /{client_id}` — Actualizar identidad de marca
-- Incluye arquetipos de marca y tone traits
-
-#### Tasks (`/tasks`)
-- CRUD de tareas de contenido por cliente
-
-#### Planning (`/planning`)
-- `POST /generate-month` — Genera plan mensual con IA basado en estrategia + cuotas
-- `POST /save-month` — Guarda plan confirmado
-- `GET /{client_id}/history` — Historial de planificación
-
-#### Images (`/images`)
-- `POST /generate` — Genera imagen con DALL-E 3 + herencia de contexto
-- `GET /task/{id}` — Imágenes de una tarea
-- `GET /client/{id}` — Galería de imágenes del cliente
-- `POST /{id}/select` — Seleccionar imagen final para tarea
-- `GET /usage/{client_id}` — Estadísticas de uso
-
-#### Studio (`/studio`)
-- **Wizard completo** de generación de imágenes con NanoBanana:
-  - Brand Visual DNA (colores, estilo, keywords)
-  - Image Bank (upload, favoritos, categorización)
-  - Pending Tasks (tareas que necesitan imagen)
-  - Templates y archetypes configurables
-  - Opciones de cámara (ángulo, lente, perspectiva)
-  - Lighting presets, mood options, aspect ratios
-  - Style analysis desde imágenes de referencia
-  - Generación con Gemini (Flash / Pro)
-
-#### Admin (`/admin`)
-- CRUD de marcas con planes de acceso
-- Gestión de usuarios dentro de marcas
-- Estado de módulos por marca
-- Ejecución directa de análisis
-- Generación/reset de estrategias con IA
-- Generación de Brand Manual con IA
-
-#### Personas (`/personas`)
-- Generación de personas ideales/anti basadas en datos de audiencia
-
-#### TTS (`/tts`)
-- Text-to-speech para contenido
-
-### 3.4 Services (Lógica de Negocio)
-
-#### `database.py` — SupabaseService
-Capa de acceso a datos. Singleton `db`. Usa dos clientes:
-- **client** (anon key): Operaciones públicas con RLS
-- **admin_client** (service key): Operaciones admin sin RLS
-
-**Entidades gestionadas:**
-
-| Tabla | Operaciones |
-|-------|------------|
-| `clients` | CRUD, listado, status |
-| `users` | CRUD, búsqueda por email/ID, plan management |
-| `reports` | Crear, actualizar status, obtener último |
-| `tasks` | Crear batch, obtener por cliente |
-| `interviews` | Guardar/obtener por cliente |
-| `strategy_nodes` | Obtener/sync (delete all + re-insert) |
-| `brand_identity` | Obtener/actualizar |
-
-#### `apify_service.py` — Instagram Scraping
-- Usa Apify actor `apify/instagram-scraper`
-- `scrape_instagram_posts()` — Posts de un perfil
-- `scrape_instagram_comments()` — Comentarios de un post
-- `scrape_instagram_profile_with_posts_and_comments()` — Flujo completo
-- `normalize_comment_for_classification()` — Normaliza formato para IA
-
-#### `gemini_service.py` — Motor de IA (Texto)
-Usa `_call_gemini()` como función unificada (OpenAI SDK apuntando a GPT-5-mini):
-
-| Función | Input | Output |
-|---------|-------|--------|
-| `classify_comments_batch()` | Lista de comentarios + contexto de marca | Clasificación: emoción (Plutchik), personalidad (Aaker), sentimiento, topic, subtopic |
-| `generate_interpretations()` | Datos Q1-Q10 agregados + contexto | Interpretaciones narrativas por pregunta |
-| `generate_brand_identity()` | Datos de entrevista | Identidad de marca: misión, visión, valores, colores, tipografía, arquetipos |
-| `generate_strategy_playbook()` | Análisis + entrevista + marca | Árbol estratégico: objetivos → estrategias → conceptos con metadata |
-
-#### `aggregator.py` — Motor de Agregación (Q1-Q10)
-Procesamiento matemático puro (sin IA) de datos clasificados:
-
-| Métrica | Función | Descripción |
-|---------|---------|-------------|
-| **Q1** | `aggregate_q1_emotions()` | Distribución emocional (Plutchik wheel) |
-| **Q2** | `aggregate_q2_personality()` | Personalidad de marca (Aaker model) |
-| **Q3** | `aggregate_q3_topics()` | Distribución de temas con sentimiento |
-| **Q4** | `aggregate_q4_narrative_frames()` | Marcos narrativos (Positivo/Negativo/Aspiracional) |
-| **Q5** | `aggregate_q5_influencers()` | Top influencers por frecuencia |
-| **Q6** | `aggregate_q6_opportunities()` | Matriz de oportunidades (temas negativos) |
-| **Q7** | `aggregate_q7_sentiment()` | Distribución detallada de sentimiento + subjetividad |
-| **Q8** | `aggregate_q8_temporal()` | Evolución temporal semanal |
-| **Q9** | `aggregate_q9_recommendations()` | Recomendaciones priorizadas |
-| **Q10** | `aggregate_q10_executive()` | Resumen ejecutivo con KPIs |
-
-También incluye:
-- `build_frontend_compatible_json()` — Construye el JSON completo Q1-Q10
-- `generate_suggested_tasks()` — 16 tareas sugeridas distribuidas en 4 semanas
-- `convert_tree_to_nodes()` — Convierte árbol IA a nodos con coordenadas X,Y para canvas
-
-#### `content_generator.py` — Generación de Planes Mensuales
-- `generate_monthly_plan()` — Genera plan de contenido con IA basado en estrategia + cuotas
-- Hereda contexto completo: estrategia, conceptos, guidelines
-- Output: lista de tareas con fecha, formato, título, descripción, hooks, hashtags
-- `save_monthly_plan()` — Persiste a DB
-
-#### `context_builder.py` — ContextBuilderService
-Construye bloques de contexto para el Studio Wizard:
-- Extrae: entrevista, manual de marca, datos de análisis
-- Formatea en bloques digestibles para el generador de imágenes
-
-#### `image_generator.py` — ImageGenerationService (DALL-E 3)
-- Generación con OpenAI DALL-E 3
-- Herencia de contexto: entrevista → estrategia → tarea → concepto
-- Almacenamiento en Supabase Storage
-- Presets de estilo: realistic, illustration, 3d_render, minimalist, vintage
-- Aspect ratios: 1:1, 16:9, 9:16, 4:3
-
-#### `nanobanana_service_v2.py` — NanoBananaServiceV2 (Principal)
-Motor principal de generación de imágenes con Google Gemini:
-
-**Modelos:**
-- `gemini-2.5-flash-image` — Rápido, alto volumen
-- `gemini-2.0-flash-exp` — Alta calidad
-
-**Archetypes de imagen:**
-| Archetype | Uso |
-|-----------|-----|
-| `product` | Fotografía de producto studio |
-| `lifestyle` | Estilo de vida aspiracional |
-| `promotional` | Material promocional |
-| `editorial` | Storytelling editorial |
-
-**Features:**
-- Templates con prompts parametrizados
-- Camera settings (ángulo, shot, lente, perspectiva)
-- Lighting presets (studio, natural, golden_hour, dramatic, etc.)
-- Mood options (energetic, calm, bold, elegant, warm)
-- Inferencia automática de archetype
-- Style analysis de imágenes de referencia
-- Almacenamiento en Supabase Storage
-
-#### `comfyui_service.py` — ComfyUIService (Legacy)
-Integración con ComfyUI en RunPod para generación avanzada:
-- Workflows JSON parametrizables
-- Formatos: product_hero, service, experience, promotional, ad_impact
-- Upload/download de imágenes
-- Polling de resultados
+| Variable | Uso |
+|---|---|
+| `SUPABASE_URL`, `SUPABASE_KEY`, `SUPABASE_SERVICE_KEY` | Base de datos, Auth y Storage |
+| `GEMINI_API_KEY` | Solo para `personas` (sin uso) |
+| `APIFY_TOKEN`, `OPENAI_API_KEY`, `COMFYUI_*`, `RUNPOD_*`, `IMAGE_PROVIDER` | Restos de versiones anteriores; Partners ya no los usa |
 
 ---
 
-## 4. Base de Datos (Supabase / PostgreSQL)
+## 4. Base de datos (Supabase, proyecto `pixely_partners`)
 
-### 4.1 Esquema de Tablas Principales
+### 4.1 Tablas en uso
 
-```
-┌─────────────────┐       ┌──────────────────┐       ┌──────────────────┐
-│     clients      │──────<│      users        │       │    interviews     │
-│─────────────────│       │──────────────────│       │──────────────────│
-│ id (PK)         │       │ id (PK)          │       │ id (PK)          │
-│ nombre          │       │ email            │       │ client_id (FK)   │
-│ plan            │       │ full_name        │       │ data (JSONB)     │
-│ instagram_url   │       │ client_id (FK)   │       │ file_url         │
-│ created_at      │       │ role             │       │ created_at       │
-└────────┬────────┘       │ plan             │       └──────────────────┘
-         │                │ plan_expires_at  │
-         │                └──────────────────┘
-         │
-         ├──────────< reports
-         │             │ id · client_id · status · result (JSONB) · audit_log
-         │
-         ├──────────< raw_items
-         │             │ Comentarios clasificados con metadata IA
-         │
-         ├──────────< strategy_nodes
-         │             │ id · client_id · type · label · description
-         │             │ parent_id · x · y · suggested_format · suggested_frequency · tags
-         │
-         ├──────────< tasks
-         │             │ id · client_id · concept_id · title · description
-         │             │ date · format · month_group · status · selected_image_id
-         │
-         ├──────────< brand_identity
-         │             │ client_id · mission · vision · values · tone_traits
-         │             │ archetype · colors · typography
-         │
-         ├──────────< brand_visual_dna
-         │             │ client_id · color_primary/secondary/accent
-         │             │ brand_essence · visual_keywords · always_exclude
-         │
-         ├──────────< brand_image_bank
-         │             │ client_id · storage_path · category · tags · is_favorite
-         │
-         ├──────────< generated_images
-         │             │ id · client_id · task_id · concept_id
-         │             │ base_prompt · final_prompt · storage_path
-         │             │ style_preset · aspect_ratio · cost_usd
-         │             │ generation_time_ms · is_selected
-         │
-         └──────────< generation_templates
-                       │ Template configurations para NanoBanana
-```
+| Tabla | Quién escribe | Contenido |
+|---|---|---|
+| `clients` | Panel del equipo | Marca: `id` (texto), `nombre`, `industry`, `is_active` |
+| `users` | Panel del equipo | Perfil: `email`, `role` (`admin` / `client`), `client_id` |
+| `brand_settings` | Panel del equipo | `plan` (Lite/Basic/Pro/Personalizado), `fotos_mes`, `reels_mes`, `redes`, `metricool_brand_id`, ciudad, rubro, contacto. **Fuente que leen las recetas** |
+| `client_interviews` | Partners (Ficha) | `data` JSON de la Ficha (una fila por cliente) |
+| `market_studies` | `01_mercado_estudio` | Estudio fundacional (único por cliente) |
+| `market_findings` | `03_mercado_vigilancia` | Hallazgos con `cluster` (Problema/Identidad/Prueba), `confianza`, `fuente` |
+| `competitor_benchmarks` | `01` y `03` | Promedios por competidor, red (`instagram`/`facebook`/`youtube`/`x`) y mes |
+| `brand_identities` | `02_voz_de_marca` + aprobación del cliente | Voz de marca, `voz_estado` |
+| `strategy_nodes` | `04_estrategia` | Árbol marca → objetivos → estrategias → conceptos |
+| `strategy_reviews` | `04_estrategia` + cliente | Aprobación de la estrategia |
+| `content_pieces` | `05_planificacion`, `03_generar`, `04_ensamblar`, equipo, cliente, `05_publicar` | Una fila por pieza; su estación sale de sus campos de estado |
+| `piece_metrics` | `05_publicar` (modo resultados) | Resultados por pieza y red |
 
-### 4.2 Migraciones
+El contrato exacto de cada campo de `content_pieces` y `strategy_nodes` (quién lo escribe y qué estación muestra) está en el `README.md` de `pixely_automatizaciones`. **Cambiar una columna aquí obliga a revisar las recetas.**
 
-| # | Archivo | Descripción |
-|---|---------|-------------|
-| 001 | `create_generated_images_table.sql` | Tabla de imágenes generadas |
-| 002 | `create_brand_visual_dna.sql` | Visual DNA de marca |
-| 003 | `create_brand_image_bank.sql` | Banco de imágenes de marca |
-| 004 | `create_generation_templates.sql` | Templates de generación |
-| 005 | `update_generated_images_for_nanobanana.sql` | Actualización para NanoBanana |
-| - | `COMBINED_NANOBANANA_MIGRATIONS.sql` | Migración combinada |
-| - | `create_plans_table.sql` | Tabla de planes de suscripción |
+### 4.2 Tablas sin uso (candidatas a eliminar)
 
-### 4.3 Storage Buckets
+`analysis_reports` (Análisis eliminado), `plan_reviews` (reemplazada por `content_pieces.plan_estado`), `brand_image_bank`, `brand_visual_dna`, `generated_images`, `generation_templates`, `studio_credits` (del antiguo Studio). Ningún código de Partners ni receta las usa.
 
-| Bucket | Contenido |
-|--------|-----------|
-| `generated-images` | Imágenes generadas por IA |
-| `brand-images` | Banco de imágenes de referencia |
-| `interview-files` | Archivos adjuntos de entrevistas |
+### 4.3 Storage
+
+Bucket `content-pieces`: `<client_id>/<id_pieza>/final-<marca de tiempo>-<n>.<ext>`. Solo Partners escribe ahí (al subir la pieza final, máx. 50 MB).
 
 ---
 
-## 5. Flujos de Datos Principales
+## 5. Flujo de una pieza
 
-### 5.1 Flujo de Análisis (Pipeline Completo)
+| Paso | Quién | Campos | Estación en Partners |
+|---|---|---|---|
+| Plan | `05_planificacion` | fila nueva, `plan_estado = 'Pendiente'` | Planificación · por revisar |
+| Aprobación de la idea | Cliente | `plan_estado = 'Aprobada'` o `'Cambios solicitados'` | Planificación |
+| Textos | `03_generar` | `copy_*`, `texto_laminas`, `estado_copy = 'Listo'` | Planificación · en producción |
+| Guía de producción | `04_ensamblar` | `guia_produccion`, `estado_render = 'En postproducción'` | Validación · por entregar (solo equipo) |
+| Entrega | Equipo, en Partners | `url_piezas_finales`, `url_imagen`, `generada_con_ia`, `estado_render = '✅ Postproducción'` | Validación · por revisar |
+| Validación | Cliente | `estado_aprobacion = 'Aprobado'` o `'Cambios solicitados'` + `cambio_tipo` | Validación |
+| Publicación | `05_publicar` | `estado_publicado = '✅ Programado Metricool'`, `publicada_at`, `metricool_uuid` | Publicaciones · próximas |
+| Resultados | `05_publicar` | filas en `piece_metrics` | Publicaciones · publicadas |
 
-```
-[Admin inicia análisis]
-        │
-        ▼
-1. POST /pipeline/start
-   ├── Crea report (status: PROCESSING)
-   └── Inicia BackgroundTask
-        │
-        ▼
-2. Scraping (Apify)
-   ├── Scrape posts del perfil Instagram
-   └── Scrape comentarios de cada post
-        │
-        ▼
-3. Normalización
-   └── normalize_comment_for_classification()
-        │
-        ▼
-4. Clasificación (GPT-5-mini, lotes de 50)
-   ├── Emoción (Plutchik)
-   ├── Personalidad (Aaker)
-   ├── Sentimiento (-1 a 1)
-   ├── Topic / Subtopic
-   └── Engagement level
-        │
-        ▼
-5. Agregación Matemática
-   └── build_frontend_compatible_json()
-       ├── Q1: Distribución emocional
-       ├── Q2: Personalidad de marca
-       ├── Q3: Topics con sentimiento
-       ├── Q4: Marcos narrativos
-       ├── Q5: Top influencers
-       ├── Q6: Matriz de oportunidades
-       ├── Q7: Sentimiento detallado
-       ├── Q8: Evolución temporal
-       ├── Q9: Recomendaciones
-       └── Q10: Resumen ejecutivo
-        │
-        ▼
-6. Interpretaciones (IA)
-   └── Narrativas humanas para cada Q
-        │
-        ▼
-7. Tareas Sugeridas
-   └── 16 tasks distribuidas en 4 semanas
-        │
-        ▼
-8. Persistencia
-   └── report.result = {Q1..Q10} → Supabase
-```
-
-### 5.2 Flujo de Generación de Estrategia
-
-```
-[Análisis completado + Entrevista completada]
-        │
-        ▼
-1. Admin: POST /admin/{brand_id}/seed-strategy
-        │
-        ▼
-2. Construir Prompt
-   ├── Datos de análisis (Q1-Q10)
-   ├── Datos de entrevista
-   └── Identidad de marca
-        │
-        ▼
-3. GPT-5-mini genera árbol jerárquico JSON
-   ├── Objetivo Principal + rationale
-   │   ├── Estrategia 1 → Conceptos (2-4)
-   │   └── Estrategia 2 → Conceptos (2-4)
-   └── Objetivo Secundario + rationale
-       ├── Estrategia 3 → Conceptos (2-4)
-       └── Estrategia 4 → Conceptos (2-4)
-        │
-        ▼
-4. convert_tree_to_nodes()
-   └── Convierte a nodos con coordenadas X,Y
-        │
-        ▼
-5. Persistir strategy_nodes → Supabase
-        │
-        ▼
-6. Frontend renderiza en React Flow Canvas
-```
-
-### 5.3 Flujo de Generación de Imágenes (Studio)
-
-```
-[Usuario selecciona tarea en Studio]
-        │
-        ▼
-1. Configurar Brand Visual DNA
-   ├── Colores primario/secundario/acento
-   ├── Esencia de marca
-   ├── Keywords visuales
-   └── Always exclude elements
-        │
-        ▼
-2. (Opcional) Upload a Image Bank
-        │
-        ▼
-3. Seleccionar tarea pendiente
-        │
-        ▼
-4. POST /studio/generate
-   ├── Inferir archetype (product/lifestyle/promotional/editorial)
-   ├── Construir prompt con template + brand context
-   ├── Enriquecer con camera settings + lighting + mood
-   ├── Llamar Gemini genai.models.generate_images()
-   ├── Guardar en Supabase Storage
-   └── Registrar en generated_images
-        │
-        ▼
-5. Usuario revisa y selecciona imagen final
-   └── POST /studio/images/{id}/select
-```
+**Ensayo general (7 oct 2026):** se recorrió este flujo completo en la base con un cliente ficticio dentro de una transacción revertida. Todas las escrituras cumplen las restricciones. Detalle en `docs/ensayo-general-2026-10-07.md`.
 
 ---
 
-## 6. Sistema de Planes y Acceso
+## 6. Despliegue
 
-### 6.1 Planes
+| Pieza | Dónde | Cómo |
+|---|---|---|
+| Escritorio + app móvil | Vercel, proyecto `frontend` (`frontend/layout`) | Automático al subir a `main` |
+| Backend | Railway (`backend-production-04f8.up.railway.app`) | `Dockerfile` de la raíz, `uvicorn app.main:app` |
+| Web comercial | Vercel, proyecto `pixely-web` (otro repositorio) | Automático |
 
-| Plan | Módulos Disponibles |
-|------|-------------------|
-| `free_trial` | Lab (solo lectura) |
-| `starter` | Lab + Interview |
-| `professional` | Lab + Interview + Brand + Strategy |
-| `premium` | Todos los módulos |
+`VITE_API_URL` va en `.env.production` de cada frontend (y puede sobrescribirse en Vercel).
 
-### 6.2 Módulos del Sistema
+### Pruebas automáticas
 
-| ID | Nombre | Descripción |
-|----|--------|-------------|
-| `lab` | Laboratorio | Dashboard Q1-Q10 de análisis |
-| `interview` | Entrevista | Flujo de descubrimiento de marca |
-| `brand` | Marca | Identidad de marca generada por IA |
-| `strategy` | Estrategia | Canvas visual de objetivos/estrategias |
-| `schedule` | Cronograma | Planificación y calendario de contenido |
-| `studio` | Studio | Generación de imágenes con IA |
+- `frontend/app`: Playwright en tamaño Android y iPhone contra un backend simulado (`e2e/mock-api.ts`). Corre en GitHub (`.github/workflows/web-movil.yml`).
+- `app-android.yml` compila un APK de prueba en cada cambio.
+- `frontend/layout`: pruebas Playwright en `e2e/` (capturas y vitrina).
 
 ---
 
-## 7. Deployment
+## 7. Mantenimiento
 
-### 7.1 Backend (Docker / Railway)
-
-```dockerfile
-FROM python:3.11-slim
-WORKDIR /app
-RUN apt-get update && apt-get install -y gcc && rm -rf /var/lib/apt/lists/*
-COPY backend_v2/requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
-COPY backend_v2/app ./app
-CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port $PORT"]
-```
-
-**Procfile** (Railway): `web: uvicorn app.main:app --host 0.0.0.0 --port $PORT`
-
-### 7.2 Frontend (Vercel)
-
-- Build: `npm run build` (Vite)
-- Variables: `VITE_API_URL` apunta al backend
-
-### 7.3 Variables de Entorno Requeridas
-
-| Variable | Requerida | Descripción |
-|----------|-----------|-------------|
-| `SUPABASE_URL` | ✅ | URL del proyecto Supabase |
-| `SUPABASE_KEY` | ✅ | Clave pública (anon) |
-| `SUPABASE_SERVICE_KEY` | ✅ | Clave de servicio (admin) |
-| `OPENAI_API_KEY` | ✅ | Para clasificación y generación |
-| `APIFY_TOKEN` | ✅ | Para scraping de Instagram |
-| `GEMINI_API_KEY` | ✅ | Para NanoBanana (image gen) |
-| `PORT` | ⚠️ | Puerto del servidor (auto en Railway) |
-
----
-
-## 8. Dependencias Principales
-
-### Backend (`requirements.txt`)
-```
-fastapi
-uvicorn[standard]
-supabase
-pydantic-settings
-apify-client
-openai
-google-genai          # NanoBanana image generation
-httpx
-pandas
-python-multipart
-```
-
-### Frontend (`package.json`)
-```
-react, react-dom
-typescript
-vite
-tailwindcss
-recharts              # Gráficos Q1-Q10
-lucide-react          # Iconos
-framer-motion         # Animaciones
-reactflow             # Canvas de estrategia
-```
+- **Respaldos y llaves:** pendiente definir calendario (tarea F1-9). Las llaves de servicio no se comparten por chat ni se suben al repositorio.
+- **Restos por limpiar:** routers `personas` y `tts`, `services/gemini_service.py`, variables de ComfyUI/RunPod/OpenAI y las tablas de 4.2.
