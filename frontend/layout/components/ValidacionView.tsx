@@ -16,8 +16,9 @@ import { useContentPieces } from '../hooks/useContentPieces';
 import * as api from '../services/api';
 import {
     STAGE_META, PilarBadge, FormatoBadge, PieceCover, NoClientSelected, LoadingBlock,
-    PieceDetailModal, OtherStations, pieceStage, formatFecha, CAMBIO_LABEL,
+    PieceDetailModal, OtherStations, pieceStage, formatFecha, CAMBIO_LABEL, MonthSwitcher, currentMonth, monthLabel,
 } from './content/ContentPieceUI';
+import { AgendaCalendar, ViewToggle, useAgendaView, type ChipStatus } from './content/AgendaUI';
 import { DeliveryQueue, DeliveryModal, DueBadge } from './content/DeliveryUI';
 
 const ChangesIcon = STAGE_META.cambios.icon;
@@ -38,6 +39,11 @@ export const ValidacionView: React.FC<{ onNavigate?: (view: string) => void; cli
             withChanges: byDate.filter((p) => pieceStage(p) === 'cambios'),
         };
     }, [pieces]);
+
+    const [view, choose] = useAgendaView();
+    // The calendar opens on the month of the next piece waiting for the client.
+    const [month, setMonth] = useState<string | null>(null);
+    const shownMonth = month ?? (toReview[0] ?? withChanges[0])?.fecha.slice(0, 7) ?? currentMonth();
 
     const handleReview = async (estado: 'Aprobado' | 'Cambios solicitados', comentario?: string, cambioTipo?: api.CambioTipo) => {
         if (!clientId || !selected) return;
@@ -62,6 +68,23 @@ export const ValidacionView: React.FC<{ onNavigate?: (view: string) => void; cli
 
                         {isTeam && <DeliveryQueue pieces={pieces} onOpen={setDelivering} />}
 
+                        <div className="flex flex-wrap items-center gap-3 mb-6">
+                            <ViewToggle view={view} onChange={choose} />
+                            {view === 'calendario' && <MonthSwitcher month={shownMonth} onChange={setMonth} />}
+                        </div>
+
+                        {view === 'calendario' ? (
+                            <div className={`transition-opacity ${loading ? 'opacity-50' : ''}`}>
+                                <AgendaCalendar
+                                    month={shownMonth}
+                                    pieces={[...toReview, ...withChanges].filter((p) => p.fecha.startsWith(shownMonth))}
+                                    onOpen={setSelected}
+                                    chipStatus={reviewStatus}
+                                    summary={<>{toReview.filter((p) => p.fecha.startsWith(shownMonth)).length} por revisar en {monthLabel(shownMonth).toLowerCase()} · las que devolviste con cambios se ven en gris</>}
+                                    emptyText="Nada por revisar este mes."
+                                />
+                            </div>
+                        ) : (
                         <div className={`grid grid-cols-1 lg:grid-cols-3 gap-6 transition-opacity ${loading ? 'opacity-50' : ''}`}>
                             {/* What the client must decide */}
                             <section className="lg:col-span-2" aria-label="Por revisar">
@@ -121,6 +144,7 @@ export const ValidacionView: React.FC<{ onNavigate?: (view: string) => void; cli
                                 </div>
                             </section>
                         </div>
+                        )}
 
                         <OtherStations pieces={pieces} current="validacion" onNavigate={onNavigate} />
                     </>
@@ -133,6 +157,12 @@ export const ValidacionView: React.FC<{ onNavigate?: (view: string) => void; cli
             {delivering && <DeliveryModal piece={delivering} onClose={() => setDelivering(null)} onUpload={handleUpload} />}
         </div>
     );
+};
+
+/** On the calendar: what waits for the client stands out; what they sent back steps back in gray. */
+const reviewStatus = (p: api.ContentPiece): ChipStatus => {
+    const meta = STAGE_META[pieceStage(p)];
+    return { icon: meta.icon, label: meta.label, color: meta.color, muted: pieceStage(p) === 'cambios' };
 };
 
 const ReviewCard: React.FC<{ piece: api.ContentPiece; onOpen: () => void }> = ({ piece, onOpen }) => (
