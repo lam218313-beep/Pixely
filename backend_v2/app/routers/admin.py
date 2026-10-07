@@ -214,6 +214,8 @@ class BrandSettings(BaseModel):
     reels_mes: Optional[int] = Field(None, ge=0, le=100)
     redes: List[Red] = []
     metricool_brand_id: Optional[str] = Field(None, max_length=40)
+    # The name the team sees in Metricool; the recipes turn it into metricool_brand_id
+    metricool_nombre: Optional[str] = Field(None, max_length=120)
     ciudad: Optional[str] = Field(None, max_length=80)
     rubro: Optional[str] = Field(None, max_length=120)
     contacto_nombre: Optional[str] = Field(None, max_length=120)
@@ -237,7 +239,7 @@ async def save_brand_settings(brand_id: str, settings: BrandSettings, user: dict
         raise HTTPException(status_code=404, detail="Marca no encontrada")
     data = settings.model_dump()
     # Blank text means "not set"; keep the networks in a stable order without duplicates
-    for k in ("metricool_brand_id", "ciudad", "rubro", "contacto_nombre", "contacto_email", "contacto_telefono"):
+    for k in ("metricool_brand_id", "metricool_nombre", "ciudad", "rubro", "contacto_nombre", "contacto_email", "contacto_telefono"):
         data[k] = (data[k] or "").strip() or None
     data["redes"] = [r for r in ["instagram", "facebook", "linkedin", "tiktok", "pinterest", "gbp", "x"] if r in data["redes"]]
     try:

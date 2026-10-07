@@ -509,7 +509,7 @@ class SupabaseService:
             "pieces": lambda: q("content_pieces", piece_cols).eq("estado_publicado", "Pendiente").execute(),
             "published": lambda: q("content_pieces", "id,client_id,fecha").neq("estado_publicado", "Pendiente").gte("fecha", since).execute(),
             "piece_metrics": lambda: q("piece_metrics", "piece_id,client_id,actualizado_at").execute(),
-            "brand_settings": lambda: q("brand_settings", "client_id,plan,fotos_mes,reels_mes,redes,metricool_brand_id").execute(),
+            "brand_settings": lambda: q("brand_settings", "client_id,plan,fotos_mes,reels_mes,redes,metricool_brand_id,metricool_nombre").execute(),
         }
         rows: Dict[str, list] = {}
         for key, run in plan.items():
