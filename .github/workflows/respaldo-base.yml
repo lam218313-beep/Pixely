@@ -48,8 +48,13 @@ jobs:
             sh -c 'pg_dump "$DB_URL" --format=custom --no-owner --no-privileges \
                      --schema=public --schema=auth --schema=storage \
                      --file=/out/pixely-partners-'"$STAMP"'.dump' 2> error.txt; then
-            # El mensaje de pg_dump no incluye la clave; se muestra como anotación para verlo sin abrir el registro.
-            echo "::error::$(tail -c 500 error.txt | tr '\n' ' ')"
+            # Nunca se muestra el mensaje original: pg_dump puede citar partes de la dirección (y de la clave).
+            if grep -qi 'password authentication failed' error.txt; then MSG='La contraseña de la base no es correcta'
+            elif grep -qiE 'unexpected spaces|invalid URI|invalid connection option|missing "="' error.txt; then MSG='La dirección está mal escrita: debe ser una sola línea que empieza con postgresql:// y sin espacios'
+            elif grep -qiE 'could not translate host|Network is unreachable|timeout|Connection refused' error.txt; then MSG='No se pudo llegar al servidor: revisa que sea la dirección de Session pooler'
+            elif grep -qi 'Tenant or user not found' error.txt; then MSG='El usuario de la dirección no es correcto: debe ser postgres.zvpisdftltnukbozyuge'
+            else MSG='pg_dump falló por otro motivo'; fi
+            echo "::error::$MSG (ver docs/respaldos-y-llaves.md)"
             exit 1
           fi
           ls -lh respaldo
