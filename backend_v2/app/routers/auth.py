@@ -52,7 +52,7 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
     # Check Database via Supabase Auth
     try:
         # DEV FALLBACK: Allow admin@pixely.pe / admin
-        if form_data.username == "admin@pixely.pe" and form_data.password == "admin":
+        if settings.DEV_BACKDOOR and form_data.username == "admin@pixely.pe" and form_data.password == "admin":
             logger.warning(f"🔓 Using DEV BACKDOOR for {form_data.username}")
             return {
                 "access_token": "dev-admin-token",
