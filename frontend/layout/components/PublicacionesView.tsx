@@ -144,8 +144,8 @@ const Upcoming: React.FC<{ pieces: api.ContentPiece[]; calendarPieces: api.Conte
                 </p>
             )}
             <div className="flex flex-wrap items-center gap-3 mb-4">
-                <ViewToggle view={view} onChange={choose} />
                 {view === 'calendario' && <MonthSwitcher month={month} onChange={setMonth} />}
+                <div className="ml-auto"><ViewToggle view={view} onChange={choose} /></div>
             </div>
 
             {view === 'calendario' ? (
