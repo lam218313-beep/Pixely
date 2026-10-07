@@ -47,7 +47,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ isExpanded, setIsExpanded, act
 
             {/* Navigation: grouped by what each page is for, not a flat list of steps */}
             <nav className="flex-1 flex flex-col justify-center gap-1 px-2 w-full overflow-y-auto custom-scrollbar" role="navigation" aria-label="Navegación principal">
-                <SidebarItem icon={Home} label="Inicio" viewId="partners" isActive={activeView === 'partners'} onClick={setActiveView} />
+                {/* The team's home is its panel; "Inicio" is the client's */}
+                {!(user?.isAdmin && !clientId) && <SidebarItem icon={Home} label="Inicio" viewId="partners" isActive={activeView === 'partners'} onClick={setActiveView} />}
 
                 {!(user?.isAdmin && !clientId) && <>
                 <SidebarGroup label="Tu marca">
@@ -67,7 +68,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isExpanded, setIsExpanded, act
                 {/* Admin Panel - Only visible for admin users */}
                 {user?.isAdmin && (
                     <div className="pt-3 mt-2 border-t border-edge">
-                        <SidebarItem icon={Shield} label="Panel del equipo" viewId="admin" isActive={activeView === 'admin'} onClick={setActiveView} />
+                        <SidebarItem icon={Shield} label="Panel del equipo" viewId="admin" isActive={activeView === 'admin' || (!clientId && activeView === 'partners')} onClick={setActiveView} />
                     </div>
                 )}
             </nav>
