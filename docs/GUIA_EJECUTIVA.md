@@ -107,9 +107,8 @@ El volumen exacto se define con cada cliente y se guarda en su configuración. L
 - Las llaves de acceso a los servicios no se comparten por chat ni se suben al código.
 
 **Pendientes antes de abrir a clientes reales** (ver la hoja de tareas, frente 1):
-1. Quitar el acceso de prueba del servidor y crear las cuentas reales del equipo.
-2. Calendario de respaldos de la base y cambio periódico de llaves.
-3. Probar en producción el correo con el código de acceso y ponerle la marca Pixely.
+1. Calendario de respaldos de la base y cambio periódico de llaves.
+2. Probar en producción el correo con el código de acceso y ponerle la marca Pixely.
 
 ---
 

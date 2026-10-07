@@ -26,12 +26,12 @@ Simulacro de punta a punta antes del piloto real (tarea F1-1), con un cliente fi
 
 | # | Fricción | Gravedad | Estado |
 |---|---|---|---|
-| 1 | El servidor acepta un **acceso de desarrollo** (`admin@pixely.pe` / clave `admin` y un token fijo) que da permisos de administrador sobre todas las marcas. Además, no existe ningún usuario real con rol `admin`: el equipo depende de ese acceso | **Crítica** | Preparado en la rama `seguridad/acceso-dev`: el acceso queda apagado salvo que se active a propósito. Antes de fusionarla hay que crear las cuentas reales del equipo (si no, el equipo se queda fuera) |
+| 1 | El servidor acepta un **acceso de desarrollo** (`admin@pixely.pe` / clave `admin` y un token fijo) que da permisos de administrador sobre todas las marcas. Además, no existe ningún usuario real con rol `admin`: el equipo depende de ese acceso | **Crítica** | Resuelto el 7 oct: cuenta de equipo creada (`lucia.ramos@pixely.pe`, rol admin) y acceso de desarrollo apagado |
 | 2 | El escritorio (`frontend/layout/.env.production`) apuntaba al servidor antiguo de Railway, que ya no existe; la app móvil ya se había corregido | Alta | Corregido. Si Vercel tiene `VITE_API_URL` configurada, esa manda; conviene revisarla en el panel |
 | 3 | Seis recetas leen las llaves desde una ruta fija de una sola computadora (`D:/ANTES_15_09_2026/…/.env`). En otra computadora fallan | Media | Pendiente: definir dónde guarda cada miembro del equipo su `.env` |
 | 4 | La comparación con la competencia solo acepta Instagram, Facebook, YouTube y X; los resultados de TikTok del cliente se guardan pero no tienen con qué compararse | Baja | Aceptado por ahora (Metricool no da los datos de TikTok de la competencia) |
-| 5 | Restos sin uso: 7 tablas (`analysis_reports`, `plan_reviews`, `brand_image_bank`, `brand_visual_dna`, `generated_images`, `generation_templates`, `studio_credits`), routers `personas` y `tts` | Baja | Pendiente de autorización |
-| 6 | Restos de la vitrina (`_vitrina_import`, `_vitrina_b64`, extensión `http`, función `vitrina-import`) | Baja | El borrado requiere confirmación en el panel de Supabase; ver abajo |
+| 5 | Restos sin uso: 7 tablas (`analysis_reports`, `plan_reviews`, `brand_image_bank`, `brand_visual_dna`, `generated_images`, `generation_templates`, `studio_credits`), routers `personas` y `tts` | Baja | Resuelto el 7 oct: tablas borradas y routers quitados |
+| 6 | Restos de la vitrina (`_vitrina_import`, `_vitrina_b64`, extensión `http`, función `vitrina-import`) | Baja | Tabla, función y extensión borradas; falta borrar la Edge Function `vitrina-import` |
 
 ## Prueba manual en pantalla (15 minutos)
 

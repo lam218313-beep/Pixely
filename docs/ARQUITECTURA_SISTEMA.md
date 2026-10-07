@@ -100,7 +100,7 @@ Solo para clientes (una cuenta sin `client_id` no entra). Cada pantalla tiene su
 ### 3.2 Acceso
 
 - `services/auth_service.py`: `get_current_user` valida el JWT con Supabase Auth y carga el perfil de `users` (`role`, `client_id`). `require_admin` exige `role = 'admin'`. `verify_client_access` deja a un cliente ver solo su `client_id`.
-- **Pendiente de seguridad:** existe un acceso de desarrollo (`admin@pixely.pe` / token fijo) que da permisos de admin. Hoy no hay ningún usuario con `role = 'admin'` en `users`, así que el equipo depende de ese acceso. Antes de abrir a clientes reales: crear las cuentas del equipo y desactivarlo.
+- **Acceso de desarrollo apagado:** el acceso `admin@pixely.pe` / token fijo solo funciona si el servidor tiene `DEV_BACKDOOR=true` (no debe tenerla en producción). El equipo entra con sus propias cuentas de Supabase Auth con `role = 'admin'` en `users`; se crean en Supabase → Authentication → Add user y luego se marcan como admin.
 
 ### 3.3 Configuración (`config.py`)
 
