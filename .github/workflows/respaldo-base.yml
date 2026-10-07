@@ -43,12 +43,13 @@ jobs:
           if printf '%s' "$DB_URL" | grep -q 'YOUR-PASSWORD'; then
             echo "::error::La dirección todavía dice [YOUR-PASSWORD]: reemplázalo por la contraseña de la base"; exit 1
           fi
+          docker pull -q postgres:17 >/dev/null
           if ! docker run --rm -e DB_URL -v "$PWD/respaldo:/out" postgres:17 \
             sh -c 'pg_dump "$DB_URL" --format=custom --no-owner --no-privileges \
                      --schema=public --schema=auth --schema=storage \
                      --file=/out/pixely-partners-'"$STAMP"'.dump' 2> error.txt; then
             # El mensaje de pg_dump no incluye la clave; se muestra como anotación para verlo sin abrir el registro.
-            echo "::error::$(head -c 400 error.txt | tr '\n' ' ')"
+            echo "::error::$(tail -c 500 error.txt | tr '\n' ' ')"
             exit 1
           fi
           ls -lh respaldo
