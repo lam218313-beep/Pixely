@@ -259,22 +259,6 @@ export async function getInterview(clientId: string): Promise<InterviewRecord> {
   return handleResponse(response);
 }
 
-/**
- * Generate Personas using AI
- * POST /clients/{client_id}/personas
- */
-export async function generatePersonas(clientId: string, data: any): Promise<any> {
-  const response = await fetch(`${API_BASE_URL}/clients/${clientId}/personas`, {
-    method: 'POST',
-    headers: {
-      ...getAuthHeaders(),
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(data),
-  });
-  return handleResponse(response);
-}
-
 // =============================================================================
 // BRAND BOOK ENDPOINTS
 // =============================================================================
