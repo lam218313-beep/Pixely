@@ -33,10 +33,24 @@ jobs:
           STAMP=$(date -u +%Y-%m-%d)
           mkdir -p respaldo
           # Esquemas propios y usuarios de acceso; los internos de Supabase se recrean solos.
-          docker run --rm -e DB_URL -v "$PWD/respaldo:/out" postgres:17 \
+          # Pistas sin revelar la clave: a qué servidor apunta la dirección.
+          HOST=$(printf '%s' "$DB_URL" | sed -E 's#^[a-z]+://[^@]*@##; s#[:/].*$##')
+          case "$HOST" in
+            *pooler.supabase.com) echo "Servidor: $HOST (Session pooler, correcto)";;
+            db.*.supabase.co) echo "::error::La dirección es la 'Direct connection'. Usa la de 'Session pooler' (ver docs/respaldos-y-llaves.md)"; exit 1;;
+            *) echo "::error::La dirección no parece de Supabase (servidor: $HOST)"; exit 1;;
+          esac
+          if printf '%s' "$DB_URL" | grep -q 'YOUR-PASSWORD'; then
+            echo "::error::La dirección todavía dice [YOUR-PASSWORD]: reemplázalo por la contraseña de la base"; exit 1
+          fi
+          if ! docker run --rm -e DB_URL -v "$PWD/respaldo:/out" postgres:17 \
             sh -c 'pg_dump "$DB_URL" --format=custom --no-owner --no-privileges \
                      --schema=public --schema=auth --schema=storage \
-                     --file=/out/pixely-partners-'"$STAMP"'.dump'
+                     --file=/out/pixely-partners-'"$STAMP"'.dump' 2> error.txt; then
+            # El mensaje de pg_dump no incluye la clave; se muestra como anotación para verlo sin abrir el registro.
+            echo "::error::$(head -c 400 error.txt | tr '\n' ' ')"
+            exit 1
+          fi
           ls -lh respaldo
           # Un respaldo casi vacío indica que algo salió mal.
           SIZE=$(stat -c %s respaldo/*.dump)
