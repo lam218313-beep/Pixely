@@ -69,8 +69,8 @@ export const ValidacionView: React.FC<{ onNavigate?: (view: string) => void; cli
                         {isTeam && <DeliveryQueue pieces={pieces} onOpen={setDelivering} />}
 
                         <div className="flex flex-wrap items-center gap-3 mb-6">
-                            <ViewToggle view={view} onChange={choose} />
                             {view === 'calendario' && <MonthSwitcher month={shownMonth} onChange={setMonth} />}
+                            <div className="ml-auto"><ViewToggle view={view} onChange={choose} /></div>
                         </div>
 
                         {view === 'calendario' ? (
