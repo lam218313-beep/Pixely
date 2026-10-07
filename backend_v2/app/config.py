@@ -34,6 +34,9 @@ class Settings(BaseSettings):
     
     # Server
     PORT: int = 8000
+
+    # Acceso de desarrollo (admin@pixely.pe / token fijo). Apagado salvo que se active a propósito en local.
+    DEV_BACKDOOR: bool = False
     
     model_config = SettingsConfigDict(
         env_file=".env",

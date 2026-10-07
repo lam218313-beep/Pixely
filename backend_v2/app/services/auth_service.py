@@ -10,6 +10,7 @@ identity for every caller regardless of who was actually logged in.
 import logging
 from fastapi import Depends, Header, HTTPException
 
+from ..config import settings
 from .database import db
 
 logger = logging.getLogger(__name__)
@@ -39,7 +40,7 @@ async def get_current_user(authorization: str = Header(default=None)) -> dict:
 
     token = authorization.split(" ", 1)[1].strip()
 
-    if token == DEV_BACKDOOR_TOKEN:
+    if settings.DEV_BACKDOOR and token == DEV_BACKDOOR_TOKEN:
         return DEV_BACKDOOR_USER
 
     if not db.anon_client:
