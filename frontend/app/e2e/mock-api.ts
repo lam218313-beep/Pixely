@@ -182,6 +182,10 @@ export class MockApi {
     if (path === '/users/me') return json(route, { id: 'u1', email: 'equipo@pixely.pe', full_name: 'Equipo Pixely', role: 'admin', is_active: true });
     if (path === '/clients' || path === '/clients/') return json(route, [{ id: CLIENT, nombre: 'Café Prueba', industry: 'Cafetería', is_active: true, created_at: day(-60) }]);
     if (path === '/api/admin/overview') return ok({ hoy: day(0), marcas: [adminBrand()] });
+    // Alta de cliente (asistente del panel del equipo)
+    if (path === '/api/admin/brands' && method === 'POST') return json(route, { id: 'marca-nueva', nombre: (body as { nombre: string }).nombre, user_count: 0, modules: [] });
+    if (path === '/api/admin/brands/marca-nueva/settings' && method === 'PUT') return ok(body);
+    if (path === '/api/admin/brands/marca-nueva/users' && method === 'POST') return json(route, { id: 'u-nuevo', email: (body as { email: string }).email, brand_id: 'marca-nueva' });
     if (path === `/api/admin/brands${c}`) return json(route, { users: [{ id: 'u2', email: 'prueba@pixely.pe', full_name: 'Ana', role: 'analyst', created_at: day(-30) }] });
     if (path === `/api/admin/brands${c}/settings`) return ok({ plan: 'Pro', fotos_mes: 12, reels_mes: 4, redes: ['instagram', 'linkedin', 'gbp'], metricool_brand_id: '123', ciudad: 'Lima', rubro: 'Cafetería', contacto_nombre: 'Ana', contacto_email: 'ana@cafe.pe', contacto_telefono: '999 999 999' });
     if (path === `/clients${c}/personas`) return json(route, { personas: [] });

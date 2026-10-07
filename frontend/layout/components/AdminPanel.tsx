@@ -24,6 +24,7 @@ import { ValidacionView } from './ValidacionView';
 import { PublicacionesView } from './PublicacionesView';
 import { monthLabel } from './content/ContentPieceUI';
 import { BrandSettingsForm, RED_LABEL } from './admin/BrandSettingsForm';
+import { NewClientWizard } from './admin/NewClientWizard';
 
 // --- Brand pages, in the client's menu order ---
 
@@ -116,7 +117,7 @@ export const AdminPanel: React.FC<{ onNavigate?: (view: string) => void }> = () 
                             <RefreshCw size={16} className={loading ? 'animate-spin' : ''} /> Actualizar
                         </button>
                         <button onClick={() => setCreating(true)} className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-pink-500 to-rose-500 text-white text-sm font-bold shadow-lg shadow-pink-500/20">
-                            <Plus size={16} /> Nueva marca
+                            <Plus size={16} /> Nuevo cliente
                         </button>
                     </div>
                 </div>
@@ -134,7 +135,7 @@ export const AdminPanel: React.FC<{ onNavigate?: (view: string) => void }> = () 
                         </section>
 
                         {marcas.length === 0 ? (
-                            <div className="bg-card rounded-3xl border border-edge shadow-sm p-12 text-center text-text-3">Aún no hay marcas. Crea la primera.</div>
+                            <div className="bg-card rounded-3xl border border-edge shadow-sm p-12 text-center text-text-3">Aún no hay clientes. Pulsa «Nuevo cliente» para dar de alta el primero.</div>
                         ) : (
                             <div className="space-y-4">
                                 {marcas.map((m) => <BrandRow key={m.id} marca={m} onOpen={(tab) => setOpen({ id: m.id, tab })} />)}
@@ -144,7 +145,16 @@ export const AdminPanel: React.FC<{ onNavigate?: (view: string) => void }> = () 
                 )}
             </div>
 
-            {creating && <CreateBrandModal onClose={() => setCreating(false)} onCreated={() => { setCreating(false); load(); }} />}
+            {creating && (
+                <NewClientWizard
+                    onClose={() => setCreating(false)}
+                    onDone={async (id) => {
+                        setCreating(false);
+                        await load();
+                        if (id) setOpen({ id, tab: 'resumen' });
+                    }}
+                />
+            )}
         </div>
     );
 };
@@ -443,32 +453,6 @@ const Field: React.FC<{ label: string; children: React.ReactNode }> = ({ label, 
     </label>
 );
 const inputCls = 'w-full px-4 py-3 rounded-xl border border-edge focus:border-pink focus:ring-2 focus:ring-pink/20 outline-none';
-
-const CreateBrandModal: React.FC<{ onClose: () => void; onCreated: () => void }> = ({ onClose, onCreated }) => {
-    const [nombre, setNombre] = useState('');
-    const [saving, setSaving] = useState(false);
-    const [error, setError] = useState<string | null>(null);
-    const submit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!nombre.trim()) return;
-        setSaving(true); setError(null);
-        try { await adminFetch('/api/admin/brands', { method: 'POST', body: JSON.stringify({ nombre: nombre.trim() }) }); onCreated(); }
-        catch (err) { setError(err instanceof Error ? err.message : 'No se pudo crear la marca'); }
-        finally { setSaving(false); }
-    };
-    return (
-        <Modal title="Nueva marca" onClose={onClose}>
-            <form onSubmit={submit} className="space-y-4">
-                <Field label="Nombre de la marca"><input value={nombre} onChange={(e) => setNombre(e.target.value)} className={inputCls} placeholder="Ej. Café Andino" autoFocus required /></Field>
-                <p className="text-xs text-text-3">Después agrega su usuario desde el resumen de la marca, para que el cliente pueda entrar.</p>
-                {error && <p className="text-sm text-pink-text">{error}</p>}
-                <button type="submit" disabled={saving || !nombre.trim()} className="w-full py-3 rounded-xl bg-gradient-to-r from-pink-500 to-rose-500 text-white font-bold disabled:opacity-50">
-                    {saving ? <Loader2 className="animate-spin mx-auto" size={20} /> : 'Crear marca'}
-                </button>
-            </form>
-        </Modal>
-    );
-};
 
 const AddUserModal: React.FC<{ brandId: string; onClose: () => void; onCreated: () => void }> = ({ brandId, onClose, onCreated }) => {
     const [email, setEmail] = useState('');
