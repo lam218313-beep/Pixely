@@ -24,8 +24,8 @@ test.describe('equipo', () => {
     await page.waitForTimeout(800);
     const shot = async (name: string) => { await page.waitForTimeout(700); if (process.env.CAPTURAS) await page.screenshot({ path: `e2e-capturas/equipo-${name}.png` }); };
     await shot('panel');
-    await page.getByRole('button', { name: 'Nueva marca' }).click();
-    await shot('nueva-marca');
+    await page.getByRole('button', { name: 'Nuevo cliente' }).click();
+    await shot('nuevo-cliente');
     await page.getByRole('dialog').getByRole('button', { name: 'Cerrar' }).click();
     await page.getByRole('button', { name: /Café Prueba/ }).first().click();
     await shot('marca-resumen');

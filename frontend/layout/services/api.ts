@@ -675,6 +675,26 @@ export async function saveBrandSettings(clientId: string, settings: BrandSetting
   return result.data;
 }
 
+/** Creates an empty brand (team only); its setup and users are added right after. */
+export async function createAdminBrand(nombre: string): Promise<{ id: string; nombre: string }> {
+  const response = await fetch(`${API_BASE_URL}/api/admin/brands`, {
+    method: 'POST',
+    headers: { ...getAuthHeaders(), 'Content-Type': 'application/json' },
+    body: JSON.stringify({ nombre }),
+  });
+  return handleResponse(response);
+}
+
+/** Gives a person access to one brand as its client. */
+export async function createBrandUser(brandId: string, user: { email: string; password: string; full_name?: string }): Promise<{ id: string; email: string }> {
+  const response = await fetch(`${API_BASE_URL}/api/admin/brands/${brandId}/users`, {
+    method: 'POST',
+    headers: { ...getAuthHeaders(), 'Content-Type': 'application/json' },
+    body: JSON.stringify(user),
+  });
+  return handleResponse(response);
+}
+
 export async function getAdminOverview(): Promise<{ hoy: string; marcas: AdminMarca[] }> {
   const response = await fetch(`${API_BASE_URL}/api/admin/overview`, { headers: getAuthHeaders() });
   const result = await handleResponse<{ status: string; data: { hoy: string; marcas: AdminMarca[] } }>(response);
