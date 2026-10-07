@@ -13,6 +13,8 @@ test('alta de cliente paso a paso', async ({ page, api: _ }) => {
   await dialog.getByLabel('Nombre de la marca').fill('Café Andino');
   await dialog.getByLabel('Rubro').fill('Cafetería');
   await dialog.getByLabel('Ciudad').fill('Arequipa');
+  await page.mouse.click(8, 8); // a stray click outside must not close it
+  await expect(dialog.getByLabel('Nombre de la marca')).toHaveValue('Café Andino');
   await next.click();
 
   await expect(next).toBeDisabled(); // no plan yet

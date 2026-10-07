@@ -145,8 +145,9 @@ export const NewClientWizard: React.FC<{ onClose: () => void; onDone: (brandId: 
     const close = () => (progress.brandId ? onDone(progress.brandId) : onClose());
 
     return createPortal(
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-ink/70 backdrop-blur-sm p-4" onClick={close}>
-            <div className="bg-card border border-edge rounded-3xl w-full max-w-2xl max-h-[92vh] flex flex-col shadow-2xl" onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true" aria-label="Nuevo cliente">
+        // A click outside does nothing: only the X (or Cancelar) closes it, so a stray click never loses the form
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-ink/70 backdrop-blur-sm p-4">
+            <div className="bg-card border border-edge rounded-3xl w-full max-w-2xl max-h-[92vh] flex flex-col shadow-2xl" role="dialog" aria-modal="true" aria-label="Nuevo cliente">
                 <header className="px-7 pt-6 pb-4 border-b border-edge">
                     <div className="flex items-start justify-between gap-4">
                         <div>
