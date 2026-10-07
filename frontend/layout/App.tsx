@@ -126,7 +126,7 @@ const AppContent: React.FC = () => {
 
       // Check if tutorial has been seen
       const seen = localStorage.getItem('pixely_tutorial_seen_v2');
-      if (!seen) {
+      if (!seen && !(authUser.isAdmin && !authUser.fichaClienteId)) {
         // Small delay to let dashboard load
         setTimeout(() => setShowTutorial(true), 1000);
       }
@@ -178,7 +178,9 @@ const AppContent: React.FC = () => {
     // Use counter-based key to force remount on every navigation
     const viewKey = `${activeView}-${viewCounter}`;
 
-    switch (activeView) {
+    // The team has no "Inicio": its home is the team panel (a client page only makes sense inside a brand).
+    const isTeam = !!authUser?.isAdmin && !authUser?.fichaClienteId;
+    switch (isTeam && activeView === 'partners' ? 'admin' : activeView) {
       case 'partners':
         return (
           <ErrorBoundary key={viewKey}>
