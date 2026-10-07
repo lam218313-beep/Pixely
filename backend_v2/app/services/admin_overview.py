@@ -91,8 +91,8 @@ def build_brand_status(
     config_ok = cfg.get("fotos_mes") is not None and cfg.get("reels_mes") is not None and bool(cfg.get("redes"))
     if not config_ok:
         team("Completar la configuración (plan, volumen y redes)", destino="configuracion")
-    elif not cfg.get("metricool_brand_id"):
-        team("Agregar su marca de Metricool en la configuración", destino="configuracion")
+    elif not (cfg.get("metricool_brand_id") or cfg.get("metricool_nombre")):
+        team("Agregar el nombre de su marca en Metricool en la configuración", destino="configuracion")
 
     # Foundations, in the order the client goes through them
     if not has_interview:
@@ -151,7 +151,7 @@ def build_brand_status(
             "fotos_mes": cfg.get("fotos_mes"),
             "reels_mes": cfg.get("reels_mes"),
             "redes": cfg.get("redes") or [],
-            "metricool": bool(cfg.get("metricool_brand_id")),
+            "metricool": bool(cfg.get("metricool_brand_id") or cfg.get("metricool_nombre")),
             "completa": config_ok,
         },
         "pasos": {

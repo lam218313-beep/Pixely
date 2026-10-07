@@ -105,9 +105,15 @@ export const BrandSettingsForm: React.FC<{ clientId: string; onSaved?: () => voi
 
             <Card title="Metricool" text="La marca del cliente en Metricool: de ahí salen su competencia (/01, /03) y sus resultados (/05_publicar resultados).">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <Field label="Id de la marca en Metricool" hint="Número de la marca (blogId). Agrega sus competidores de Instagram y Facebook dentro de Metricool.">
-                        <input value={form.metricool_brand_id ?? ''} onChange={(e) => set('metricool_brand_id', e.target.value)} className={inputCls} placeholder="Ej. 4434128" inputMode="numeric" />
+                    <Field label="Nombre de la marca en Metricool" hint="Tal como aparece en Metricool (Configuración de la marca → Nombre). Agrega ahí sus competidores de Instagram y Facebook.">
+                        {/* A new name may be a different brand: drop the old id so the recipes look it up again */}
+                        <input value={form.metricool_nombre ?? ''} onChange={(e) => { setSaved(false); setForm({ ...form, metricool_nombre: e.target.value, metricool_brand_id: null }); }} className={inputCls} placeholder="Ej. Café Andino" />
                     </Field>
+                    <div className="text-xs text-text-3 sm:pt-7">
+                        {form.metricool_brand_id
+                            ? <>Conectada: la receta ya encontró esta marca (n.º {form.metricool_brand_id}).</>
+                            : <>La primera receta que use Metricool buscará esta marca por su nombre y la dejará conectada.</>}
+                    </div>
                 </div>
             </Card>
 

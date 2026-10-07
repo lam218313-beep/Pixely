@@ -104,7 +104,7 @@ export const NewClientWizard: React.FC<{ onClose: () => void; onDone: (brandId: 
             if (!p.settings) {
                 await api.saveBrandSettings(p.brandId, {
                     plan, fotos_mes: num(fotos), reels_mes: num(reels), redes,
-                    metricool_brand_id: metricool.trim() || null,
+                    metricool_brand_id: null, metricool_nombre: metricool.trim() || null,
                     ciudad: ciudad.trim() || null, rubro: rubro.trim() || null,
                     contacto_nombre: contacto.trim() || null, contacto_email: correo.trim() || null, contacto_telefono: telefono.trim() || null,
                 });
@@ -236,7 +236,7 @@ export const NewClientWizard: React.FC<{ onClose: () => void; onDone: (brandId: 
                                 <Field label="WhatsApp"><input value={telefono} onChange={(e) => setTelefono(e.target.value)} className={inputCls} placeholder="999 999 999" /></Field>
                             </div>
                             {!stepOk[2] && <p className="text-[11px] text-pink-text">Revisa el correo.</p>}
-                            <Field label="ID de la marca en Metricool" hint="Se puede dejar vacío y completarlo cuando la marca esté creada en Metricool"><input value={metricool} onChange={(e) => setMetricool(e.target.value)} className={inputCls} placeholder="Ej. 4821937" /></Field>
+                            <Field label="Nombre de la marca en Metricool" hint="Tal como aparece en Metricool. Si aún no la creas allí, déjalo vacío y complétalo después en Configuración."><input value={metricool} onChange={(e) => setMetricool(e.target.value)} className={inputCls} placeholder={nombre.trim() || 'Ej. Café Andino'} /></Field>
                         </div>
                     ) : (
                         <div className="space-y-4">

@@ -650,6 +650,8 @@ export interface BrandSettings {
   reels_mes: number | null;
   redes: BrandRed[];
   metricool_brand_id: string | null;
+  /** The brand's name in Metricool; the recipes find its id from it. */
+  metricool_nombre?: string | null;
   ciudad: string | null;
   rubro: string | null;
   contacto_nombre: string | null;
