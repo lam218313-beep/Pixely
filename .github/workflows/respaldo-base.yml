@@ -1,0 +1,51 @@
+# Copia semanal de la base de Partners (Supabase, plan gratuito: no trae respaldos propios).
+# Cada lunes a las 3:17 a. m. de Lima guarda un volcado comprimido como artefacto privado del repo,
+# que se conserva 90 días. También se puede correr a mano desde Actions → "Respaldo de la base" → Run workflow.
+# Necesita el secreto SUPABASE_DB_URL (cadena "Session pooler" de Supabase); ver docs/respaldos-y-llaves.md.
+name: Respaldo de la base
+
+on:
+  schedule:
+    - cron: '17 8 * * 1'   # lunes 08:17 UTC = 03:17 Lima
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  respaldo:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Comprobar que el secreto existe
+        env:
+          DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+        run: |
+          if [ -z "$DB_URL" ]; then
+            echo "::error::Falta el secreto SUPABASE_DB_URL (ver docs/respaldos-y-llaves.md)"; exit 1
+          fi
+
+      - name: Volcar la base (pg_dump 17, igual que el servidor)
+        env:
+          DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+        run: |
+          set -euo pipefail
+          STAMP=$(date -u +%Y-%m-%d)
+          mkdir -p respaldo
+          # Esquemas propios y usuarios de acceso; los internos de Supabase se recrean solos.
+          docker run --rm -e DB_URL -v "$PWD/respaldo:/out" postgres:17 \
+            sh -c 'pg_dump "$DB_URL" --format=custom --no-owner --no-privileges \
+                     --schema=public --schema=auth --schema=storage \
+                     --file=/out/pixely-partners-'"$STAMP"'.dump'
+          ls -lh respaldo
+          # Un respaldo casi vacío indica que algo salió mal.
+          SIZE=$(stat -c %s respaldo/*.dump)
+          if [ "$SIZE" -lt 10000 ]; then echo "::error::El respaldo pesa solo $SIZE bytes"; exit 1; fi
+
+      - name: Guardar el respaldo (privado, 90 días)
+        uses: actions/upload-artifact@v4
+        with:
+          name: respaldo-${{ github.run_number }}
+          path: respaldo/*.dump
+          retention-days: 90
+          if-no-files-found: error
