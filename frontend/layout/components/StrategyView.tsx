@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Check, Loader2, MessageSquareWarning, Sparkles } from 'lucide-react';
+import { Check, MessageSquareWarning, Sparkles } from 'lucide-react';
+import { ThinkingOrb } from './ThinkingOrb';
 import { AnimatedHeaderCard } from './AnimatedHeaderCard';
 import StrategyMap from '../estrategia/App';
 import { useAuth } from '../contexts/AuthContext';
@@ -92,7 +93,7 @@ const StrategyReviewBar: React.FC<{ clientId: string; review: api.StrategyReview
                     )}
                     {review.estado !== 'Aprobada' && !asking && (
                         <button onClick={() => submit('Aprobada')} disabled={saving} className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-pink-500 to-rose-500 text-white text-sm font-bold shadow-lg shadow-pink-500/20 disabled:opacity-60">
-                            {saving ? <Loader2 size={15} className="animate-spin" /> : <Check size={15} />} Aprobar
+                            {saving ? <ThinkingOrb size={20} /> : <Check size={15} />} Aprobar
                         </button>
                     )}
                 </div>
@@ -107,12 +108,12 @@ const StrategyReviewBar: React.FC<{ clientId: string; review: api.StrategyReview
                     <label htmlFor="strategy-comment" className="text-sm font-bold text-white">¿Qué cambiarías?</label>
                     <textarea id="strategy-comment" value={comment} onChange={(e) => setComment(e.target.value)} rows={3} autoFocus
                         placeholder="Ej. Lo más urgente para nosotros es vender delivery, no llenar el local…"
-                        className="w-full rounded-xl border border-edge px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-pink/20 focus:border-pink" />
+                        className="w-full rounded-xl border border-edge px-4 py-3 text-sm focus:outline-none focus:border-pink" />
                     {error && <p className="text-sm text-pink-text">{error}</p>}
                     <div className="flex gap-2">
                         <button onClick={() => { setAsking(false); setError(null); }} disabled={saving} className="px-4 py-2.5 rounded-xl border border-edge text-sm font-bold text-text-2 hover:bg-raised">Volver</button>
                         <button onClick={() => submit('Cambios solicitados')} disabled={saving} className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-raised text-white text-sm font-bold hover:bg-edge disabled:opacity-60">
-                            {saving && <Loader2 size={15} className="animate-spin" />} Enviar cambios
+                            {saving && <ThinkingOrb size={20} />} Enviar cambios
                         </button>
                     </div>
                 </div>

@@ -7,7 +7,8 @@
 
 import React, { useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { Check, Copy, Loader2, MessageCircle, RefreshCw, X } from 'lucide-react';
+import { Check, Copy, MessageCircle, RefreshCw, X } from 'lucide-react';
+import { ThinkingOrb } from '../ThinkingOrb';
 import * as api from '../../services/api';
 
 const PLANES: { key: api.BrandPlan; note: string }[] = [
@@ -27,7 +28,7 @@ const REDES: { key: api.BrandRed; label: string }[] = [
 ];
 const STEPS = ['Marca', 'Plan', 'Contacto', 'Acceso'] as const;
 
-const inputCls = 'w-full px-3.5 py-2.5 rounded-xl border border-edge bg-card text-sm text-white placeholder:text-mute focus:border-pink focus:ring-2 focus:ring-pink/20 outline-none';
+const inputCls = 'w-full px-3.5 py-2.5 rounded-xl border border-edge bg-card text-sm text-white placeholder:text-mute focus:border-pink outline-none';
 const EMAIL_RE = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
 
 /** 12 characters without look-alikes (0/O, 1/l/I), easy to dictate or type from a phone. */
@@ -288,7 +289,7 @@ export const NewClientWizard: React.FC<{ onClose: () => void; onDone: (brandId: 
                                 <button type="button" onClick={() => setStep(step + 1)} disabled={!stepOk[step]} className="px-5 py-2.5 rounded-xl bg-pink text-white text-sm font-bold disabled:opacity-40">Siguiente</button>
                             ) : (
                                 <button type="button" onClick={create} disabled={saving || !stepOk.every(Boolean)} className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-pink text-white text-sm font-bold disabled:opacity-40">
-                                    {saving && <Loader2 size={16} className="animate-spin" />}
+                                    {saving && <ThinkingOrb size={20} />}
                                     {error ? 'Reintentar' : 'Crear cliente'}
                                 </button>
                             )}

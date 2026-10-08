@@ -6,7 +6,8 @@
 
 import React, { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { Check, Eye, Loader2, MessageSquareWarning, X } from 'lucide-react';
+import { Check, Eye, MessageSquareWarning, X } from 'lucide-react';
+import { ThinkingOrb } from '../ThinkingOrb';
 import * as api from '../../services/api';
 import { FormatoBadge, PilarBadge, PieceStrategy, PieceReasoning, PieceOutline, PieceWhyLine, formatFecha } from './ContentPieceUI';
 import { pieceLinks, type StrategyIndex } from './strategyLinks';
@@ -84,7 +85,7 @@ export const PlanSummaryBar: React.FC<{ pieces: api.ContentPiece[]; onApprovePen
                             <span className="text-sm text-text-2">¿Aprobar las {pendingReviewable} ideas por revisar?</span>
                             <button onClick={() => setConfirming(false)} disabled={saving} className="px-4 py-2.5 rounded-xl border border-edge text-sm font-bold text-text-2 hover:bg-raised">No</button>
                             <button onClick={approveAll} disabled={saving} className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-pink-500 to-rose-500 text-white text-sm font-bold shadow-lg shadow-pink-500/20 disabled:opacity-60">
-                                {saving ? <Loader2 size={15} className="animate-spin" /> : <Check size={15} />} Sí, aprobar
+                                {saving ? <ThinkingOrb size={20} /> : <Check size={15} />} Sí, aprobar
                             </button>
                         </div>
                     ) : (
@@ -170,7 +171,7 @@ export const PlanPieceList: React.FC<{
                                     {reviewable && estado !== 'Aprobada' && (
                                         <button onClick={() => approve(piece)} disabled={busy === piece.id}
                                             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-raised text-white text-xs font-bold hover:bg-edge disabled:opacity-60">
-                                            {busy === piece.id ? <Loader2 size={13} className="animate-spin" /> : <Check size={13} strokeWidth={3} />} Aprobar
+                                            {busy === piece.id ? <ThinkingOrb size={20} /> : <Check size={13} strokeWidth={3} />} Aprobar
                                         </button>
                                     )}
                                     {reviewable && (
@@ -263,11 +264,11 @@ export const PlanPieceModal: React.FC<{
                             <label htmlFor="plan-comment" className="text-sm font-bold text-white">¿Qué cambiarías de esta idea?</label>
                             <textarea id="plan-comment" value={comment} onChange={(e) => setComment(e.target.value)} rows={3} autoFocus
                                 placeholder="Ej. Prefiero otro tema; no mencionen precios; cambia la fecha al viernes…"
-                                className="w-full rounded-xl border border-edge px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-pink/20 focus:border-pink" />
+                                className="w-full rounded-xl border border-edge px-4 py-3 text-sm focus:outline-none focus:border-pink" />
                             <div className="flex gap-2">
                                 <button onClick={() => { setAsking(false); setError(null); }} disabled={saving} className="flex-1 py-3 rounded-xl border border-edge text-sm font-bold text-text-2 hover:bg-raised">Volver</button>
                                 <button onClick={() => submit('Cambios solicitados')} disabled={saving} className="flex-1 py-3 rounded-xl bg-raised text-white text-sm font-bold hover:bg-edge disabled:opacity-60 flex items-center justify-center gap-2">
-                                    {saving && <Loader2 size={16} className="animate-spin" />} Enviar comentario
+                                    {saving && <ThinkingOrb size={20} />} Enviar comentario
                                 </button>
                             </div>
                         </div>
@@ -278,7 +279,7 @@ export const PlanPieceModal: React.FC<{
                             </button>
                             {estado !== 'Aprobada' && (
                                 <button onClick={() => submit('Aprobada')} disabled={saving} className="flex-1 py-3 rounded-xl bg-gradient-to-r from-pink-500 to-rose-500 text-white text-sm font-bold shadow-lg shadow-pink-500/20 hover:shadow-xl disabled:opacity-60 flex items-center justify-center gap-2">
-                                    {saving ? <Loader2 size={16} className="animate-spin" /> : <Check size={16} strokeWidth={3} />} Aprobar idea
+                                    {saving ? <ThinkingOrb size={20} /> : <Check size={16} strokeWidth={3} />} Aprobar idea
                                 </button>
                             )}
                         </div>

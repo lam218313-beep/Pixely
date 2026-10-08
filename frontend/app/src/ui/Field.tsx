@@ -1,6 +1,6 @@
 import React, { useId } from 'react';
 
-const control = 'w-full rounded-[16px] border border-line bg-ink px-[18px] text-white placeholder:text-text-3 outline-none focus:border-pink-text transition';
+const control = 'w-full rounded-[16px] border border-line bg-ink px-[18px] text-white placeholder:text-text-3 outline-none focus:border-pink-text focus-visible:outline-none focus:bg-[#0E0E11] transition';
 
 export const Field: React.FC<React.InputHTMLAttributes<HTMLInputElement> & { label: string; hint?: string; error?: string | null }> = ({ label, hint, error, className = '', ...rest }) => {
   const id = useId();

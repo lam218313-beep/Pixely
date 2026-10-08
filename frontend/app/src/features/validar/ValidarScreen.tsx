@@ -174,11 +174,12 @@ const Deck: React.FC<{ piece: ContentPiece; behind: number; onApprove: () => voi
 
   return (
     <div className="relative flex-1 mt-[18px] min-h-[380px]">
-      {behind > 1 && <div aria-hidden className="absolute inset-x-6 top-0 bottom-[18px] rounded-[32px] bg-raised" />}
-      {behind > 0 && <div aria-hidden className="absolute inset-x-3 top-2 bottom-[9px] rounded-[32px] bg-edge" />}
+      {/* Láminas de atrás: translúcidas, apenas asoman (más ligero que bloques sólidos) */}
+      {behind > 1 && <div aria-hidden className="absolute inset-x-[30px] top-0 bottom-6 rounded-[28px] border border-white/[0.06] bg-white/[0.015]" />}
+      {behind > 0 && <div aria-hidden className="absolute inset-x-[15px] top-[9px] bottom-3 rounded-[28px] border border-white/[0.06] bg-white/[0.03]" />}
       <article
         onPointerDown={onDown} onPointerMove={onMove} onPointerUp={onUp} onPointerCancel={onUp}
-        className="absolute inset-x-0 top-4 bottom-0 rounded-[32px] bg-card border border-line overflow-hidden flex flex-col shadow-[0_24px_48px_rgba(0,0,0,0.6)] touch-none select-none"
+        className="absolute inset-x-0 top-[18px] bottom-0 rounded-[28px] bg-card border border-white/[0.08] overflow-hidden flex flex-col shadow-[0_18px_40px_-20px_rgba(0,0,0,0.55)] touch-none select-none"
         style={{
           transform: `translate(${drag.x}px, ${Math.min(drag.y, 0) * 0.4}px) rotate(${drag.x / 18}deg)`,
           transition: drag.active ? 'none' : 'transform 0.25s ease',
@@ -186,13 +187,13 @@ const Deck: React.FC<{ piece: ContentPiece; behind: number; onApprove: () => voi
         }}
         aria-label={piece.topico_angulo ?? 'Pieza por revisar'}
       >
-        <div className="relative flex-1 min-h-0">
+        <div className="relative flex-1 min-h-0 mx-2 mt-2 rounded-[21px] overflow-hidden bg-raised">
           <div className="absolute inset-0"><PieceMedia urls={urls} className="h-full w-full" interactive={false} /></div>
-          <div className="absolute inset-x-3.5 top-3.5 flex justify-between gap-2">
-            <span className="inline-flex items-center gap-1.5 h-[30px] px-3 rounded-full bg-ink/75 text-xs font-extrabold">
+          <div className="absolute inset-x-2.5 top-2.5 flex justify-between gap-2">
+            <span className="inline-flex items-center gap-1.5 h-[26px] px-2.5 rounded-full bg-ink/45 backdrop-blur-md text-[11px] font-bold">
               {piece.formato === 'Reel' && <Play size={13} fill="currentColor" />}{piece.formato ?? 'Pieza'}{piece.formato === 'Carrusel' && urls.length > 1 ? ` · ${urls.length}` : ''}
             </span>
-            <span className={`inline-flex items-center gap-1.5 h-[30px] px-3 rounded-full bg-ink/75 text-xs font-extrabold ${due.urgent ? 'text-pink-text' : 'text-white'}`}>
+            <span className={`inline-flex items-center gap-1.5 h-[26px] px-2.5 rounded-full bg-ink/45 backdrop-blur-md text-[11px] font-bold ${due.urgent ? 'text-[#FF7AB0]' : 'text-white'}`}>
               <Clock size={13} strokeWidth={2.5} />{due.text}
             </span>
           </div>
@@ -202,7 +203,7 @@ const Deck: React.FC<{ piece: ContentPiece; behind: number; onApprove: () => voi
             </span>
           )}
         </div>
-        <div className="px-[18px] pt-4 pb-[18px] flex flex-col gap-1.5">
+        <div className="px-4 pt-3 pb-4 flex flex-col gap-1">
           <h2 className="m-0 font-display font-bold text-lg leading-tight">{piece.topico_angulo ?? 'Pieza sin título'}</h2>
           <p className="m-0 text-[13px] text-text-3">{formatDay(piece.fecha)}{networksOf(piece) ? ` · ${networksOf(piece)}` : ''}</p>
           <Link to={`/validar/${piece.id}`} className="mt-1.5 inline-flex items-center gap-1.5 text-[13px] font-extrabold text-pink-text no-underline">

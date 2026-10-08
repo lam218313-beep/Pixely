@@ -41,8 +41,12 @@ export const EntrarScreen: React.FC = () => {
   return (
     <EntrarFrame hero={
       <>
-        <h1 className="font-display font-bold text-[46px] leading-[1.02] m-0">Tu marca<br />se decide<br /><span className="text-pink">aquí</span><Dot /></h1>
-        <p className="m-0 text-base leading-relaxed text-text-2 max-w-[290px]">Aprueba ideas, revisa piezas y mira qué funcionó. Todo desde el bolsillo.</p>
+        <h1 className="font-display font-bold text-[46px] leading-[1.02] m-0">
+          <span className="en-ln"><span>Tu marca</span></span>
+          <span className="en-ln"><span>se decide</span></span>
+          <span className="en-ln"><span><span className="text-pink">aquí</span><Dot /></span></span>
+        </h1>
+        <p className="en-after m-0 text-base leading-relaxed text-text-2 max-w-[290px]">Aprueba ideas, revisa piezas y mira qué funcionó. Todo desde el bolsillo.</p>
       </>
     }>
       <form onSubmit={submit} className="flex flex-col gap-3.5">
