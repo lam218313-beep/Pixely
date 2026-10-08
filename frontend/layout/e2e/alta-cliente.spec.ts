@@ -35,7 +35,7 @@ test('alta de cliente paso a paso', async ({ page, api: _ }) => {
 
   const done = page.getByRole('dialog', { name: 'Nuevo cliente' });
   await expect(done.getByRole('heading', { name: 'Café Andino ya está en Partners' })).toBeVisible();
-  await expect(done.getByText(/Hola Rosa, ¡te damos la bienvenida a Pixely!/)).toBeVisible();
+  await expect(done.getByText(/Hola Rosa 👋 ¡te damos la bienvenida a Pixely! 🎉/)).toBeVisible();
   const wa = done.getByRole('link', { name: 'Abrir en WhatsApp' });
   await expect(wa).toHaveAttribute('href', /^https:\/\/wa\.me\/51999888777\?text=/);
   if (process.env.CAPTURAS) await page.screenshot({ path: 'e2e-capturas/equipo-alta-listo.png' });

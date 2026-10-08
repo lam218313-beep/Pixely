@@ -128,14 +128,14 @@ export const NewClientWizard: React.FC<{ onClose: () => void; onDone: (brandId: 
 
     const firstName = contacto.trim().split(/\s+/)[0] || '';
     const welcome = useMemo(() => [
-        `Hola${firstName ? ` ${firstName}` : ''}, ¡te damos la bienvenida a Pixely!`,
+        `Hola${firstName ? ` ${firstName}` : ''} 👋 ¡te damos la bienvenida a Pixely! 🎉`,
         '',
-        'Ya tienes acceso a Pixely Partners: ahí verás tu marca, aprobarás cada idea y cada pieza antes de que salga, y seguirás tus resultados.',
+        'Ya tienes acceso a Pixely Partners ✨ Ahí verás tu marca, aprobarás cada idea y cada pieza antes de que salga, y seguirás tus resultados 📈',
         '',
-        `• En el celular: entra a partners.pixely.pe, escribe tu correo (${emailAcceso}) y te llegará un código de 6 dígitos.`,
-        `• En la computadora: partners.pixely.pe con tu correo y esta contraseña: ${password}`,
+        `📱 En el celular: entra a partners.pixely.pe, escribe tu correo (${emailAcceso}) y te llegará un código de 6 dígitos.`,
+        `💻 En la computadora: partners.pixely.pe con tu correo y esta contraseña: ${password}`,
         '',
-        'Cualquier duda, escríbenos por aquí.',
+        '¿Alguna duda? Escríbenos por aquí, estamos para ayudarte 💬',
     ].join('\n'), [firstName, emailAcceso, password]);
     const wa = waNumber(telefono);
 
