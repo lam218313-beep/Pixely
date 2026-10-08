@@ -136,11 +136,6 @@ export class MockApi {
       if (b.password !== 'clave-correcta') return json(route, { detail: 'Incorrect username or password' }, 401);
       return json(route, session(b.username));
     }
-    if (path === '/auth/code/send') return json(route, { status: 'sent' });
-    if (path === '/auth/code/verify') {
-      const b = body as Record<string, string>;
-      return b.code === '123456' ? json(route, session(b.email)) : json(route, { detail: 'Código incorrecto o vencido.' }, 400);
-    }
     if (path === '/auth/refresh') return json(route, session('prueba@pixely.pe'));
 
     // --- Content ---

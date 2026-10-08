@@ -30,7 +30,7 @@ export const CuentaScreen: React.FC = () => {
       {bio?.available && (
         <button type="button" role="switch" aria-checked={on} onClick={toggle} className="flex items-center gap-3.5 bg-card border border-edge rounded-[22px] px-4 py-3.5 text-left">
           <span className="w-11 h-11 rounded-[14px] bg-pink/15 text-pink-text flex items-center justify-center shrink-0"><ScanFace size={22} /></span>
-          <span className="flex-1"><span className="block text-[15px] font-extrabold">Entrar con {bio.label}</span><span className="block text-[13px] text-text-3">Sin esperar un código cada vez</span></span>
+          <span className="flex-1"><span className="block text-[15px] font-extrabold">Entrar con {bio.label}</span><span className="block text-[13px] text-text-3">Sin escribir tu contraseña cada vez</span></span>
           <span className={`w-12 h-7 rounded-full p-0.5 transition ${on ? 'bg-pink-fill' : 'bg-line'}`}><span className={`block w-6 h-6 rounded-full bg-white transition ${on ? 'translate-x-5' : ''}`} /></span>
         </button>
       )}

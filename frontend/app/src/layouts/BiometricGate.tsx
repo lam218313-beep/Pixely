@@ -60,7 +60,7 @@ export const BiometricGate: React.FC<{ children: React.ReactNode }> = ({ childre
         </div>
         <div className="flex flex-col gap-2 pb-4">
           <Button block onClick={unlock} icon={<ScanFace size={20} />}>Entrar con {bio.label}</Button>
-          <Button block variant="ghost" onClick={signOut}>Entrar con mi código</Button>
+          <Button block variant="ghost" onClick={signOut}>Entrar con mi contraseña</Button>
         </div>
       </div>
     );
@@ -76,7 +76,7 @@ export const BiometricGate: React.FC<{ children: React.ReactNode }> = ({ childre
     <>
       {children}
       <Sheet open={offer && !!bio?.available} title={`¿Entrar con ${bio?.label ?? 'tu huella'}?`} onClose={() => decide(false)}>
-        <p className="m-0 text-[15px] leading-relaxed text-text-2">La próxima vez abrirás Pixely solo con {bio?.label}, sin esperar un código. Puedes cambiarlo cuando quieras en Tu cuenta.</p>
+        <p className="m-0 text-[15px] leading-relaxed text-text-2">La próxima vez abrirás Pixely solo con {bio?.label}, sin escribir tu contraseña. Puedes cambiarlo cuando quieras en Tu cuenta.</p>
         <Button block icon={<ScanFace size={20} />} onClick={() => decide(true)}>Sí, activar</Button>
         <Button block variant="ghost" onClick={() => decide(false)}>Ahora no</Button>
       </Sheet>
