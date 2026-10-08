@@ -7,3 +7,4 @@ export * from './TabBar';
 export * from './Segmented';
 export * from './Sheet';
 export * from './States';
+export * from './ThinkingOrb';

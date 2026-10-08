@@ -5,7 +5,8 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { Check, Loader2 } from 'lucide-react';
+import { Check } from 'lucide-react';
+import { ThinkingOrb } from '../ThinkingOrb';
 import * as api from '../../services/api';
 
 const PLANES: api.BrandPlan[] = ['Lite', 'Basic', 'Pro', 'Personalizado'];
@@ -20,7 +21,7 @@ const REDES: { key: api.BrandRed; label: string }[] = [
 ];
 export const RED_LABEL = Object.fromEntries(REDES.map((r) => [r.key, r.label])) as Record<api.BrandRed, string>;
 
-const inputCls = 'w-full px-3.5 py-2.5 rounded-xl border border-edge bg-card text-sm focus:border-pink focus:ring-2 focus:ring-pink/20 outline-none';
+const inputCls = 'w-full px-3.5 py-2.5 rounded-xl border border-edge bg-card text-sm focus:border-pink outline-none';
 
 const Field: React.FC<{ label: string; hint?: string; children: React.ReactNode }> = ({ label, hint, children }) => (
     <label className="block">
@@ -53,7 +54,7 @@ export const BrandSettingsForm: React.FC<{ clientId: string; onSaved?: () => voi
     }, [clientId]);
 
     if (!form) {
-        return error ? <p className="text-sm text-pink-text">{error}</p> : <div className="flex justify-center py-16"><Loader2 className="animate-spin text-mute" size={32} /></div>;
+        return error ? <p className="text-sm text-pink-text">{error}</p> : <div className="flex justify-center py-16"><ThinkingOrb className="text-pink" /></div>;
     }
 
     const set = <K extends keyof api.BrandSettings>(key: K, value: api.BrandSettings[K]) => { setSaved(false); setForm({ ...form, [key]: value }); };
@@ -129,7 +130,7 @@ export const BrandSettingsForm: React.FC<{ clientId: string; onSaved?: () => voi
 
             <div className="flex flex-wrap items-center gap-3">
                 <button type="submit" disabled={saving} className="flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-pink-500 to-rose-500 text-white text-sm font-bold shadow-lg shadow-pink-500/20 disabled:opacity-60">
-                    {saving ? <Loader2 size={16} className="animate-spin" /> : <Check size={16} />} Guardar configuración
+                    {saving ? <ThinkingOrb size={20} /> : <Check size={16} />} Guardar configuración
                 </button>
                 {saved && <span className="text-sm font-semibold" style={{ color: '#E4E4EA' }}>Guardado. Las recetas usarán estos datos desde ahora.</span>}
                 {error && <span className="text-sm text-pink-text">{error}</span>}

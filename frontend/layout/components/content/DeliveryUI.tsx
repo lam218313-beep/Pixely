@@ -7,7 +7,8 @@
 
 import React, { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { ArrowDown, ArrowUp, ExternalLink, Loader2, Upload, X } from 'lucide-react';
+import { ArrowDown, ArrowUp, ExternalLink, Upload, X } from 'lucide-react';
+import { ThinkingOrb } from '../ThinkingOrb';
 import * as api from '../../services/api';
 import { CAMBIO_LABEL, FormatoBadge, formatFecha, safeUrl } from './ContentPieceUI';
 
@@ -207,7 +208,7 @@ export const DeliveryModal: React.FC<{
                     {error && <p className="text-sm font-medium text-pink-text">{error}</p>}
                     <button onClick={submit} disabled={saving}
                         className="w-full py-3 rounded-xl bg-gradient-to-r from-pink-500 to-rose-500 text-white text-sm font-bold shadow-lg shadow-pink-500/20 disabled:opacity-60 flex items-center justify-center gap-2">
-                        {saving ? <Loader2 size={16} className="animate-spin" /> : <Upload size={16} />} Subir y enviar al cliente
+                        {saving ? <ThinkingOrb size={20} /> : <Upload size={16} />} Subir y enviar al cliente
                     </button>
                 </div>
             </div>

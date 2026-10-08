@@ -15,8 +15,8 @@ import {
 } from 'recharts';
 import {
     Radar, FileText, ExternalLink, MapPin, Zap, Map as MapIcon, Table2, Coins, Star, Trophy, Hash, ShieldCheck, Tags,
-    Antenna, TrendingUp, MessageSquare, Store, Banknote, Download, Loader2,
-} from 'lucide-react';
+    Antenna, TrendingUp, MessageSquare, Store, Banknote, Download, } from 'lucide-react';
+import { ThinkingOrb } from './ThinkingOrb';
 import { useAuth } from '../contexts/AuthContext';
 import * as api from '../services/api';
 import { PILAR_META, NoClientSelected, LoadingBlock, safeUrl, formatFecha, parseFecha } from './content/ContentPieceUI';
@@ -162,7 +162,7 @@ export const MercadoView: React.FC<{ onNavigate?: (view: string) => void; client
                             <div className="flex flex-col items-start sm:items-end gap-2">
                                 <div className="flex flex-wrap gap-2">
                                     <button onClick={downloadPdf} disabled={downloading} className="flex items-center gap-2 px-5 py-3 bg-raised text-white font-bold rounded-xl hover:bg-edge transition-colors disabled:opacity-60">
-                                        {downloading ? <Loader2 size={18} className="animate-spin" /> : <Download size={18} />} Descargar PDF
+                                        {downloading ? <ThinkingOrb size={20} /> : <Download size={18} />} Descargar PDF
                                     </button>
                                     {safeUrl(study?.pdf_url) && (
                                         <a href={safeUrl(study?.pdf_url)!} target="_blank" rel="noopener noreferrer" title="El informe largo del estudio fundacional"

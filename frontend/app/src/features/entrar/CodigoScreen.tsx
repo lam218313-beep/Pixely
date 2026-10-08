@@ -1,8 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Navigate, useLocation, useNavigate } from 'react-router';
-import { ArrowLeft, ScanFace, Loader2 } from 'lucide-react';
+import { ArrowLeft, ScanFace } from 'lucide-react';
 import { useAuth } from '@/lib/auth';
-import { IconButton, Dot } from '@/ui';
+import { IconButton, Dot, ThinkingOrb } from '@/ui';
 
 const LENGTH = 6;
 const RESEND_AFTER = 60;
@@ -100,7 +100,7 @@ export const CodigoScreen: React.FC = () => {
 
       <div className="min-h-6 -mt-3 text-sm">
         {busy ? (
-          <span className="inline-flex items-center gap-2 text-text-2"><Loader2 size={16} className="animate-spin" /> Verificando</span>
+          <span className="inline-flex items-center gap-2 text-text-2"><ThinkingOrb size={20} className="text-pink" /> Verificando</span>
         ) : error ? (
           <span role="alert" className="font-semibold text-pink-text">{error}</span>
         ) : wait > 0 ? (

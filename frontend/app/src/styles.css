@@ -70,3 +70,31 @@
 /* Márgenes seguros del teléfono (notch, barra de gestos) */
 @utility pt-safe { padding-top: max(env(safe-area-inset-top), 16px); }
 @utility pb-safe { padding-bottom: max(env(safe-area-inset-bottom), 16px); }
+
+/*
+ * Entrada animada (una vez por visita): el punto se enciende, los anillos salen como onda,
+ * el título sube línea por línea y la hoja llega desde abajo; después el fondo respira.
+ * Personalidad "Premium": 350–900 ms, sin rebotes. La activa EntrarFrame con .entrar-play.
+ */
+.entrar-play { --en-in: cubic-bezier(.05, .7, .1, 1); --en-std: cubic-bezier(.4, 0, .2, 1); }
+.entrar-play .en-dot { animation: en-ignite .5s var(--en-in) both, en-breathe 3.4s ease-in-out 1.4s infinite alternate; }
+.entrar-play .en-ring { animation: en-ripple .9s var(--en-in) both, en-wave 4.8s ease-in-out infinite; }
+.entrar-play .en-ring:nth-child(1) { animation-delay: .35s, 2.15s; }
+.entrar-play .en-ring:nth-child(2) { animation-delay: .25s, 1.8s; }
+.entrar-play .en-fade { animation: en-fade .5s var(--en-std) .5s both; }
+.entrar-play .en-ln > span { animation: en-rise .65s var(--en-in) both; }
+.entrar-play .en-ln:nth-child(1) > span { animation-delay: .62s; }
+.entrar-play .en-ln:nth-child(2) > span { animation-delay: .72s; }
+.entrar-play .en-ln:nth-child(3) > span { animation-delay: .82s; }
+.entrar-play .en-after { animation: en-fade .5s var(--en-std) 1.05s both; }
+.entrar-play .en-sheet { animation: en-sheet .6s var(--en-in) 1.1s both; }
+.en-ln { display: block; overflow: hidden; padding: .1em 0; margin: -.1em 0; }
+.en-ln > span { display: inline-block; }
+@keyframes en-ignite { from { opacity: 0; transform: scale(0); } to { opacity: 1; transform: scale(1); } }
+@keyframes en-ripple { from { opacity: 0; transform: scale(.6); } to { opacity: 1; transform: scale(1); } }
+@keyframes en-wave { 0%, 100% { border-color: #2A2A32; } 12% { border-color: #4A3040; } }
+@keyframes en-breathe { from { box-shadow: 0 0 0 8px rgba(235, 12, 110, .18); } to { box-shadow: 0 0 0 16px rgba(235, 12, 110, .06); } }
+@keyframes en-rise { from { transform: translateY(105%); } to { transform: none; } }
+@keyframes en-fade { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+@keyframes en-sheet { from { opacity: 0; transform: translateY(28px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .entrar-play * { animation: none !important; } }

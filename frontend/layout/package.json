@@ -19,7 +19,8 @@
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
     "recharts": "^3.6.0",
-    "sonner": "^2.0.7"
+    "sonner": "^2.0.7",
+    "thinking-orbs": "^0.3.2"
   },
   "devDependencies": {
     "@playwright/test": "^1.56.1",

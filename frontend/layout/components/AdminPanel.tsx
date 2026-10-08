@@ -11,9 +11,10 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import {
-    Plus, Users, ChevronRight, X, Loader2, ArrowLeft, Check, Copy, Eye, MessageSquareWarning, Circle,
+    Plus, Users, ChevronRight, X, ArrowLeft, Check, Copy, Eye, MessageSquareWarning, Circle,
     ClipboardList, Palette, Radar, LayoutGrid, CalendarRange, CheckCircle2, Send, LayoutDashboard, RefreshCw, UserRound, Settings,
 } from 'lucide-react';
+import { ThinkingOrb } from './ThinkingOrb';
 import * as api from '../services/api';
 import { InterviewView } from './InterviewView';
 import { BrandView } from './BrandView';
@@ -125,7 +126,7 @@ export const AdminPanel: React.FC<{ onNavigate?: (view: string) => void }> = () 
                 {error && <p className="mb-4 rounded-2xl bg-raised border border-pink/40 px-4 py-3 text-sm text-pink-text">{error}</p>}
 
                 {loading && !data ? (
-                    <div className="flex items-center justify-center h-64"><Loader2 className="animate-spin text-mute" size={36} /></div>
+                    <div className="flex items-center justify-center h-64"><ThinkingOrb className="text-pink" /></div>
                 ) : (
                     <>
                         <section className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6" aria-label="Resumen">
@@ -452,7 +453,7 @@ const Field: React.FC<{ label: string; children: React.ReactNode }> = ({ label, 
         {children}
     </label>
 );
-const inputCls = 'w-full px-4 py-3 rounded-xl border border-edge focus:border-pink focus:ring-2 focus:ring-pink/20 outline-none';
+const inputCls = 'w-full px-4 py-3 rounded-xl border border-edge focus:border-pink outline-none';
 
 const AddUserModal: React.FC<{ brandId: string; onClose: () => void; onCreated: () => void }> = ({ brandId, onClose, onCreated }) => {
     const [email, setEmail] = useState('');
@@ -477,7 +478,7 @@ const AddUserModal: React.FC<{ brandId: string; onClose: () => void; onCreated: 
                 <Field label="Nombre (opcional)"><input value={fullName} onChange={(e) => setFullName(e.target.value)} className={inputCls} /></Field>
                 {error && <p className="text-sm text-pink-text">{error}</p>}
                 <button type="submit" disabled={saving} className="w-full py-3 rounded-xl bg-raised text-white font-bold hover:bg-edge disabled:opacity-50">
-                    {saving ? <Loader2 className="animate-spin mx-auto" size={20} /> : 'Crear usuario'}
+                    {saving ? <ThinkingOrb size={20} className="mx-auto" /> : 'Crear usuario'}
                 </button>
             </form>
         </Modal>

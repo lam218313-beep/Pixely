@@ -1,10 +1,11 @@
 import React from 'react';
-import { Loader2, WifiOff } from 'lucide-react';
+import { WifiOff } from 'lucide-react';
 import { Button } from './Button';
+import { ThinkingOrb } from './ThinkingOrb';
 
 export const Loading: React.FC<{ label?: string }> = ({ label = 'Cargando' }) => (
   <div role="status" className="flex flex-col items-center justify-center gap-3 py-20 text-text-3">
-    <Loader2 size={28} className="animate-spin" />
+    <ThinkingOrb className="text-pink" />
     <span className="text-sm font-semibold">{label}</span>
   </div>
 );

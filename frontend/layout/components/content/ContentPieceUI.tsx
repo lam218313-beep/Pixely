@@ -8,8 +8,9 @@ import React, { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import {
     Image as ImageIcon, Images, Smartphone, Clapperboard, Clock, Eye, MessageSquareWarning,
-    Check, CheckCheck, Send, X, ChevronLeft, ChevronRight, Loader2, Building2, ExternalLink,
+    Check, CheckCheck, Send, X, ChevronLeft, ChevronRight, Building2, ExternalLink,
 } from 'lucide-react';
+import { ThinkingOrb } from '../ThinkingOrb';
 import * as api from '../../services/api';
 import { pieceLinks, useStrategyIndex, type PieceLink, type StrategyIndex } from './strategyLinks';
 
@@ -249,7 +250,7 @@ export const OtherStations: React.FC<{
 
 export const LoadingBlock: React.FC = () => (
     <div className="flex items-center justify-center h-64">
-        <Loader2 className="animate-spin text-mute" size={36} />
+        <ThinkingOrb className="text-pink" />
     </div>
 );
 
@@ -569,14 +570,14 @@ export const PieceDetailModal: React.FC<PieceDetailModalProps> = ({ piece, onClo
                                         onChange={(e) => setComment(e.target.value)}
                                         rows={3}
                                         placeholder={cambioTipo === 'texto' ? 'Ej. El titular no refleja nuestro tono; quiten el precio del texto…' : cambioTipo === 'imagen' ? 'Ej. Preferimos una foto con personas; el logo se ve muy pequeño…' : 'Ej. El titular no refleja nuestro tono y preferimos una foto con personas…'}
-                                        className="w-full rounded-xl border border-edge px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-pink/20 focus:border-pink"
+                                        className="w-full rounded-xl border border-edge px-4 py-3 text-sm focus:outline-none focus:border-pink"
                                     />
                                     <div className="flex gap-2">
                                         <button onClick={() => { setAskingChanges(false); setError(null); }} disabled={saving} className="flex-1 py-3 rounded-xl border border-edge text-sm font-bold text-text-2 hover:bg-raised">
                                             Volver
                                         </button>
                                         <button onClick={() => submit('Cambios solicitados')} disabled={saving} className="flex-1 py-3 rounded-xl bg-raised text-white text-sm font-bold hover:bg-edge disabled:opacity-60 flex items-center justify-center gap-2">
-                                            {saving && <Loader2 size={16} className="animate-spin" />}
+                                            {saving && <ThinkingOrb size={20} />}
                                             Enviar cambios
                                         </button>
                                     </div>
@@ -589,7 +590,7 @@ export const PieceDetailModal: React.FC<PieceDetailModalProps> = ({ piece, onClo
                                     </button>
                                     {stage !== 'aprobada' && (
                                         <button onClick={() => submit('Aprobado')} disabled={saving} className="flex-1 py-3 rounded-xl bg-gradient-to-r from-pink-500 to-rose-500 text-white text-sm font-bold shadow-lg shadow-pink-500/20 hover:shadow-xl disabled:opacity-60 flex items-center justify-center gap-2">
-                                            {saving ? <Loader2 size={16} className="animate-spin" /> : <Check size={16} strokeWidth={3} />}
+                                            {saving ? <ThinkingOrb size={20} /> : <Check size={16} strokeWidth={3} />}
                                             Aprobar
                                         </button>
                                     )}

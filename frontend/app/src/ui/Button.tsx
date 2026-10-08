@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router';
-import { Loader2 } from 'lucide-react';
+import { ThinkingOrb } from './ThinkingOrb';
 
 type Variant = 'primary' | 'secondary' | 'ghost';
 
@@ -31,7 +31,7 @@ export const Button: React.FC<Common & ({ to: string } | (React.ButtonHTMLAttrib
   const { loading, variant: _v, size: _s, icon: _i, block: _b, className: _c, to: _t, ...rest } = props as React.ButtonHTMLAttributes<HTMLButtonElement> & Common & { loading?: boolean; to?: undefined };
   return (
     <button type="button" {...rest} disabled={rest.disabled || loading} className={cls}>
-      {loading ? <Loader2 size={18} className="animate-spin" /> : icon}
+      {loading ? <ThinkingOrb size={20} /> : icon}
       {children}
     </button>
   );

@@ -1,5 +1,6 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
-import { Mail, Lock, ArrowRight, Eye, EyeOff, Loader2, AlertCircle, Database, Target, Sparkles } from 'lucide-react';
+import { Mail, Lock, ArrowRight, Eye, EyeOff, AlertCircle, Database, Target, Sparkles } from 'lucide-react';
+import { ThinkingOrb } from './ThinkingOrb';
 import { useAuth } from '../contexts/AuthContext';
 
 // --- 1. Interactive Workflow Card ---
@@ -201,7 +202,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onLogin }) => {
                             type="email"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
-                            className={`w-full bg-raised border text-white text-sm rounded-xl focus:ring-2 focus:ring-pink focus:border-pink block w-full pl-11 p-3.5 outline-none transition-all ${displayError ? 'border-pink/40' : 'border-edge'}`}
+                            className={`w-full bg-raised border text-white text-sm rounded-xl focus:border-pink block w-full pl-11 p-3.5 outline-none transition-all ${displayError ? 'border-pink/40' : 'border-edge'}`}
                             placeholder="tu@email.com"
                             required
                             disabled={isLoading}
@@ -220,7 +221,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onLogin }) => {
                             type={showPass ? "text" : "password"}
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
-                            className={`w-full bg-raised border text-white text-sm rounded-xl focus:ring-2 focus:ring-pink focus:border-pink block w-full pl-11 pr-11 p-3.5 outline-none transition-all ${displayError ? 'border-pink/40' : 'border-edge'}`}
+                            className={`w-full bg-raised border text-white text-sm rounded-xl focus:border-pink block w-full pl-11 pr-11 p-3.5 outline-none transition-all ${displayError ? 'border-pink/40' : 'border-edge'}`}
                             placeholder="••••••••"
                             required
                             disabled={isLoading}
@@ -342,7 +343,7 @@ export const SuccessAnimation: React.FC<{ username: string; isExiting: boolean }
                 {/* Status Pill */}
                 <div className="mt-14 animate-[fade-in_1s_ease-out_1s_both]">
                     <div className="inline-flex items-center gap-2 px-5 py-2.5 bg-white/10 border border-edge rounded-full backdrop-blur-md shadow-lg">
-                        <Loader2 size={16} className="text-white animate-spin" />
+                        <ThinkingOrb size={20} className="text-white" />
                         <span className="text-xs font-bold text-white uppercase tracking-widest">Iniciando Dashboard</span>
                     </div>
                 </div>
