@@ -4,14 +4,13 @@
  */
 import { readFileSync } from 'node:fs';
 import { test, expect } from './fixtures';
-import { IMG } from '../../app/e2e/mock-api';
+import { IMG, VITRINA_IMG_DIR } from '../../app/e2e/mock-api';
 
-const MEDIA = process.env.VITRINA_MEDIA ?? '/home/user/pixely_web/public/media';
 test.skip(!process.env.VITRINA, 'solo con VITRINA=1');
 test.use({ scenario: 'vitrina', deviceScaleFactor: 2 });
 
 test('computadora', async ({ page, api: _ }) => {
-  await page.route(`${IMG}/vitrina/**`, (r) => r.fulfill({ contentType: 'image/jpeg', body: readFileSync(`${MEDIA}/${r.request().url().split('/').pop()}-1600.jpg`) }));
+  await page.route(`${IMG}/vitrina/**`, (r) => r.fulfill({ contentType: 'image/jpeg', body: readFileSync(new URL(`${r.request().url().split('/').pop()}.jpg`, VITRINA_IMG_DIR)) }));
   await page.addInitScript(() => {
     const u = JSON.parse(localStorage.getItem('pixely_user') ?? '{}'); u.user_email = 'ana@casanorte.pe'; localStorage.setItem('pixely_user', JSON.stringify(u));
   });

@@ -220,20 +220,22 @@ function adminBrand() {
  * A fashion boutique in Miraflores; its pieces use Pixely's own production photos. No real client.
  */
 export const VITRINA_IMG = (name: string) => `${IMG}/vitrina/${name}`;
+/** Las fotos de esas piezas viven junto a las pruebas (e2e/vitrina-img/<nombre>.jpg), sin depender de otro repo. */
+export const VITRINA_IMG_DIR = new URL('./vitrina-img/', import.meta.url);
 function vitrina(db: ReturnType<typeof base>) {
   const P = (id: string) => db.pieces.find((p) => p.id === id)!;
   const set = (id: string, v: Partial<Piece>) => Object.assign(P(id), v);
-  set('v1', { topico_angulo: 'Tres formas de llevar el negro', url_piezas_finales: ['rubro-moda', 'historia', 'showreel-1'].map(VITRINA_IMG),
+  set('v1', { topico_angulo: 'Tres formas de llevar el negro', url_piezas_finales: ['rubro-moda', 'historia', 'tienda'].map(VITRINA_IMG),
     copy_instagram: 'El negro no es aburrido: es la base de todo. Te mostramos tres formas de llevarlo esta semana. Ven a probártelas a Casa Norte, Miraflores.',
     copy_linkedin: 'Tres combinaciones en negro que funcionan para la oficina y para la noche.', copy_gbp: 'Nuevas combinaciones en negro, disponibles en tienda.',
     razon: 'Las búsquedas de "outfit negro" suben en octubre y tu competencia no lo está mostrando.', evidencia: '4 de 6 boutiques de la zona no muestran combinaciones completas (Instagram, 2 oct)' });
-  set('v2', { topico_angulo: 'La zapatilla blanca que va con todo', url_piezas_finales: [VITRINA_IMG('showreel-2')],
+  set('v2', { topico_angulo: 'La zapatilla blanca que va con todo', url_piezas_finales: [VITRINA_IMG('zapatilla')],
     copy_instagram: 'Una sola zapatilla, siete looks. La blanca de cuero vuelve a Casa Norte.', copy_linkedin: 'La zapatilla blanca de cuero, de vuelta en tienda.' });
-  set('v3', { topico_angulo: 'Así elegimos cada prenda', url_piezas_finales: [VITRINA_IMG('showreel-1')] });
+  set('v3', { topico_angulo: 'Así elegimos cada prenda', url_piezas_finales: [VITRINA_IMG('tienda')] });
   set('a1', { topico_angulo: 'Cueros que duran', url_piezas_finales: [VITRINA_IMG('rubro-accesorios')] });
   set('c1p', { topico_angulo: 'Nuestra asesora te recibe', url_piezas_finales: [VITRINA_IMG('problema-fotos')], comentario_cliente: 'Más luz en la cara' });
   set('s1', { topico_angulo: 'Nueva colección de carteras', url_piezas_finales: [VITRINA_IMG('rubro-accesorios')] });
-  set('p1', { topico_angulo: 'Detrás del mostrador', url_piezas_finales: [VITRINA_IMG('showreel-3')] });
+  set('p1', { topico_angulo: 'Detrás del mostrador', url_piezas_finales: [VITRINA_IMG('mostrador')] });
   set('p2', { topico_angulo: 'El cliente que vuelve', url_piezas_finales: [VITRINA_IMG('historia')] });
   set('i1', { topico_angulo: 'Cómo elegir tu talla sin probarte', descripcion_visual: 'Carrusel con la cinta métrica sobre la mesa de madera y las prendas dobladas.',
     estructura: [{ n: 1, titulo: '¿Qué talla soy?', detalle: 'La duda de siempre' }, { n: 2, titulo: 'Mide esto', detalle: 'Pecho, cintura y largo' }, { n: 3, titulo: 'Compara', detalle: 'Nuestra tabla' }, { n: 4, titulo: 'Escríbenos', detalle: 'Te asesoramos por WhatsApp' }],
