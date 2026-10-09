@@ -7,14 +7,14 @@ import { isNative } from '@/lib/native';
 import { DESKTOP_URL } from '@/lib/web';
 import { EntrarFrame } from './EntrarHero';
 
-/** Entrada (design "A · Noche"): the client writes their email and receives a code. No passwords. */
+/** Entrada (design "A · Noche"): the client signs in with the @pixely.pe email and password Pixely gives them
+ *  (the email is only a login, it has no inbox, so there are no codes by email). */
 export const EntrarScreen: React.FC = () => {
-  const { session, requestCode, signInWithPassword } = useAuth();
+  const { session, signInWithPassword } = useAuth();
   const navigate = useNavigate();
   const from = (useLocation().state as { from?: string } | null)?.from ?? '/';
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [withPassword, setWithPassword] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -24,13 +24,8 @@ export const EntrarScreen: React.FC = () => {
     e.preventDefault();
     setBusy(true); setError(null);
     try {
-      if (withPassword) {
-        await signInWithPassword(email, password);
-        navigate(from, { replace: true });
-      } else {
-        await requestCode(email);
-        navigate('/entrar/codigo', { state: { email: email.trim().toLowerCase(), from } });
-      }
+      await signInWithPassword(email, password);
+      navigate(from, { replace: true });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'No se pudo continuar.');
     } finally {
@@ -50,18 +45,14 @@ export const EntrarScreen: React.FC = () => {
       </>
     }>
       <form onSubmit={submit} className="flex flex-col gap-3.5">
-        <Field label="Tu correo" type="email" autoComplete="email" inputMode="email" required placeholder="nombre@tumarca.pe"
-          value={email} onChange={(e) => setEmail(e.target.value)} error={withPassword ? null : error} />
-        {withPassword && (
-          <Field label="Contraseña" type="password" autoComplete="current-password" required value={password} onChange={(e) => setPassword(e.target.value)} error={error} />
-        )}
+        <Field label="Tu correo" type="email" autoComplete="username" inputMode="email" required placeholder="tunombre@pixely.pe"
+          value={email} onChange={(e) => setEmail(e.target.value)} />
+        <Field label="Contraseña" type="password" autoComplete="current-password" required value={password} onChange={(e) => setPassword(e.target.value)} error={error} />
         <Button type="submit" block loading={busy} icon={!busy && <ArrowRight size={18} strokeWidth={2.5} />} className="flex-row-reverse mt-1">
-          {withPassword ? 'Entrar' : 'Recibir mi código'}
+          Entrar
         </Button>
       </form>
-      <button type="button" onClick={() => { setWithPassword(!withPassword); setError(null); }} className="h-11 text-[13px] font-bold text-text-3">
-        {withPassword ? 'Mejor, envíame un código' : 'Entrar con contraseña'}
-      </button>
+      <a href="https://wa.me/51949268607?text=Hola%20Pixely%2C%20no%20recuerdo%20mi%20contrase%C3%B1a%20de%20Partners" target="_blank" rel="noopener noreferrer" className="h-11 flex items-center justify-center text-[13px] font-bold text-text-3 no-underline">¿Olvidaste tu contraseña? Escríbenos</a>
       {!isNative && <a href={DESKTOP_URL} className="-mt-2 text-center text-[13px] font-bold text-text-3 no-underline">Ir a la versión de escritorio</a>}
       <p className="m-0 mb-2 text-center text-[13px] text-text-3">
         ¿Aún no trabajas con nosotros? <a href="https://wa.me/51949268607" target="_blank" rel="noopener noreferrer" className="font-bold text-pink-text no-underline">Escríbenos</a>

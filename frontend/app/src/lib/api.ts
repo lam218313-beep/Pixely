@@ -28,7 +28,7 @@ async function parseError(res: Response): Promise<string> {
   return res.status >= 500 ? 'El servidor no respondió bien. Intenta de nuevo.' : 'No se pudo completar la acción.';
 }
 
-/** What /token, /auth/code/verify and /auth/refresh answer. */
+/** What /token and /auth/refresh answer. */
 export interface TokenResponse {
   access_token: string;
   user_email: string;

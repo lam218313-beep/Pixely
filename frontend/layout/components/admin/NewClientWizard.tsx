@@ -72,7 +72,7 @@ export const NewClientWizard: React.FC<{ onClose: () => void; onDone: (brandId: 
     const [telefono, setTelefono] = useState('');
     const [metricool, setMetricool] = useState('');
     const [crearAcceso, setCrearAcceso] = useState(true);
-    const [accesoCorreo, setAccesoCorreo] = useState<string | null>(null); // null = same as the contact's
+    const [accesoCorreo, setAccesoCorreo] = useState<string | null>(null); // null = <marca>@pixely.pe
     const [password, setPassword] = useState(newPassword);
 
     const [saving, setSaving] = useState(false);
@@ -81,7 +81,9 @@ export const NewClientWizard: React.FC<{ onClose: () => void; onDone: (brandId: 
     const [done, setDone] = useState(false);
     const [copied, setCopied] = useState(false);
 
-    const emailAcceso = (accesoCorreo ?? correo).trim().toLowerCase();
+    // El acceso es un usuario @pixely.pe que damos nosotros (no tiene bandeja): por defecto, el nombre de la marca
+    const correoSugerido = nombre.trim() ? `${nombre.normalize('NFD').replace(/[^a-zA-Z0-9]/g, '').toLowerCase()}@pixely.pe` : '';
+    const emailAcceso = (accesoCorreo ?? correoSugerido).trim().toLowerCase();
     const num = (v: string) => (v === '' ? null : Math.max(0, Math.round(Number(v))));
 
     const stepOk = [
@@ -132,10 +134,12 @@ export const NewClientWizard: React.FC<{ onClose: () => void; onDone: (brandId: 
         '',
         'Ya tienes acceso a Pixely Partners ✨ Ahí verás tu marca, aprobarás cada idea y cada pieza antes de que salga, y seguirás tus resultados 📈',
         '',
-        `📱 En el celular: entra a partners.pixely.pe, escribe tu correo (${emailAcceso}) y te llegará un código de 6 dígitos.`,
-        `💻 En la computadora: partners.pixely.pe con tu correo y esta contraseña: ${password}`,
+        '🔑 Así entras, desde el celular o la computadora:',
+        '🌐 partners.pixely.pe',
+        `📧 Correo: ${emailAcceso}`,
+        `🔒 Contraseña: ${password}`,
         '',
-        '¿Alguna duda? Escríbenos por aquí, estamos para ayudarte 💬',
+        'Guárdalos bien 😉 ¿Alguna duda? Escríbenos por aquí, estamos para ayudarte 💬',
     ].join('\n'), [firstName, emailAcceso, password]);
     const wa = waNumber(telefono);
 
@@ -246,13 +250,13 @@ export const NewClientWizard: React.FC<{ onClose: () => void; onDone: (brandId: 
                                 <input type="checkbox" checked={crearAcceso} onChange={(e) => setCrearAcceso(e.target.checked)} className="mt-0.5 accent-[#EB0C6E]" />
                                 <span>
                                     <span className="block text-sm font-bold text-white">Darle acceso a Partners ahora</span>
-                                    <span className="block text-xs text-text-3">En el celular entrará con un código que le llega al correo; en la computadora, con esta contraseña.</span>
+                                    <span className="block text-xs text-text-3">Entrará con un correo @pixely.pe y una contraseña, en el celular y en la computadora. El correo es solo para entrar: no tiene bandeja.</span>
                                 </span>
                             </label>
                             {crearAcceso && (
                                 <>
-                                    <Field label="Correo para entrar"><input type="email" value={accesoCorreo ?? correo} onChange={(e) => setAccesoCorreo(e.target.value)} className={inputCls} placeholder="rosa@cafeandino.pe" /></Field>
-                                    <Field label="Contraseña para la computadora" hint="Mínimo 8 caracteres. Va en el mensaje de bienvenida.">
+                                    <Field label="Correo para entrar"><input type="email" value={accesoCorreo ?? correoSugerido} onChange={(e) => setAccesoCorreo(e.target.value)} className={inputCls} placeholder="cafeandino@pixely.pe" /></Field>
+                                    <Field label="Contraseña" hint="Mínimo 8 caracteres. Va en el mensaje de bienvenida.">
                                         <div className="flex gap-2">
                                             <input value={password} onChange={(e) => setPassword(e.target.value)} className={`${inputCls} font-mono`} />
                                             <button type="button" onClick={() => setPassword(newPassword())} className="shrink-0 inline-flex items-center gap-1.5 px-3 rounded-xl border border-edge text-xs font-bold text-text-2 hover:bg-raised"><RefreshCw size={14} /> Otra</button>

@@ -2,8 +2,8 @@
  * Who is signed in. The client app is only for clients: a team account without a
  * brand is turned away with a clear message (the team works in Partners on desktop).
  *
- * Sign-in is a 6-digit code sent by email (no passwords). The session renews itself
- * in the background (see api.ts). Face ID / fingerprint arrive with the store app.
+ * Sign-in is the @pixely.pe email and password Pixely gives each client (the email has no
+ * inbox, so no codes). The session renews itself in the background (see api.ts).
  */
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
@@ -14,10 +14,6 @@ const TEAM_MESSAGE = 'Esta versión es para clientes de Pixely. El equipo trabaj
 
 interface AuthValue {
   session: Session | null;
-  /** Emails a code. Resolves the same way whether or not the email is a client. */
-  requestCode: (email: string) => Promise<void>;
-  verifyCode: (email: string, code: string) => Promise<void>;
-  /** Backup while code emails are being set up. */
   signInWithPassword: (email: string, password: string) => Promise<void>;
   signOut: () => void;
 }
@@ -43,14 +39,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setSession(next);
   }, []);
 
-  const requestCode = useCallback(async (email: string) => {
-    await api.post('/auth/code/send', { email: email.trim() });
-  }, []);
-
-  const verifyCode = useCallback(async (email: string, code: string) => {
-    start(await api.post<TokenResponse>('/auth/code/verify', { email: email.trim(), code }));
-  }, [start]);
-
   const signInWithPassword = useCallback(async (email: string, password: string) => {
     try {
       start(await api.post<TokenResponse>('/token', new URLSearchParams({ username: email.trim(), password })));
@@ -60,7 +48,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, [start]);
 
-  const value = useMemo(() => ({ session, requestCode, verifyCode, signInWithPassword, signOut }), [session, requestCode, verifyCode, signInWithPassword, signOut]);
+  const value = useMemo(() => ({ session, signInWithPassword, signOut }), [session, signInWithPassword, signOut]);
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 

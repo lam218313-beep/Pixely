@@ -28,7 +28,7 @@ test('alta de cliente paso a paso', async ({ page, api: _ }) => {
   await dialog.getByLabel('WhatsApp').fill('999 888 777');
   await next.click();
 
-  await expect(dialog.getByLabel('Correo para entrar')).toHaveValue('rosa@cafeandino.pe');
+  await expect(dialog.getByLabel('Correo para entrar')).toHaveValue('cafeandino@pixely.pe');
   await expect(dialog.getByText('Basic · 12 fotos y 4 reels al mes')).toBeVisible();
   if (process.env.CAPTURAS) await page.screenshot({ path: 'e2e-capturas/equipo-alta-acceso.png' });
   await dialog.getByRole('button', { name: 'Crear cliente' }).click();
