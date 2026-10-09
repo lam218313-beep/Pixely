@@ -181,8 +181,8 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onLogin }) => {
         <div className="w-full max-w-sm mx-auto animate-fade-in-up scale-[0.85] origin-center flex flex-col justify-center min-h-[500px]">
             <div className="mb-2 text-left">
                 <div className="font-display font-extrabold text-[40px] leading-none text-white mb-8" aria-label="Pixely">pixely<span className="text-pink">.</span></div>
-                <h1 className="text-3xl font-bold text-white mb-2">Bienvenido!</h1>
-                <p className="text-text-3 text-sm">Ingresa tus credenciales para acceder a tu workspace.</p>
+                <h1 className="text-3xl font-bold text-white mb-2">Entra a Partners</h1>
+                <p className="text-text-3 text-sm">Con el correo y la contraseña que te dio Pixely.</p>
             </div>
 
             {/* Error Display */}
@@ -195,15 +195,17 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onLogin }) => {
 
             <form onSubmit={handleSubmit} className="space-y-5">
                 <div className="space-y-1.5">
-                    <label className="text-xs font-bold text-text-2 ml-1">Email</label>
+                    <label htmlFor="login-correo" className="text-xs font-bold text-text-2 ml-1">Correo</label>
                     <div className="relative group">
                         <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-text-3 group-focus-within:text-pink-text transition-colors" size={18} />
                         <input
+                            id="login-correo"
                             type="email"
+                            autoComplete="username"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             className={`w-full bg-raised border text-white text-sm rounded-xl focus:border-pink block w-full pl-11 p-3.5 outline-none transition-all ${displayError ? 'border-pink/40' : 'border-edge'}`}
-                            placeholder="tu@email.com"
+                            placeholder="tunombre@pixely.pe"
                             required
                             disabled={isLoading}
                         />
@@ -212,13 +214,16 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onLogin }) => {
 
                 <div className="space-y-1.5">
                     <div className="flex justify-between items-center ml-1">
-                        <label className="text-xs font-bold text-text-2">Contraseña</label>
-                        <a href="#" className="text-xs text-pink-text hover:text-pink-text font-bold">¿Olvidaste?</a>
+                        <label htmlFor="login-clave" className="text-xs font-bold text-text-2">Contraseña</label>
+                        {/* El correo @pixely.pe no recibe mensajes: la contraseña se recupera escribiéndonos */}
+                        <a href="https://wa.me/51949268607?text=Hola%20Pixely%2C%20no%20recuerdo%20mi%20contrase%C3%B1a%20de%20Partners" target="_blank" rel="noopener noreferrer" className="text-xs text-pink-text hover:underline font-bold">¿Olvidaste tu contraseña?</a>
                     </div>
                     <div className="relative group">
                         <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-text-3 group-focus-within:text-pink-text transition-colors" size={18} />
                         <input
+                            id="login-clave"
                             type={showPass ? "text" : "password"}
+                            autoComplete="current-password"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             className={`w-full bg-raised border text-white text-sm rounded-xl focus:border-pink block w-full pl-11 pr-11 p-3.5 outline-none transition-all ${displayError ? 'border-pink/40' : 'border-edge'}`}
@@ -234,11 +239,6 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onLogin }) => {
                             {showPass ? <EyeOff size={18} /> : <Eye size={18} />}
                         </button>
                     </div>
-                </div>
-
-                <div className="flex items-center pt-2">
-                    <input id="remember-me" type="checkbox" className="w-4 h-4 text-pink-text bg-raised border-line rounded focus:ring-pink focus:ring-2" />
-                    <label htmlFor="remember-me" className="ml-2 text-sm font-medium text-text-3">Recordarme</label>
                 </div>
 
                 {/* Progress Button */}
@@ -267,26 +267,8 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onLogin }) => {
                 </button>
             </form>
 
-            <div className="mt-8">
-                <div className="relative">
-                    <div className="absolute inset-0 flex items-center">
-                        <div className="w-full border-t border-edge"></div>
-                    </div>
-                    <div className="relative flex justify-center text-sm">
-                        <span className="px-2 bg-card text-text-3 text-xs">O continúa con</span>
-                    </div>
-                </div>
-
-                <div className="mt-6 grid grid-cols-2 gap-3">
-                    <button type="button" disabled className="flex items-center justify-center gap-2 bg-card border border-edge rounded-xl py-2.5 text-sm font-bold text-text-3 cursor-not-allowed opacity-50">
-                        <span className="text-lg">G</span> Google
-                    </button>
-                    <button type="button" disabled className="flex items-center justify-center gap-2 bg-card border border-edge rounded-xl py-2.5 text-sm font-bold text-text-3 cursor-not-allowed opacity-50">
-                        <span className="text-lg"></span> Apple
-                    </button>
-                </div>
-
-                <p className="mt-8 text-center text-sm text-text-3">
+            <div className="mt-6">
+                <p className="text-center text-sm text-text-3">
                     ¿No tienes cuenta? <a href="https://wa.me/51949268607" target="_blank" rel="noopener noreferrer" className="font-bold text-pink-text hover:underline">Contacta a Pixely</a>
                 </p>
             </div>
