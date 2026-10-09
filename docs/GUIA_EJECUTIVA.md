@@ -102,13 +102,12 @@ El volumen exacto se define con cada cliente y se guarda en su configuración. L
 ## Seguridad y datos
 
 - Cada cliente solo ve su propia marca. El equipo ve todas.
-- Los clientes entran con un **código de 6 dígitos que llega a su correo** (en el celular) o con contraseña (en escritorio).
+- Los clientes entran con el **correo @pixely.pe y la contraseña** que les damos al darlos de alta, en el celular y en la computadora. Ese correo no recibe mensajes: si olvidan la contraseña, nos escriben por WhatsApp.
 - Las piezas finales se guardan en Supabase.
 - Las llaves de acceso a los servicios no se comparten por chat ni se suben al código.
 
 **Pendientes antes de abrir a clientes reales** (ver la hoja de tareas, frente 1):
 1. Calendario de respaldos de la base y cambio periódico de llaves.
-2. Probar en producción el correo con el código de acceso y ponerle la marca Pixely.
 
 ---
 

@@ -87,7 +87,7 @@ Solo para clientes (una cuenta sin `client_id` no entra). Cada pantalla tiene su
 
 | Router | Endpoints principales | Uso |
 |---|---|---|
-| `auth` | `POST /token`, `GET /users/me`, `POST /auth/code/send`, `POST /auth/code/verify`, `POST /auth/refresh` | Contraseña (escritorio) y código de 6 dígitos por correo (app). `/auth/code/send` responde igual exista o no el correo |
+| `auth` | `POST /token`, `GET /users/me`, `POST /auth/code/send`, `POST /auth/code/verify`, `POST /auth/refresh` | Correo @pixely.pe y contraseña, en la app y en escritorio (desde el 9 oct la app ya no usa el código por correo; `/auth/code/*` sigue en el backend sin uso) |
 | `clients` | `GET/POST /clients` (admin), `GET/PUT/DELETE /clients/{id}` | Marcas |
 | `interview` | `GET/PUT /clients/{id}/interview` | Ficha |
 | `brand` | `GET/PUT /brand/{id}`, `PATCH /brand/{id}/voice/review`, `PUT /brand/{id}/colors` | Voz de marca y su aprobación |
