@@ -104,3 +104,21 @@ test('móvil', async ({ page }) => {
   await shot(page, 'proximas');
   writeFileSync(`${OUT}/hotspots.json`, JSON.stringify(spots, null, 2));
 });
+
+// The sign-in screen (for the manual): empty, and with the demo brand's @pixely.pe email typed in.
+test.describe('sin sesión', () => {
+  test.use({ signedIn: false });
+  test('entrada', async ({ page }) => {
+    // This file's beforeEach leaves a demo session behind: drop it so the sign-in screen shows.
+    await page.addInitScript(() => localStorage.removeItem('pixely_app_session'));
+    await page.goto('./entrar');
+    await expect(page.getByRole('button', { name: 'Entrar' })).toBeVisible();
+    await page.waitForTimeout(3500); // the entrance animation ends
+    await page.screenshot({ path: `${OUT}/m-entrar.png` });
+    await page.getByLabel('Tu correo').fill('casanorte@pixely.pe');
+    await page.getByLabel('Contraseña').fill('clave-de-ejemplo');
+    await page.getByLabel('Contraseña').blur();
+    await page.waitForTimeout(400);
+    await page.screenshot({ path: `${OUT}/m-entrar-lleno.png` });
+  });
+});

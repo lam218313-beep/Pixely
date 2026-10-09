@@ -41,7 +41,7 @@ export const EntrarScreen: React.FC = () => {
           <span className="en-ln"><span>se decide</span></span>
           <span className="en-ln"><span><span className="text-pink">aquí</span><Dot /></span></span>
         </h1>
-        <p className="en-after m-0 text-base leading-relaxed text-text-2 max-w-[290px]">Aprueba ideas, revisa piezas y mira qué funcionó. Todo desde el bolsillo.</p>
+        <p className="en-after m-0 text-base leading-relaxed text-text-2 max-w-[290px]">Aprueba ideas, revisa piezas y sigue tu mercado. Todo desde el bolsillo.</p>
       </>
     }>
       <form onSubmit={submit} className="flex flex-col gap-3.5">
