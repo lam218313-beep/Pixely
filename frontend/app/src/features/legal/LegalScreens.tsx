@@ -35,7 +35,7 @@ const Page: React.FC<{ title: string; children: React.ReactNode }> = ({ title, c
 export const PrivacidadScreen: React.FC = () => (
   <Page title="Privacidad">
     <section>
-      <p>Pixely Partners es la plataforma de los clientes de Pixely, marca de {LEGAL.razonSocial} (RUC {LEGAL.ruc}), en Lima. Aquí explicamos qué datos usamos, para qué y cómo puedes pedir que los borremos, según la Ley N.° 29733 de Protección de Datos Personales del Perú.</p>
+      <p>Pixely Partners es la plataforma de los clientes de Pixely, marca de {LEGAL.razonSocial} (RUC {LEGAL.ruc}), en Trujillo. Aquí explicamos qué datos usamos, para qué y cómo puedes pedir que los borremos, según la Ley N.° 29733 de Protección de Datos Personales del Perú.</p>
     </section>
     <section>
       <h2>Quién puede usar la app</h2>
